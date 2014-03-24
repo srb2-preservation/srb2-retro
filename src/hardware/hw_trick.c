@@ -898,7 +898,7 @@ void HWR_CorrectSWTricks(void)
 					if (sdr->bottomtexture == 0)
 					{
 						if (sdr->midtexture == 0)
-							sdr->bottomtexture = R_TextureNumForName("REDWALL", (UINT16)(sdr-sides)); // Tails
+							sdr->bottomtexture = 0; // Tails // More redwall sky shenanigans
 						else
 							sdr->bottomtexture = sdr->midtexture;
 					}
@@ -909,7 +909,7 @@ void HWR_CorrectSWTricks(void)
 					if (sdl->bottomtexture == 0)
 					{
 						if (sdl->midtexture == 0)
-							sdl->bottomtexture = R_TextureNumForName("REDWALL", (UINT16)(sdl-sides)); // Tails
+							sdl->bottomtexture = 0; // Tails // More redwall sky shenanigans
 						else
 							sdl->bottomtexture = sdl->midtexture;
 					}
