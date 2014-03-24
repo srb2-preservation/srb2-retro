@@ -741,9 +741,9 @@ static void HWR_RenderPlane(sector_t *sector, extrasubsector_t *xsub, fixed_t fi
 		}
 		if (psector->extra_colormap)
 #ifdef HARDWAREFIX
-			Surf.FlatColor.rgba = HWR_Lighting(LightLevelToLum(lightlevel),psector->extra_colormap->rgba,psector->extra_colormap->fadergba, false, true);
+			Surf.FlatColor.rgba = HWR_Lighting(lightlevel,psector->extra_colormap->rgba,psector->extra_colormap->fadergba, false, true);
 		else
-			Surf.FlatColor.rgba = HWR_Lighting(LightLevelToLum(lightlevel),NORMALFOG,FADEFOG, false, true);
+			Surf.FlatColor.rgba = HWR_Lighting(lightlevel,NORMALFOG,FADEFOG, false, true);
 #else
 		{
 			RGBA_t temp;
@@ -760,19 +760,19 @@ static void HWR_RenderPlane(sector_t *sector, extrasubsector_t *xsub, fixed_t fi
 	}
 #ifdef HARDWAREFIX
 	else
-		Surf.FlatColor.rgba = HWR_Lighting(LightLevelToLum(lightlevel),NORMALFOG,FADEFOG, false, true);
+		Surf.FlatColor.rgba = HWR_Lighting(lightlevel,NORMALFOG,FADEFOG, false, true);
 #endif*/
 
 	if (planecolormap)
 		if (fogplane)
-			Surf.FlatColor.rgba = HWR_Lighting(LightLevelToLum(lightlevel), planecolormap->rgba, planecolormap->fadergba, true, false);
+			Surf.FlatColor.rgba = HWR_Lighting(lightlevel, planecolormap->rgba, planecolormap->fadergba, true, false);
 		else
-			Surf.FlatColor.rgba = HWR_Lighting(LightLevelToLum(lightlevel), planecolormap->rgba, planecolormap->fadergba, false, true);
+			Surf.FlatColor.rgba = HWR_Lighting(lightlevel, planecolormap->rgba, planecolormap->fadergba, false, true);
 	else
 		if (fogplane)
-			Surf.FlatColor.rgba = HWR_Lighting(LightLevelToLum(lightlevel), NORMALFOG, FADEFOG, true, false);
+			Surf.FlatColor.rgba = HWR_Lighting(lightlevel, NORMALFOG, FADEFOG, true, false);
 		else
-			Surf.FlatColor.rgba = HWR_Lighting(LightLevelToLum(lightlevel), NORMALFOG, FADEFOG, false, true);
+			Surf.FlatColor.rgba = HWR_Lighting(lightlevel, NORMALFOG, FADEFOG, false, true);
 
 	if (PolyFlags & PF_Translucent)
 	{
@@ -1003,11 +1003,11 @@ static void HWR_ProjectWall(wallVert3D   * wallVerts,
 
 	if (wallcolormap)
 	{
-		pSurf->FlatColor.rgba = HWR_Lighting(LightLevelToLum(lightlevel), wallcolormap->rgba, wallcolormap->fadergba, false, false);
+		pSurf->FlatColor.rgba = HWR_Lighting(lightlevel, wallcolormap->rgba, wallcolormap->fadergba, false, false);
 	}
 	else
 	{
-		pSurf->FlatColor.rgba = HWR_Lighting(LightLevelToLum(lightlevel), NORMALFOG, FADEFOG, false, false);
+		pSurf->FlatColor.rgba = HWR_Lighting(lightlevel, NORMALFOG, FADEFOG, false, false);
 	}
 
 	HWD.pfnDrawPolygon(pSurf, trVerts, 4, blendmode|PF_Modulated|PF_Occlude|PF_Clip);
@@ -3525,7 +3525,7 @@ static void HWR_DrawSprite(gr_vissprite_t *spr)
 		{
 #ifdef HARDWAREFIX
 			sector_t *sector = spr->mobj->subsector->sector;
-			UINT8 lightlevel = LightLevelToLum(sector->lightlevel);
+			UINT8 lightlevel = sector->lightlevel;
 			extracolormap_t *colormap = sector->extra_colormap;
 
 			if (sector->numlights)
@@ -3533,16 +3533,16 @@ static void HWR_DrawSprite(gr_vissprite_t *spr)
 				INT32 light = R_GetPlaneLight(sector, spr->mobj->floorz, false);
 
 				if (!(spr->mobj->frame & FF_FULLBRIGHT))
-					lightlevel = LightLevelToLum(*sector->lightlist[light].lightlevel);
+					lightlevel = *sector->lightlist[light].lightlevel;
 				else
-					lightlevel = LightLevelToLum(255);
+					lightlevel = 255;
 
 				if (sector->lightlist[light].extra_colormap)
 					colormap = sector->lightlist[light].extra_colormap;
 			}
 			else
 			{
-				lightlevel = LightLevelToLum(sector->lightlevel);
+				lightlevel = sector->lightlevel;
 
 				if (sector->extra_colormap)
 					colormap = sector->extra_colormap;
@@ -3588,7 +3588,7 @@ noshadow:
 	{
 #ifdef HARDWAREFIX
 		sector_t *sector = spr->mobj->subsector->sector;
-		UINT8 lightlevel = LightLevelToLum(sector->lightlevel);
+		UINT8 lightlevel = sector->lightlevel;
 		extracolormap_t *colormap = sector->extra_colormap;
 
 		if (sector->numlights)
@@ -3609,10 +3609,10 @@ noshadow:
 			{
 				light = R_GetPlaneLight(sector, spr->mobj->z + spr->mobj->height, false);
 
-				if (!(spr->mobj->frame & FF_FULLBRIGHT))
-					lightlevel = LightLevelToLum(*sector->lightlist[light].lightlevel);
-				else
-					lightlevel = LightLevelToLum(255);
+			if (!(spr->mobj->frame & FF_FULLBRIGHT))
+				lightlevel = *sector->lightlist[light].lightlevel;
+			else
+				lightlevel = 255;
 
 				if (sector->lightlist[light].extra_colormap)
 					colormap = sector->lightlist[light].extra_colormap;
@@ -3621,16 +3621,16 @@ noshadow:
 		else
 		{
 			if (!(spr->mobj->frame & FF_FULLBRIGHT))
-				lightlevel = LightLevelToLum(sector->lightlevel);
+				lightlevel = sector->lightlevel;
 			else
-				lightlevel = LightLevelToLum(255);
+				lightlevel = 255;
 
 			if (sector->extra_colormap)
 				colormap = sector->extra_colormap;
 		}
 
 		if (spr->mobj->frame & FF_FULLBRIGHT)
-			lightlevel = LightLevelToLum(255);
+			lightlevel = 255;
 
 		if (colormap)
 			Surf.FlatColor.rgba = HWR_Lighting(lightlevel, colormap->rgba, colormap->fadergba, false, false);
@@ -4144,7 +4144,7 @@ static void HWR_AddSprites(sector_t *sec)
 	sec->validcount = validcount;
 
 	// sprite lighting
-	sectorlight = LightLevelToLum(sec->lightlevel & 0xff);
+	sectorlight = sec->lightlevel & 0xff;
 
 	// NiGHTS stages have a draw distance limit because of the
 	// HUGE number of SPRiTES!
@@ -5181,16 +5181,16 @@ static void HWR_RenderWall(wallVert3D   *wallVerts, FSurfaceInfo *pSurf, FBITFIE
 	if (wallcolormap)
 	{
 		if (fogwall)
-			pSurf->FlatColor.rgba = HWR_Lighting(LightLevelToLum(lightlevel), wallcolormap->rgba, wallcolormap->fadergba, true, false);
+			pSurf->FlatColor.rgba = HWR_Lighting(lightlevel, wallcolormap->rgba, wallcolormap->fadergba, true, false);
 		else
-			pSurf->FlatColor.rgba = HWR_Lighting(LightLevelToLum(lightlevel), wallcolormap->rgba, wallcolormap->fadergba, false, false);
+			pSurf->FlatColor.rgba = HWR_Lighting(lightlevel, wallcolormap->rgba, wallcolormap->fadergba, false, false);
 	}
 	else
 	{
 		if (fogwall)
-			pSurf->FlatColor.rgba = HWR_Lighting(LightLevelToLum(lightlevel), NORMALFOG, FADEFOG, true, false);
+			pSurf->FlatColor.rgba = HWR_Lighting(lightlevel, NORMALFOG, FADEFOG, true, false);
 		else
-			pSurf->FlatColor.rgba = HWR_Lighting(LightLevelToLum(lightlevel), NORMALFOG, FADEFOG, false, false);
+			pSurf->FlatColor.rgba = HWR_Lighting(lightlevel, NORMALFOG, FADEFOG, false, false);
 	}
 
 	pSurf->FlatColor.s.alpha = alpha; // put the alpha back after lighting
