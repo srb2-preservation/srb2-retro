@@ -1972,6 +1972,9 @@ static void HWR_StoreWallRange(double startfrac, double endfrac)
 		ffloor_t * rover;
 		fixed_t    highcut = 0, lowcut = 0;
 
+		INT32 texnum;
+		line_t * newline = NULL; // Multi-Property FOF
+
 		highcut = gr_frontsector->ceilingheight < gr_backsector->ceilingheight ? gr_frontsector->ceilingheight : gr_backsector->ceilingheight;
 		lowcut = gr_frontsector->floorheight > gr_backsector->floorheight ? gr_frontsector->floorheight : gr_backsector->floorheight;
 
@@ -1983,6 +1986,15 @@ static void HWR_StoreWallRange(double startfrac, double endfrac)
 					continue;
 				if (*rover->topheight < lowcut || *rover->bottomheight > highcut)
 					continue;
+
+				texnum = texturetranslation[sides[rover->master->sidenum[0]].midtexture];
+
+				if (rover->master->flags & ML_TFERLINE)
+				{
+					size_t linenum = gr_curline->linedef-gr_backsector->lines[0];
+					newline = rover->master->frontsector->lines[0] + linenum;
+					texnum = texturetranslation[sides[newline->sidenum[0]].midtexture];
+				}
 
 				h = *rover->topheight;
 				l = *rover->bottomheight;
@@ -2005,10 +2017,19 @@ static void HWR_StoreWallRange(double startfrac, double endfrac)
 				}
 				else if (drawtextured)
 				{
-					grTex = HWR_GetTexture(texturetranslation[sides[rover->master->sidenum[0]].midtexture]);
+					grTex = HWR_GetTexture(texnum);
 
-					wallVerts[3].t = wallVerts[2].t = (*rover->topheight - h + sides[rover->master->sidenum[0]].rowoffset) * grTex->scaleY;
-					wallVerts[0].t = wallVerts[1].t = (h - l + (*rover->topheight - h + sides[rover->master->sidenum[0]].rowoffset)) * grTex->scaleY;
+					if (newline)
+					{
+						wallVerts[3].t = wallVerts[2].t = (*rover->topheight - h + sides[newline->sidenum[0]].rowoffset) * grTex->scaleY;
+						wallVerts[0].t = wallVerts[1].t = (h - l + (*rover->topheight - h + sides[newline->sidenum[0]].rowoffset)) * grTex->scaleY;
+					}
+					else
+					{
+						wallVerts[3].t = wallVerts[2].t = (*rover->topheight - h + sides[rover->master->sidenum[0]].rowoffset) * grTex->scaleY;
+						wallVerts[0].t = wallVerts[1].t = (h - l + (*rover->topheight - h + sides[rover->master->sidenum[0]].rowoffset)) * grTex->scaleY;
+					}
+
 					wallVerts[0].s = wallVerts[3].s = cliplow * grTex->scaleX;
 					wallVerts[2].s = wallVerts[1].s = cliphigh * grTex->scaleX;
 				}
@@ -2052,11 +2073,11 @@ static void HWR_StoreWallRange(double startfrac, double endfrac)
 					}
 
 					if (gr_frontsector->numlights)
-						HWR_SplitWall(gr_frontsector, wallVerts, texturetranslation[sides[rover->master->sidenum[0]].midtexture], &Surf, rover->flags);
+						HWR_SplitWall(gr_frontsector, wallVerts, texnum, &Surf, rover->flags);
 					else
 					{
 						if (blendmode != PF_Masked)
-							HWR_AddTransparentWall(wallVerts, &Surf, texturetranslation[sides[rover->master->sidenum[0]].midtexture], blendmode, false, lightnum, colormap);
+							HWR_AddTransparentWall(wallVerts, &Surf, texnum, blendmode, false, lightnum, colormap);
 						else
 							HWR_ProjectWall(wallVerts, &Surf, PF_Masked, lightnum, colormap);
 					}
@@ -2072,6 +2093,15 @@ static void HWR_StoreWallRange(double startfrac, double endfrac)
 					continue;
 				if (*rover->topheight < lowcut || *rover->bottomheight > highcut)
 					continue;
+
+				texnum = texturetranslation[sides[rover->master->sidenum[0]].midtexture];
+
+				if (rover->master->flags & ML_TFERLINE)
+				{
+					size_t linenum = gr_curline->linedef-gr_backsector->lines[0];
+					newline = rover->master->frontsector->lines[0] + linenum;
+					texnum = texturetranslation[sides[newline->sidenum[0]].midtexture];
+				}
 
 				h = *rover->topheight;
 				l = *rover->bottomheight;
@@ -2094,10 +2124,19 @@ static void HWR_StoreWallRange(double startfrac, double endfrac)
 				}
 				else if (drawtextured)
 				{
-					grTex = HWR_GetTexture(texturetranslation[sides[rover->master->sidenum[0]].midtexture]);
+					grTex = HWR_GetTexture(texnum);
 
-					wallVerts[3].t = wallVerts[2].t = (*rover->topheight - h + sides[rover->master->sidenum[0]].rowoffset) * grTex->scaleY;
-					wallVerts[0].t = wallVerts[1].t = (h - l + (*rover->topheight - h + sides[rover->master->sidenum[0]].rowoffset)) * grTex->scaleY;
+					if (newline)
+					{
+						wallVerts[3].t = wallVerts[2].t = (*rover->topheight - h + sides[newline->sidenum[0]].rowoffset) * grTex->scaleY;
+						wallVerts[0].t = wallVerts[1].t = (h - l + (*rover->topheight - h + sides[newline->sidenum[0]].rowoffset)) * grTex->scaleY;
+					}
+					else
+					{
+						wallVerts[3].t = wallVerts[2].t = (*rover->topheight - h + sides[rover->master->sidenum[0]].rowoffset) * grTex->scaleY;
+						wallVerts[0].t = wallVerts[1].t = (h - l + (*rover->topheight - h + sides[rover->master->sidenum[0]].rowoffset)) * grTex->scaleY;
+					}
+
 					wallVerts[0].s = wallVerts[3].s = cliplow * grTex->scaleX;
 					wallVerts[2].s = wallVerts[1].s = cliphigh * grTex->scaleX;
 				}
@@ -2140,11 +2179,11 @@ static void HWR_StoreWallRange(double startfrac, double endfrac)
 					}
 
 					if (gr_backsector->numlights)
-						HWR_SplitWall(gr_backsector, wallVerts, texturetranslation[sides[rover->master->sidenum[0]].midtexture], &Surf, rover->flags);
+						HWR_SplitWall(gr_backsector, wallVerts, texnum, &Surf, rover->flags);
 					else
 					{
 						if (blendmode != PF_Masked)
-							HWR_AddTransparentWall(wallVerts, &Surf, texturetranslation[sides[rover->master->sidenum[0]].midtexture], blendmode, false, lightnum, colormap);
+							HWR_AddTransparentWall(wallVerts, &Surf, texnum, blendmode, false, lightnum, colormap);
 						else
 							HWR_ProjectWall(wallVerts, &Surf, PF_Masked, lightnum, colormap);
 					}
