@@ -4658,7 +4658,7 @@ static void HWR_DrawSkyBackground(player_t *player)
 {
 	FOutVector v[4];
 	angle_t angle;
-	float f;
+	float dimensionmultiply;
 
 //  3--2
 //  | /|
@@ -4676,28 +4676,51 @@ static void HWR_DrawSkyBackground(player_t *player)
 	v[0].y = v[1].y = -4.0f;
 	v[2].y = v[3].y =  4.0f;
 
-	v[0].z = v[1].z = v[2].z = v[3].z = 4.0f;
+	v[0].z = v[1].z = v[2].z = v[3].z = 4.0f;	
 
-	if (textures[skytexture]->width > 256)
-		angle = (angle_t)((float)(dup_viewangle + gr_xtoviewangle[0])
-						/((float)textures[skytexture]->width/256.0f))
-							%(ANGLE_90-1);
+	// NOTE: This doesn't work right with texture widths greater than 1024
+	// software doesn't draw any further than 1024 for skies anyway, but this doesn't overlap properly
+	// The only time this will probably be an issue is when a sky wider than 1024 is used as a sky AND a regular wall texture
+
+	angle = (dup_viewangle + gr_xtoviewangle[0]);
+
+	dimensionmultiply = ((float)textures[skytexture]->width/256.0f);
+
+	v[0].sow = v[3].sow = ((float) angle / ((ANGLE_90-1)*dimensionmultiply));
+	v[2].sow = v[1].sow = (-1.0f/dimensionmultiply)+((float) angle / ((ANGLE_90-1)*dimensionmultiply));
+
+	// Y
+	angle = aimingangle;
+	
+	float aspectratio = (float)vid.width/(float)vid.height;
+	dimensionmultiply = ((float)textures[skytexture]->height/(128.0f*aspectratio));
+	float angleturn = (((float)ANGLE_45-1.0f)*aspectratio)*dimensionmultiply;
+
+	// Middle of the sky should always be at angle 0
+	// need to keep correct aspect ratio with X
+	if (atransform.flip)
+	{
+		// During vertical flip the sky should be flipped and it's y movement should also be flipped obviously
+		v[3].tow = v[2].tow = -(0.5f-(0.5f/dimensionmultiply));
+		v[0].tow = v[1].tow = (-1.0f/dimensionmultiply)-(0.5f-(0.5f/dimensionmultiply));
+	}
 	else
-		angle = (dup_viewangle + gr_xtoviewangle[0])%(ANGLE_90-1);
+	{
+		v[3].tow = v[2].tow = (-1.0f/dimensionmultiply)-(0.5f-(0.5f/dimensionmultiply));
+		v[0].tow = v[1].tow = -(0.5f-(0.5f/dimensionmultiply));
+	}
 
-	f = (float)((textures[skytexture]->width/2)
-	            * FIXED_TO_FLOAT(finetangent[(2048
-	 - ((INT32)angle>>(ANGLETOFINESHIFT + 1))) & FINEMASK]));
-
-	v[0].sow = v[3].sow = 0.22f+(f)/(textures[skytexture]->width/2);
-	v[2].sow = v[1].sow = 0.22f+(f+(127))/(textures[skytexture]->width/2);
-
-	f = (float)((textures[skytexture]->height/2)
-	            * FIXED_TO_FLOAT(finetangent[(2048
-	 - ((INT32)aimingangle>>(ANGLETOFINESHIFT + 1))) & FINEMASK]));
-
-	v[3].tow = v[2].tow = 0.22f+(f)/(textures[skytexture]->height/2);
-	v[0].tow = v[1].tow = 0.22f+(f+(127))/(textures[skytexture]->height/2);
+	if (angle > ANGLE_180) // Do this because we don't want the sky to suddenly teleport when crossing over 0 to 360 and vice versa
+	{
+		angle = InvAngle(angle);
+		v[3].tow = v[2].tow += ((float) angle / angleturn);
+		v[0].tow = v[1].tow += ((float) angle / angleturn);
+	}
+	else
+	{
+		v[3].tow = v[2].tow -= ((float) angle / angleturn);
+		v[0].tow = v[1].tow -= ((float) angle / angleturn);
+	}
 
 	HWD.pfnDrawPolygon(NULL, v, 4, 0);
 }
