@@ -848,35 +848,38 @@ static void Impl_HandleMouseMotionEvent(SDL_MouseMotionEvent evt)
 	event_t event;
 	int wwidth, wheight;
 
-	SDL_GetWindowSize(window, &wwidth, &wheight);
+	if (USE_MOUSEINPUT)
+	{
+		SDL_GetWindowSize(window, &wwidth, &wheight);
 
-	if ((SDL_GetMouseFocus() != window && SDL_GetKeyboardFocus() != window) || (IGNORE_MOUSE_GRAB && !firstmove))
-	{
-		SDLdoUngrabMouse();
-		firstmove = false;
-		return;
-	}
+		if ((SDL_GetMouseFocus() != window && SDL_GetKeyboardFocus() != window) || (IGNORE_MOUSE_GRAB && !firstmove))
+		{
+			SDLdoUngrabMouse();
+			firstmove = false;
+			return;
+		}
 
-	// If the event is from warping the pointer to middle
-	// of the screen then ignore it.
-	if ((evt.x == realwidth/2) && (evt.y == realheight/2))
-	{
-		firstmove = false;
-		return;
-	}
-	else
-	{
-		event.data2 = (evt.xrel) * (wwidth / realwidth);
-		event.data3 = -evt.yrel * (wheight / realheight);
-	}
-	
-	event.type = ev_mouse;
+		// If the event is from warping the pointer to middle
+		// of the screen then ignore it.
+		if ((evt.x == realwidth/2) && (evt.y == realheight/2))
+		{
+			firstmove = false;
+			return;
+		}
+		else
+		{
+			event.data2 = (int)round((evt.xrel) * ((float)wwidth / (float)realwidth));
+			event.data3 = (int)round(-evt.yrel * ((float)wheight / (float)realheight));
+		}
 
-	if (SDL_GetMouseFocus() == window && SDL_GetKeyboardFocus() == window)
-	{
-		D_PostEvent(&event);
-		SDLdoGrabMouse();
-		HalfWarpMouse(wwidth, wheight);
+		event.type = ev_mouse;
+
+		if (SDL_GetMouseFocus() == window && SDL_GetKeyboardFocus() == window)
+		{
+			D_PostEvent(&event);
+			SDLdoGrabMouse();
+			HalfWarpMouse(wwidth, wheight);
+		}
 	}
 
 	firstmove = false;
