@@ -174,7 +174,6 @@ static void Impl_SetWindowIcon(void);
 static void SDLSetMode(INT32 width, INT32 height, SDL_bool fullscreen)
 {
 	static SDL_bool wasfullscreen = SDL_FALSE;
-	static SDL_bool glfallbackresolution = SDL_FALSE;
 	Uint32 rmask;
 	Uint32 gmask;
 	Uint32 bmask;
@@ -195,7 +194,6 @@ static void SDLSetMode(INT32 width, INT32 height, SDL_bool fullscreen)
 		else if (wasfullscreen)
 		{
 			wasfullscreen = SDL_FALSE;
-			glfallbackresolution = SDL_FALSE;
 			SDL_SetWindowFullscreen(window, 0);
 			SDL_SetWindowSize(window, width, height);
 			SDL_SetWindowPosition(window, SDL_WINDOWPOS_CENTERED_DISPLAY(1), SDL_WINDOWPOS_CENTERED_DISPLAY(1));
