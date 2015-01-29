@@ -22,6 +22,8 @@
 
 #define SRB2_COMP_REVISION    "${SRB2_COMP_REVISION}"
 
+#define CMAKE_ASSETS_DIR      "${CMAKE_SOURCE_DIR}/assets"
+
 #else
 
 #define ASSET_HASH_SRB2_SRB   "1f698dd35bcedb04631568a84a97d72b"

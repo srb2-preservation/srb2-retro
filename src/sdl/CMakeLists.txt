@@ -80,6 +80,8 @@ if(${SDL2_FOUND})
 		set(SRB2_SDL2_MAC_SOURCES
 			macosx/mac_alert.c
 			macosx/mac_alert.h
+			macosx/mac_resources.c
+			macosx/mac_resources.h
 			macosx/Srb2mac.icns
 		)
 		source_group("Interface Code\\OSX Compatibility" FILES ${SRB2_SDL2_MAC_SOURCES})
