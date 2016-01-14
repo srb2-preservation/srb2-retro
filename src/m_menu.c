@@ -8609,7 +8609,14 @@ void M_Drawer(void)
 	if (customversionstring[0] != '\0')
 		V_DrawString(0, BASEVIDHEIGHT - 8, V_TRANSLUCENT|V_SNAPTOBOTTOM|V_SNAPTOLEFT, customversionstring);
 	else
+	{
+#ifdef DEVELOP // Development -- show revision / branch info
+		V_DrawString(0, BASEVIDHEIGHT - 16, V_TRANSLUCENT|V_SNAPTOBOTTOM|V_SNAPTOLEFT, compbranch);
+		V_DrawString(0, BASEVIDHEIGHT - 8, V_TRANSLUCENT|V_SNAPTOBOTTOM|V_SNAPTOLEFT, comprevision);
+#else // Regular build
 		V_DrawString(0, BASEVIDHEIGHT - 8, V_TRANSLUCENT|V_SNAPTOBOTTOM|V_SNAPTOLEFT, VERSIONSTRING);
+#endif
+	}
 }
 
 //

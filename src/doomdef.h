@@ -97,8 +97,22 @@
 extern FILE *logstream;
 #endif
 
-#define VERSION 200 // Game version
-#define VERSIONSTRING " v2.0.7"
+//#define DEVELOP // Disable this for release builds to remove excessive cheat commands and enable MD5 checking and stuff, all in one go. :3
+#ifdef DEVELOP
+#define VERSION    0 // Game version
+#define SUBVERSION 0 // more precise version number
+#define VERSIONSTRING "Development EXE"
+#define VERSIONSTRINGW L"Development EXE"
+// most interface strings are ignored in development mode.
+// we use comprevision and compbranch instead.
+#else
+#define VERSION    200 // Game version
+#define SUBVERSION 14  // more precise version number
+#define VERSIONSTRING "v2.0.7"
+#define VERSIONSTRINGW L"v2.0.7"
+// Hey! If you change this, add 1 to the MODVERSION below!
+// Otherwise we can't force updates!
+#endif
 
 // HIGHLY IMPORTANT Modification Options, MUST be changed when creating a modification (or updating SRB2),
 // else a lot of errors will occur when trying to access the Master Server.
@@ -232,7 +246,7 @@ INT32 I_GetKey(void);
 #endif
 
 // Compile date and time and revision.
-extern const char *compdate, *comptime, *comprevision;
+extern const char *compdate, *comptime, *comprevision, *compbranch;
 
 // Disabled code and code under testing
 
