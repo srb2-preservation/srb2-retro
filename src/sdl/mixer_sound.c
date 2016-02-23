@@ -78,7 +78,16 @@ static INT32 current_track;
 void I_StartupSound(void)
 {
 	I_Assert(!sound_started);
-	sound_started = true;
+
+	// EE inits audio first so we're following along.
+	if (SDL_WasInit(SDL_INIT_AUDIO) == SDL_INIT_AUDIO)
+		CONS_Printf("SDL Audio already started\n");
+	else if (SDL_InitSubSystem(SDL_INIT_AUDIO) < 0)
+	{
+		CONS_Printf("Error initializing SDL Audio: %s\n", SDL_GetError());
+		// call to start audio failed -- we do not have it
+		return;
+	}
 
 	midimode = false;
 	music = NULL;
@@ -87,7 +96,13 @@ void I_StartupSound(void)
 #if SDL_MIXER_VERSION_ATLEAST(1,2,11)
 	Mix_Init(MIX_INIT_FLAC|MIX_INIT_MOD|MIX_INIT_MP3|MIX_INIT_OGG);
 #endif
-	Mix_OpenAudio(44100, AUDIO_S16LSB, 2, 2048);
+
+	if (Mix_OpenAudio(44100, AUDIO_S16SYS, 2, 2048) < 0)
+	{
+		CONS_Printf("Error starting SDL_Mixer: %s\n", Mix_GetError());
+		// call to start audio failed -- we do not have it
+		return;
+	}
 
 	SDL_version SDLmixcompiled;
 	const SDL_version *SDLmixlinked;
@@ -99,18 +114,23 @@ void I_StartupSound(void)
 	CONS_Printf("Linked with SDL_mixer version: %d.%d.%d\n",
 				SDLmixlinked->major, SDLmixlinked->minor, SDLmixlinked->patch);
 
+	sound_started = true;
 	Mix_AllocateChannels(256);
 }
 
 void I_ShutdownSound(void)
 {
-	I_Assert(sound_started);
+	if (!sound_started)
+		return; // not an error condition
 	sound_started = false;
 
 	Mix_CloseAudio();
 #if SDL_MIXER_VERSION_ATLEAST(1,2,11)
 	Mix_Quit();
 #endif
+
+	SDL_QuitSubSystem(SDL_INIT_AUDIO);
+
 #ifdef HAVE_LIBGME
 	if (gme)
 		gme_delete(gme);
