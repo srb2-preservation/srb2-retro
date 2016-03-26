@@ -23,11 +23,11 @@ endif()
 
 set(SRB2_SDL2_SOURCES
 	dosstr.c
-    endtxt.c
-    hwsym_sdl.c
+	endtxt.c
+	hwsym_sdl.c
 	i_cdmus.c
 	i_main.c
-    i_net.c
+	i_net.c
 	i_system.c
 	i_video.c
 	ogl_sdl.c
@@ -36,7 +36,7 @@ set(SRB2_SDL2_SOURCES
 )
 
 set(SRB2_SDL2_HEADERS
-    hwsym_sdl.h
+	hwsym_sdl.h
 	ogl_sdl.h
 )
 
@@ -98,10 +98,11 @@ if(${SDL2_FOUND})
 	endif()
 
 	if(${CMAKE_SYSTEM} MATCHES Darwin)
-		add_framework(CoreFoundation SRB2SDL2)
-		add_framework(SDL2 SRB2SDL2)
-		add_framework(SDL2_mixer SRB2SDL2)
 		target_link_libraries(SRB2SDL2 PRIVATE
+			CoreFoundation
+			SDL2
+			SDL2_mixer
+			${GME_LIBRARIES}
 			${PNG_LIBRARIES}
 			${ZLIB_LIBRARIES}
 			${OPENGL_LIBRARIES}
