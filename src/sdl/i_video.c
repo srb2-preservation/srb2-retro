@@ -796,9 +796,14 @@ static void Impl_HandleMouseMotionEvent(SDL_MouseMotionEvent evt)
 			return;
 		}
 
+		if (!wrapmouseok)
+		{
+			event.data2 = evt.xrel;
+			event.data3 = evt.yrel;
+		}
 		// If the event is from warping the pointer to middle
 		// of the screen then ignore it.
-		if ((evt.x == realwidth/2) && (evt.y == realheight/2))
+		else if ((evt.x == realwidth/2) && (evt.y == realheight/2))
 		{
 			firstmove = false;
 			return;
