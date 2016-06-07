@@ -1241,7 +1241,9 @@ void I_StartupMouse(void)
 		return;
 
 	if (!firsttimeonmouse)
+	{
 		HalfWarpMouse(realwidth, realheight); // warp to center
+	}
 	else
 		firsttimeonmouse = SDL_FALSE;
 	if (cv_usemouse.value && !IGNORE_MOUSE_GRAB)
