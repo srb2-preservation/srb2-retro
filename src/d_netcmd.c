@@ -3220,6 +3220,7 @@ static void Command_Addfile(void)
 	XBOXSTATIC char buf[255];
 	size_t length;
 	INT32 i;
+	int musiconly; // W_VerifyNMUSlumps isn't boolean
 
 	if (COM_Argc() != 2)
 	{
@@ -3234,7 +3235,9 @@ static void Command_Addfile(void)
 		if (!isprint(fn[i]) || fn[i] == ';')
 			return;
 
-	if (!W_VerifyNMUSlumps(fn))
+	musiconly = W_VerifyNMUSlumps(fn);
+
+	if (!musiconly)
 	{
 		// ... But only so long as they contain nothing more then music and sprites.
 		if (netgame && !(server || adminplayer == consoleplayer))
@@ -3248,7 +3251,7 @@ static void Command_Addfile(void)
 	}
 
 	// Add file on your client directly if it is trivial, or you aren't in a netgame.
-	if (!(netgame || multiplayer) || W_VerifyNMUSlumps(fn))
+	if (!(netgame || multiplayer) || musiconly)
 	{
 		P_AddWadFile(fn, NULL);
 		return;
@@ -3262,9 +3265,7 @@ static void Command_Addfile(void)
 #ifndef NOMD5
 		FILE *fhandle;
 
-		fhandle = fopen(fn, "rb");
-
-		if (fhandle)
+		if ((fhandle = W_OpenWadFile(&fn, true)) != NULL)
 		{
 			tic_t t = I_GetTime();
 #ifdef _arch_dreamcast
@@ -3278,11 +3279,8 @@ static void Command_Addfile(void)
 					fn, (float)(I_GetTime() - t)/TICRATE);
 			fclose(fhandle);
 		}
-		else
-		{
-			CONS_Printf("%s", text[FILE_NOT_FOUND]);
+		else // file not found
 			return;
-		}
 #endif
 		M_Memcpy(&buf[length+1], md5sum, sizeof (md5sum));
 		length += sizeof (md5sum);
