@@ -1327,7 +1327,7 @@ INT32 VID_SetMode(INT32 modeNum)
 	}
 	Impl_SetWindowName("SRB2 Retro"VERSIONSTRING);
 
-	SDLSetMode(windowedModes[modeNum][0], windowedModes[modeNum][1], USE_FULLSCREEN);
+	SDLSetMode(vid.width, vid.height, USE_FULLSCREEN);
 	Impl_VideoSetupBuffer();
 
 	if (render_soft == rendermode)
