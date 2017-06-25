@@ -166,7 +166,7 @@ static INT32 windowedModes[MAXWINMODES][2] =
 static void Impl_VideoSetupSDLBuffer(void);
 static void Impl_VideoSetupBuffer(void);
 static SDL_bool Impl_CreateWindow(SDL_bool fullscreen);
-static void Impl_SetWindowName(const char *title);
+//static void Impl_SetWindowName(const char *title);
 static void Impl_SetWindowIcon(void);
 
 static void SDLSetMode(INT32 width, INT32 height, SDL_bool fullscreen)
@@ -1325,7 +1325,7 @@ INT32 VID_SetMode(INT32 modeNum)
 		}
 		vid.modenum = -1;
 	}
-	Impl_SetWindowName("SRB2 Retro"VERSIONSTRING);
+	//Impl_SetWindowName("SRB2 Retro"VERSIONSTRING);
 
 	SDLSetMode(vid.width, vid.height, USE_FULLSCREEN);
 	Impl_VideoSetupBuffer();
@@ -1407,6 +1407,7 @@ static SDL_bool Impl_CreateWindow(SDL_bool fullscreen)
 	return SDL_TRUE;
 }
 
+/*
 static void Impl_SetWindowName(const char *title)
 {
 	if (window == NULL)
@@ -1415,6 +1416,7 @@ static void Impl_SetWindowName(const char *title)
 	}
 	SDL_SetWindowTitle(window, title);
 }
+*/
 
 static void Impl_SetWindowIcon(void)
 {
