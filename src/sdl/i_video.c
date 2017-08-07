@@ -732,7 +732,7 @@ static void Impl_HandleMouseMotionEvent(SDL_MouseMotionEvent evt)
 		if (SDL_GetRelativeMouseMode())
 		{
 			event.data2 = evt.xrel;
-			event.data3 = evt.yrel;
+			event.data3 = -evt.yrel;
 		}
 		// If the event is from warping the pointer to middle
 		// of the screen then ignore it.
