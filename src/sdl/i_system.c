@@ -2841,7 +2841,7 @@ const char *I_LocateWad(void)
 	return waddir;
 }
 
-#if defined(LINUX) || defined(LINUX64)
+#ifdef __linux__
 #define MEMINFO_FILE "/proc/meminfo"
 #define MEMTOTAL "MemTotal:"
 #define MEMFREE "MemFree:"
@@ -2914,7 +2914,7 @@ size_t I_GetFreeMem(size_t *total)
 				(PVOID) &pr_arena, sizeof (UINT32));
 
 	return pr_arena;
-#elif defined (LINUX) || defined (LINUX64)
+#elif defined (__linux__)
 	/* Linux */
 	char buf[1024];
 	char *memTag;
@@ -2963,7 +2963,7 @@ size_t I_GetFreeMem(size_t *total)
 	if (total)
 		*total = 48<<20;
 	return 48<<20;
-#endif /* LINUX */
+#endif
 }
 
 const CPUInfoFlags *I_CPUInfo(void)
