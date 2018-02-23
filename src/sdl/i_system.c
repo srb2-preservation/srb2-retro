@@ -2870,20 +2870,23 @@ size_t I_GetFreeMem(size_t *total)
 	};
 	if ((kd = kvm_open(NULL, NULL, NULL, O_RDONLY, "kvm_open")) == NULL)
 	{
-		*total = 0L;
+		if (total)
+			*total = 0L;
 		return 0;
 	}
 	if (kvm_nlist(kd, namelist) != 0)
 	{
 		kvm_close (kd);
-		*total = 0L;
+		if (total)
+			*total = 0L;
 		return 0;
 	}
 	if (kvm_read(kd, namelist[X_SUM].n_value, &sum,
 		sizeof (sum)) != sizeof (sum))
 	{
 		kvm_close(kd);
-		*total = 0L;
+		if (total)
+			*total = 0L;
 		return 0;
 	}
 	kvm_close(kd);
@@ -2930,25 +2933,28 @@ size_t I_GetFreeMem(size_t *total)
 	if (n < 0)
 	{
 		// Error
-		*total = 0L;
+		if (total)
+			*total = 0L;
 		return 0;
 	}
 
 	buf[n] = '\0';
-	if (NULL == (memTag = strstr(buf, MEMTOTAL)))
+	if ((memTag = strstr(buf, MEMTOTAL)) == NULL)
 	{
 		// Error
-		*total = 0L;
+		if (total)
+			*total = 0L;
 		return 0;
 	}
 
 	memTag += sizeof (MEMTOTAL);
 	totalKBytes = atoi(memTag);
 
-	if (NULL == (memTag = strstr(buf, MEMFREE)))
+	if ((memTag = strstr(buf, MEMFREE)) == NULL)
 	{
 		// Error
-		*total = 0L;
+		if (total)
+			*total = 0L;
 		return 0;
 	}
 
