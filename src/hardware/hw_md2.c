@@ -283,7 +283,8 @@ static md2_model_t *md2_readModel(const char *filename)
 	if (model == NULL)
 		return 0;
 
-	file = fopen(filename, "rb");
+	//Filename checking fixed ~Monster Iestyn and Golden
+	file = fopen(va("%s"PATHSEP"%s", srb2home, filename), "rb");
 	if (!file)
 	{
 		free(model);
@@ -647,7 +648,8 @@ static GrTextureFormat_t PNG_Load(const char *filename, int *w, int *h, GLPatch_
 #endif
 #endif
 	png_FILE_p png_FILE;
-	char *pngfilename = va("md2/%s", filename);
+	//Filename checking fixed ~Monster Iestyn and Golden
+	char *pngfilename = va("%s"PATHSEP"md2"PATHSEP"%s", srb2home, filename);
 
 	FIL_ForceExtension(pngfilename, ".png");
 	png_FILE = fopen(pngfilename, "rb");
@@ -775,7 +777,8 @@ static GrTextureFormat_t PCX_Load(const char *filename, int *w, int *h,
 	size_t pw, ph, size, ptr = 0;
 	INT32 ch, rep;
 	FILE *file;
-	char *pcxfilename = va("md2/%s", filename);
+	//Filename checking fixed ~Monster Iestyn and Golden
+	char *pcxfilename = va("%s"PATHSEP"md2"PATHSEP"%s", srb2home, filename);
 
 	FIL_ForceExtension(pcxfilename, ".pcx");
 	file = fopen(pcxfilename, "rb");
@@ -905,8 +908,8 @@ void HWR_InitMD2(void)
 		md2_models[i].notfound = true;
 	}
 	// read the md2.dat file
-
-	f = fopen("md2.dat", "rt");
+	//Filename checking fixed ~Monster Iestyn and Golden
+	f = fopen(va("%s"PATHSEP"%s", srb2home, "md2.dat"), "rt");
 	if (!f)
 	{
 		//CONS_Printf("Error while loading md2.dat\n");
@@ -973,8 +976,8 @@ void HWR_AddPlayerMD2(int skin) // For MD2's that were added after startup
 	CONS_Printf("AddPlayerMD2()...\n");
 
 	// read the md2.dat file
-
-	f = fopen("md2.dat", "rt");
+	//Filename checking fixed ~Monster Iestyn and Golden
+	f = fopen(va("%s"PATHSEP"%s", srb2home, "md2.dat"), "rt");
 	if (!f)
 	{
 		//CONS_Printf("Error while loading md2.dat\n");
@@ -1013,8 +1016,8 @@ void HWR_AddSpriteMD2(int spritenum) // For MD2s that were added after startup
 	float scale, offset;
 
 	// Read the md2.dat file
-
-	f = fopen("md2.dat", "rt");
+	//Filename checking fixed ~Monster Iestyn and Golden
+	f = fopen(va("%s"PATHSEP"%s", srb2home, "md2.dat"), "rt");
 
 	if (!f)
 	{
