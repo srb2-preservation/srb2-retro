@@ -147,6 +147,10 @@ void __set_fpscr(long); // in libgcc / kernel's startup.s?
 #define O_BINARY 0
 #endif
 
+#ifndef errno
+#include <errno.h>
+#endif
+
 // Locations for searching the srb2.srb
 #ifdef _arch_dreamcast
 #define DEFAULTWADLOCATION1 "/cd"
@@ -2855,18 +2859,19 @@ const char *I_LocateWad(void)
  * (example: MemTotal) */
 static long get_entry(const char* name, const char* buf)
 {
-    char* hit = strstr(buf, name);
-    if (hit == NULL) {
-        return -1;
-    }
-
-    errno = 0;
-    long val = strtol(hit + strlen(name), NULL, 10);
-    if (errno != 0) {
-        CONS_Alert(CONS_ERROR, M_GetText("get_entry: strtol() failed: %s\n"), strerror(errno));
-        return -1;
-    }
-    return val;
+	char* hit = strstr(buf, name);
+	if (hit == NULL) {
+		return -1;
+	}
+	
+	errno = 0;
+	long val = strtol(hit + strlen(name), NULL, 10);
+	if (errno != 0) {
+		//CONS_Alert(CONS_ERROR, M_GetText("get_entry: strtol() failed: %s\n"), strerror(errno));
+		CONS_Printf(M_GetText("get_entry: strtol() failed: %s\n"), strerror(errno));
+		return -1;
+	}
+	return val;
 }
 
 size_t I_GetFreeMem(size_t *total)
@@ -2952,7 +2957,6 @@ size_t I_GetFreeMem(size_t *total)
 	long Buffers;
 	long Shmem;
 	long MemAvailable = -1;
-	boolean guessed = false; // Stupid way to verify if the amount was guessed or not.
 
 	meminfo_fd = open(MEMINFO_FILE, O_RDONLY);
 	n = read(meminfo_fd, buf, 1023);
@@ -2985,19 +2989,14 @@ size_t I_GetFreeMem(size_t *total)
 		Buffers = get_entry(BUFFERS, buf);
 		Shmem = get_entry(SHMEM, buf);
 		MemAvailable = Cached + MemFree + Buffers - Shmem;
-		guessed = true;
-	}
 
-	if (MemAvailable == -1 && guessed)
-	{
-		// Error
-		if (total)
-			*total = 0L;
-		return 0;
-	}
-
-	if (guessed)
-	{
+		if (MemAvailable == -1)
+		{
+			// Error
+			if (total)
+				*total = 0L;
+			return 0;
+		}
 		freeKBytes = MemAvailable;
 	}
 	else
