@@ -300,8 +300,8 @@ static void V_DrawTranslucentMappedPatch(INT32 x, INT32 y, INT32 scrn, patch_t *
 	const UINT8 *source, *translevel, *deststop;
 
 #ifdef HWRENDER
-	// draw a hardware converted patch
-	if (rendermode != render_soft && rendermode != render_none)
+	//if (rendermode != render_soft && !con_startup)		// Why?
+	if (rendermode != render_soft)
 	{
 		HWR_DrawMappedPatch((GLPatch_t *)patch, x, y, scrn, colormap);
 		return;
