@@ -1352,25 +1352,26 @@ static void Analog_OnChange(void)
 {
 	if (!cv_cam_dist.string)
 		return;
-	if (leveltime > 1)
-		CV_SetValue(&cv_cam_dist, 128);
 
-	if (netgame || !cv_chasecam.value)
-		cv_analog.value = 0;
-	else if (cv_analog.value)
-		CV_SetValue(&cv_cam_dist, 192);
+	// cameras are not initialized at this point
+
+	if (!cv_chasecam.value && cv_analog.value) {
+		CV_SetValue(&cv_analog, 0);
+		return;
+	}
 }
 
 static void Analog2_OnChange(void)
 {
 	if (!cv_cam2_dist.string)
 		return;
-	if (leveltime > 1)
-		CV_SetValue(&cv_cam2_dist, 128);
-	if (netgame || !cv_chasecam2.value)
-		cv_analog2.value = 0;
-	else if (cv_analog2.value)
-		CV_SetValue(&cv_cam2_dist, 192);
+
+	// cameras are not initialized at this point
+
+	if (!cv_chasecam2.value && cv_analog2.value) {
+		CV_SetValue(&cv_analog2, 0);
+		return;
+	}
 }
 
 //
