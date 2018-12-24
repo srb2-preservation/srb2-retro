@@ -509,6 +509,7 @@ static void SDLdoGrabMouse(void)
 
 static void SDLdoUngrabMouse(void)
 {
+	SDL_ShowCursor(SDL_ENABLE);
 	SDL_SetWindowGrab(window, SDL_FALSE);
 }
 
@@ -1995,6 +1996,7 @@ void I_StartupGraphics(void)
 	realheight = (Uint16)vid.height;
 
 	VID_Command_Info_f();
+	SDLdoUngrabMouse();
 
 	if (mousegrabok && !disable_mouse)
 		SDLdoGrabMouse();
