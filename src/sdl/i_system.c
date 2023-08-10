@@ -98,7 +98,7 @@ void __set_fpscr(long); // in libgcc / kernel's startup.s?
 //#include <pspiofilemgr.h>
 #elif !defined(_PS3)
 #if defined (__unix__) || defined(__APPLE__) || (defined (UNIXCOMMON) && !defined (_arch_dreamcast) && !defined (__HAIKU__) && !defined (_WII))
-#if defined (__linux__)  || defined(__EMSCRIPTEN__) 
+#if defined (__linux__)  || defined(__EMSCRIPTEN__)
 #include <sys/vfs.h>
 #else
 #include <sys/param.h>
@@ -110,7 +110,7 @@ void __set_fpscr(long); // in libgcc / kernel's startup.s?
 #endif
 #ifndef EMSCRIPTEN
 #include <nlist.h>
-#include <sys/vmmeter.h>
+#include <sys/sysctl.h>
 #endif
 #endif
 #endif
@@ -2890,7 +2890,7 @@ static long get_entry(const char* name, const char* buf)
 	if (hit == NULL) {
 		return -1;
 	}
-	
+
 	errno = 0;
 	long val = strtol(hit + strlen(name), NULL, 10);
 	if (errno != 0) {
@@ -2914,40 +2914,17 @@ size_t I_GetFreeMem(size_t *total)
 		*total = 32<<20;
 	return 16<<20;
 #elif defined (FREEBSD)
-	struct vmmeter sum;
-	kvm_t *kd;
-	struct nlist namelist[] =
-	{
-#define X_SUM   0
-		{"_cnt"},
-		{NULL}
-	};
-	if ((kd = kvm_open(NULL, NULL, NULL, O_RDONLY, "kvm_open")) == NULL)
-	{
-		if (total)
-			*total = 0L;
-		return 0;
-	}
-	if (kvm_nlist(kd, namelist) != 0)
-	{
-		kvm_close (kd);
-		if (total)
-			*total = 0L;
-		return 0;
-	}
-	if (kvm_read(kd, namelist[X_SUM].n_value, &sum,
-		sizeof (sum)) != sizeof (sum))
-	{
-		kvm_close(kd);
-		if (total)
-			*total = 0L;
-		return 0;
-	}
-	kvm_close(kd);
+	u_int v_free_count, v_page_size, v_page_count;
+	size_t size = sizeof(v_free_count);
+	sysctlbyname("vm.stat.vm.v_free_count", &v_free_count, &size, NULL, 0);
+	size = sizeof(v_page_size);
+	sysctlbyname("vm.stat.vm.v_page_size", &v_page_size, &size, NULL, 0);
+	size = sizeof(v_page_count);
+	sysctlbyname("vm.stat.vm.v_page_count", &v_page_count, &size, NULL, 0);
 
 	if (total)
-		*total = sum.v_page_count * sum.v_page_size;
-	return sum.v_free_count * sum.v_page_size;
+		*total = v_page_count * v_page_size;
+	return v_free_count * v_page_size;
 #elif defined (SOLARIS)
 	/* Just guess */
 	if (total)
