@@ -56,6 +56,10 @@ size_t I_GetFreeMem(size_t *total);
 */
 tic_t I_GetTime(void);
 
+/** \brief  Sleep until the next tic occurs.
+*/
+void I_SleepToTic(tic_t tic);
+
 /**	\brief	The I_Sleep function
 
 	\return	void

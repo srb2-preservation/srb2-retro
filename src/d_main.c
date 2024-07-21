@@ -603,8 +603,10 @@ static void D_RunFrame(void)
 
 		if (!realtics && !singletics)
 		{
-			I_Sleep();
-			return;
+			entertic++;
+			I_SleepToTic(entertic);
+			oldentertics++;
+			realtics++;
 		}
 
 #ifdef HW3SOUND
