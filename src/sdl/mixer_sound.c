@@ -87,6 +87,17 @@ void I_StartupSound(void)
 	Mix_Init(MIX_INIT_FLAC|MIX_INIT_MOD|MIX_INIT_MP3|MIX_INIT_OGG);
 #endif
 	Mix_OpenAudio(44100, AUDIO_S16LSB, 2, 2048);
+
+	SDL_version SDLmixcompiled;
+	const SDL_version *SDLmixlinked;
+	SDL_MIXER_VERSION(&SDLmixcompiled)
+	SDLmixlinked = Mix_Linked_Version();
+
+	CONS_Printf("Compiled for SDL_mixer version: %d.%d.%d\n",
+				SDLmixcompiled.major, SDLmixcompiled.minor, SDLmixcompiled.patch);
+	CONS_Printf("Linked with SDL_mixer version: %d.%d.%d\n",
+				SDLmixlinked->major, SDLmixlinked->minor, SDLmixlinked->patch);
+
 	Mix_AllocateChannels(256);
 }
 
