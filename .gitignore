@@ -17,3 +17,4 @@ bin/Linux/Release/lsdlsrb2.debug.txt.gz
 src/comptime.c
 /build
 src/comptime.c
+objs/djgppdos/Release/depend.ped

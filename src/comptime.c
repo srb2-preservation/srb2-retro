@@ -7,9 +7,8 @@
  *
  */
 
-#ifdef COMPVERSION
+
 const char *comprevision = "Unknown";
-#endif
 
 const char *compdate = __DATE__;
 const char *comptime = __TIME__;
