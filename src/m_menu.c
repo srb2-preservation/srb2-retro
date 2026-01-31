@@ -144,7 +144,7 @@ typedef struct
 	UINT8 netgame;
 } saveinfo_t;
 
-static saveinfo_t savegameinfo[10]; // Extra info about the save games.
+static saveinfo_t savegameinfo[MAXSAVEGAMES]; // Extra info about the save games.
 
 #ifndef NONET
 static char setupm_ip[16];
@@ -6884,39 +6884,28 @@ static void M_HandleVideoMode(INT32 ch)
 //===========================================================================
 static void M_DrawLoad(void);
 
+static void M_HandleLoadSave(int choice);
+
 static void M_LoadSelect(INT32 choice);
 static void M_PlayWithNoSave(void);
 
-typedef enum
-{
-	load1,
-	load2,
-	load3,
-	load4,
-	load5,
-	nosave,
-	load_end
-} load_e;
+static short saveMenuLocation = 0;
+static char menumovedir = 0;
 
 static menuitem_t LoadGameMenu[] =
 {
-	{IT_CALL | IT_NOTHING, "", NULL, M_LoadSelect, '1'},
-	{IT_CALL | IT_NOTHING, "", NULL, M_LoadSelect, '2'},
-	{IT_CALL | IT_NOTHING, "", NULL, M_LoadSelect, '3'},
-	{IT_CALL | IT_NOTHING, "", NULL, M_LoadSelect, '4'},
-	{IT_CALL | IT_NOTHING, "", NULL, M_LoadSelect, '5'},
-	{IT_CALL | IT_NOTHING, "", NULL, M_PlayWithNoSave, '6'},
+	{IT_KEYHANDLER | IT_NOTHING, NULL, "", M_HandleLoadSave, '\0'},     // dummy menuitem for the control func
 };
 
 menu_t LoadDef =
 {
 	"M_PICKG",
 	"Load Game",
-	load_end,
+	1,
 	&SinglePlayerDef,
 	LoadGameMenu,
 	M_DrawLoad,
-	80, 54,
+	68, 54,
 	0,
 	NULL
 };
@@ -6924,14 +6913,14 @@ menu_t LoadDef =
 static void M_DrawGameStats(void)
 {
 	INT32 ecks;
-	saveSlotSelected = itemOn;
+	saveSlotSelected = saveMenuLocation;
 
 	ecks = LoadDef.x + 24;
 	M_DrawTextBox(LoadDef.x-8,144, 23, 4);
 
 	if (savegameinfo[saveSlotSelected].lives == -42) // Empty
 	{
-		V_DrawString(ecks + 16, 152, 0, "EMPTY");
+		V_DrawCenteredString(ecks + 72, 160, 0, "NO DATA");
 		return;
 	}
 	else if (saveSlotSelected == 5) //No save option
@@ -6951,7 +6940,7 @@ static void M_DrawGameStats(void)
 	V_DrawString(ecks + 16, 152, 0, savegameinfo[saveSlotSelected].playername);
 
 	if (savegameinfo[saveSlotSelected].gamemap == spstage_end)
-		V_DrawString(ecks + 16, 160, 0, "COMPLETED!");
+		V_DrawString(ecks + 16, 160, 0, "\x83" "CLEAR!");
 	else
 	{
 // Don't show the act so people know it saves per-zone.
@@ -6976,23 +6965,44 @@ static void M_DrawGameStats(void)
 //
 static void M_DrawLoad(void)
 {
-	INT32 i;
+	int i, j;
+	int ymod = 0, offset = 0;
 
-	M_DrawGenericMenu();
-
-	V_DrawCenteredString(BASEVIDWIDTH/2, 40, 0, "Hit backspace to delete a save.");
-
-	for (i = 0; i < load_end - 1; i++) //nosave is the last one.
+	if (menumovedir != 0) //movement illusion
 	{
-		M_DrawSaveLoadBorder(LoadDef.x,LoadDef.y+LINEHEIGHT*i);
-		V_DrawString(LoadDef.x,LoadDef.y+LINEHEIGHT*i,0,va("Save Slot %d", i+1));
+		ymod = (-(LINEHEIGHT/4))*menumovedir;
+		offset = ((menumovedir > 0) ? -1 : 1);
 	}
 
-	// Option to play with no save.
-	M_DrawSaveLoadBorder(LoadDef.x,LoadDef.y+LINEHEIGHT*i);
-	V_DrawString(LoadDef.x,LoadDef.y+LINEHEIGHT*i,0,"Play Without Saving");
+	for (i = MAXSAVEGAMES + saveMenuLocation - 2 + offset, j = 0;i <= MAXSAVEGAMES + saveMenuLocation + 2 + offset; i++, j++)
+	{
+		if ((menumovedir < 0 && j == 4) || (menumovedir > 0 && j == 0))
+			continue; //this helps give the illusion of movement
 
+		M_DrawSaveLoadBorder(LoadDef.x,LoadDef.y + LINEHEIGHT * j + ymod);
+		if (savegameinfo[i%MAXSAVEGAMES].lives == -42)
+			V_DrawString(LoadDef.x-6,LoadDef.y + LINEHEIGHT * j - 1 + ymod,V_TRANSLUCENT,"NO DATA");
+		else if (savegameinfo[i%MAXSAVEGAMES].gamemap == spstage_end)
+			V_DrawString(LoadDef.x-6,LoadDef.y + LINEHEIGHT * j - 1 + ymod,0,"\x83" "CLEAR!");
+		else
+			V_DrawString(LoadDef.x-6,LoadDef.y + LINEHEIGHT * j - 1 + ymod,0,va("%s", savegameinfo[i%MAXSAVEGAMES].levelname));
+
+		//Draw the save slot number on the right side
+		V_DrawRightAlignedString(LoadDef.x+192,LoadDef.y + LINEHEIGHT * j - 1 + ymod,0,va("%d",(i%MAXSAVEGAMES) + 1));
+	}
+
+	//Draw cursors on both sides.
+	V_DrawScaledPatch( 32, LoadDef.y+LINEHEIGHT*2 - 1, 0, W_CachePatchName("M_CURSOR", PU_CACHE));
+	V_DrawScaledPatch(274, LoadDef.y+LINEHEIGHT*2 - 1, 0, W_CachePatchName("M_CURSOR", PU_CACHE));
+
+	V_DrawCenteredString(BASEVIDWIDTH/2, 40, 0, "Hit backspace to delete a save.");
 	M_DrawGameStats();
+
+	//finishing the movement illusion
+	if (menumovedir)
+		menumovedir += ((menumovedir > 0) ? 1 : -1);
+	if (abs(menumovedir) > 3)
+		menumovedir = 0;
 }
 
 //
@@ -7013,7 +7023,7 @@ static void M_LoadSelect(INT32 choice)
 		V_DrawCenteredString(160, 64+16, 0, "statistics or unlock secrets.");
 	}
 
-	if (!FIL_ReadFileOK(va(savegamename, choice)))
+	if (!FIL_ReadFileOK(va(savegamename, saveSlotSelected)))
 	{
 		// This slot is empty, so start a new game here.
 		M_NewGame();
@@ -7026,11 +7036,11 @@ static void M_LoadSelect(INT32 choice)
 	}
 	else
 	{
-		G_LoadGame((UINT32)choice, 0);
+		G_LoadGame((unsigned int)saveSlotSelected, 0);
 		M_ClearMenus(true);
 	}
 
-	cursaveslot = choice;
+	cursaveslot = saveSlotSelected;
 }
 
 //
@@ -7155,7 +7165,7 @@ static void M_ReadSaveStrings(void)
 	UINT32 i;
 	char name[256];
 
-	for (i = 0; i < load_end - 1; i++) //nosave is the last one.
+	for (i = 0; i < MAXSAVEGAMES; i++)
 	{
 		snprintf(name, sizeof name, savegamename, i);
 		name[sizeof name - 1] = '\0';
@@ -7163,12 +7173,10 @@ static void M_ReadSaveStrings(void)
 		handle = fopen(name, "rb");
 		if (handle == NULL)
 		{
-			LoadGameMenu[i].status = 0;
 			savegameinfo[i].lives = -42;
 			continue;
 		}
 		fclose(handle);
-		LoadGameMenu[i].status = 1;
 		M_ReadSavegameInfo(i);
 	}
 }
@@ -7192,6 +7200,67 @@ static void M_SaveGameDeleteResponse(INT32 ch)
 
 	// Refresh savegame menu info
 	M_ReadSaveStrings();
+}
+
+static void M_HandleLoadSave(int choice)
+{
+	boolean exitmenu = false; // exit to previous menu
+
+	switch (choice)
+	{
+		case KEY_DOWNARROW:
+			S_StartSound(NULL, sfx_menu1);
+			++saveMenuLocation;
+			if (saveMenuLocation >= MAXSAVEGAMES)
+				saveMenuLocation -= MAXSAVEGAMES;
+			menumovedir = 1;
+			break;
+
+		case KEY_UPARROW:
+			S_StartSound(NULL, sfx_menu1);
+			--saveMenuLocation;
+			if (saveMenuLocation < 0)
+				saveMenuLocation += MAXSAVEGAMES;
+			menumovedir = -1;
+			break;
+
+		case KEY_RIGHTARROW:
+			S_StartSound(NULL, sfx_menu1);
+			saveMenuLocation += 5;
+			if (saveMenuLocation >= MAXSAVEGAMES)
+				saveMenuLocation -= MAXSAVEGAMES;
+			break;
+
+		case KEY_LEFTARROW:
+			S_StartSound(NULL, sfx_menu1);
+			saveMenuLocation -= 5;
+			if (saveMenuLocation < 0)
+				saveMenuLocation += MAXSAVEGAMES;
+			break;
+
+		case KEY_ENTER:
+			S_StartSound(NULL, sfx_menu1);
+			M_LoadSelect(saveMenuLocation);
+			break;
+
+		case KEY_ESCAPE:
+			S_StartSound(NULL, sfx_menu1);
+			exitmenu = true;
+			break;
+
+		case KEY_BACKSPACE:
+			S_StartSound(NULL, sfx_menu1);
+			curSaveSelected = saveMenuLocation;
+			M_StartMessage("Are you sure you want to delete\nthis save game?\n(Y/N)\n",M_SaveGameDeleteResponse,MM_YESNO);
+			break;
+	}
+	if (exitmenu)
+	{
+		if (currentMenu->prevMenu)
+			M_SetupNextMenu(currentMenu->prevMenu);
+		else
+			M_ClearMenus(true);
+	}
 }
 
 //
@@ -8044,15 +8113,6 @@ boolean M_Responder(event_t *ev)
 				// detach any keys associated with the game control
 				G_ClearControlKeys(setupcontrols, currentMenu->menuitems[itemOn].alphaKey);
 				return true;
-			}
-			else if (currentMenu == &LoadDef)
-			{
-				if (curSaveSelected != 5) //Don't delete the "No Save" option.
-				{
-					curSaveSelected = itemOn; // Eww eww!
-					M_StartMessage("Are you sure you want to delete\nthis save game?\n(Y/N)\n",M_SaveGameDeleteResponse,MM_YESNO);
-					return true;
-				}
 			}
 			else if (currentMenu == &LevelSelectDef)
 			{
