@@ -482,6 +482,9 @@ static void M_DrawAddons(void)
 	V_DrawString(x, y, 0, menupath);
 	y += 2*SMALLLINEHEIGHT;
 
+	if (Playing())
+		V_DrawString(0, BASEVIDHEIGHT-15, V_YELLOWMAP, "Adding files mid-game may cause problems.");
+
 	for (i = dir_on; i < sizedirmenu; i++)
 	{
 		if (y > BASEVIDHEIGHT) break;
@@ -571,10 +574,12 @@ static void M_HandleAddons(INT32 choice)
 					}
 				}
 			}
-			else if (dirmenu[dir_on][0] >= 3) // wad/soc/lua
+			else if (dirmenu[dir_on][0] >= 3) // wad/soc
 			{
 				S_StartSound(NULL, sfx_strpst);
-				COM_BufAddText(va("addfile %s%s", menupath, dirmenu[dir_on]+2));
+				COM_BufInsertText(va("addfile %s%s", menupath, dirmenu[dir_on]+2));
+				COM_BufInsertText("playintro");
+				M_ClearMenus(true);
 			}
 			else
 				S_StartSound(NULL, sfx_lose);
