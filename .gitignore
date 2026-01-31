@@ -15,3 +15,5 @@ Win32_LIB_ASM_Release
 *.debug.txt
 bin/Linux/Release/lsdlsrb2.debug.txt.gz
 src/comptime.c
+/build
+src/comptime.c
