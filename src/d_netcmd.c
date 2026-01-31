@@ -220,6 +220,8 @@ static CV_PossibleValue_t pause_cons_t[] = {{0, "Server"}, {1, "All"}, {0, NULL}
 
 static CV_PossibleValue_t timetic_cons_t[] = {{0, "Off"}, {1, "On"}, {2, "Full"}, {0, NULL}};
 
+consvar_t cv_showinputjoy = {"showinputjoy", "Off", 0, CV_OnOff, NULL, 0, NULL, NULL, 0, 0, NULL};
+
 #ifdef FISHCAKE
 static consvar_t cv_fishcake = {"fishcake", "Off", CV_CALL|CV_NOSHOWHELP, CV_OnOff, Fishcake_OnChange, 0, NULL, NULL, 0, 0, NULL};
 #endif
@@ -532,6 +534,7 @@ void D_RegisterServerCommands(void)
 	CV_RegisterVar(&cv_racetype);
 	CV_RegisterVar(&cv_raceitemboxes);
 	CV_RegisterVar(&cv_matchboxes);
+	CV_RegisterVar(&cv_showinputjoy);
 
 #ifdef CHAOSISNOTDEADYET
 	CV_RegisterVar(&cv_chaos_bluecrawla);
