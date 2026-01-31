@@ -8,8 +8,6 @@
  */
 
 #ifdef COMPVERSION
-#include "comptime.h"
-#else
 const char *comprevision = "Unknown";
 #endif
 

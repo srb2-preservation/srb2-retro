@@ -37,6 +37,7 @@
 #include "console.h"
 
 #include "r_local.h"
+#include "r_main.h"
 #include "hu_stuff.h"
 #include "g_game.h"
 #include "g_input.h"
@@ -4524,6 +4525,7 @@ static menuitem_t OptionsMenu[] =
 	{IT_SUBMENU | IT_STRING, NULL, "Server Options...",     &ServerOptionsDef, 50},
 	{IT_SUBMENU | IT_STRING, NULL, "Sound Options...",      &SoundDef,         70},
 	{IT_SUBMENU | IT_STRING, NULL, "Video Options...",      &VideoOptionsDef,  80},
+	{IT_CVAR | IT_STRING, NULL, "Textbox Design", &cv_textboxdesign, 90} // fits here ig
 };
 
 menu_t OptionsDef =
@@ -7206,41 +7208,48 @@ void M_DrawTextBox(INT32 x, INT32 y, INT32 width, INT32 boxlines)
 	INT32 cx = x, cy = y, n;
 	INT32 step = 8, boff = 8;
 
-	// draw left side
-	V_DrawScaledPatch(cx, cy, 0, W_CachePatchNum(viewborderlump[BRDR_TL], PU_CACHE));
-	cy += boff;
-	p = W_CachePatchNum(viewborderlump[BRDR_L], PU_CACHE);
-	for (n = 0; n < boxlines; n++)
+	// draw 2.1/2.2 style
+	if (cv_textboxdesign.value == 1)
+		V_DrawFill(x + 5, y + 5, width*8, boxlines*8+6, 239);
+	else // draw =<2.0 style
 	{
-		V_DrawScaledPatch(cx, cy, V_WRAPY, p);
-		cy += step;
-	}
-	V_DrawScaledPatch(cx, cy, 0, W_CachePatchNum(viewborderlump[BRDR_BL], PU_CACHE));
+		// draw left side
+		V_DrawScaledPatch(cx, cy, 0, W_CachePatchNum(viewborderlump[BRDR_TL], PU_CACHE));
+		cy += boff;
+		p = W_CachePatchNum(viewborderlump[BRDR_L], PU_CACHE);
+		for (n = 0; n < boxlines; n++)
+		{
+			V_DrawScaledPatch(cx, cy, V_WRAPY, p);
+			cy += step;
+		}
+		V_DrawScaledPatch(cx, cy, 0, W_CachePatchNum(viewborderlump[BRDR_BL], PU_CACHE));
 
-	// draw middle
-	V_DrawFlatFill(x + boff, y + boff, width*step, boxlines*step, st_borderpatchnum);
+		// draw middle
+		V_DrawFlatFill(x + boff, y + boff, width*step, boxlines*step, st_borderpatchnum);
 
-	cx += boff;
-	cy = y;
-	while (width > 0)
-	{
-		V_DrawScaledPatch(cx, cy, V_WRAPX, W_CachePatchNum(viewborderlump[BRDR_T], PU_CACHE));
-		V_DrawScaledPatch(cx, y + boff + boxlines*step, V_WRAPX, W_CachePatchNum(viewborderlump[BRDR_B], PU_CACHE));
-		width--;
-		cx += step;
+		cx += boff;
+		cy = y;
+		while (width > 0)
+		{
+			V_DrawScaledPatch(cx, cy, V_WRAPX, W_CachePatchNum(viewborderlump[BRDR_T], PU_CACHE));
+			V_DrawScaledPatch(cx, y + boff + boxlines*step, V_WRAPX, W_CachePatchNum(viewborderlump[BRDR_B], PU_CACHE));
+			width--;
+		
+			cx += step;
+		}
+		
+		// draw right side
+		cy = y;
+		V_DrawScaledPatch(cx, cy, 0, W_CachePatchNum(viewborderlump[BRDR_TR], PU_CACHE));
+		cy += boff;
+		p = W_CachePatchNum(viewborderlump[BRDR_R], PU_CACHE);
+		for (n = 0; n < boxlines; n++)
+		{
+			V_DrawScaledPatch(cx, cy, V_WRAPY, p);
+			cy += step;
+		}
+		V_DrawScaledPatch(cx, cy, 0, W_CachePatchNum(viewborderlump[BRDR_BR], PU_CACHE));
 	}
-
-	// draw right side
-	cy = y;
-	V_DrawScaledPatch(cx, cy, 0, W_CachePatchNum(viewborderlump[BRDR_TR], PU_CACHE));
-	cy += boff;
-	p = W_CachePatchNum(viewborderlump[BRDR_R], PU_CACHE);
-	for (n = 0; n < boxlines; n++)
-	{
-		V_DrawScaledPatch(cx, cy, V_WRAPY, p);
-		cy += step;
-	}
-	V_DrawScaledPatch(cx, cy, 0, W_CachePatchNum(viewborderlump[BRDR_BR], PU_CACHE));
 }
 
 //==========================================================================
@@ -7914,6 +7923,7 @@ boolean M_Responder(event_t *ev)
 			return true;
 
 		default:
+			CON_Responder(ev);
 /*			for (i = itemOn + 1; i < currentMenu->numitems; i++)
 				if (currentMenu->menuitems[i].alphaKey == ch && !(currentMenu->menuitems[i].status & IT_DISABLED))
 				{
@@ -7969,7 +7979,6 @@ void M_StartControlPanel(void)
 	// intro might call this repeatedly
 	if (menuactive)
 	{
-		CON_ToggleOff(); // move away console
 		return;
 	}
 

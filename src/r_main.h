@@ -95,6 +95,7 @@ extern consvar_t cv_shadow;
 extern consvar_t cv_precipdensity, cv_precipdist;
 extern consvar_t cv_tailspickup;
 extern consvar_t cv_shadowoffs;
+extern consvar_t cv_textboxdesign;
 
 // Called by startup code.
 void R_Init(void);

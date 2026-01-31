@@ -127,6 +127,9 @@ consvar_t cv_limitdraw = {"limitdraw", "Off", CV_SAVE, CV_OnOff, NULL, 0, NULL, 
 consvar_t cv_grtranslucenthud = {"gr_translucenthud", "255", CV_SAVE|CV_CALL, grtranslucenthud_cons_t, R_SetViewSize, 0, NULL, NULL, 0, 0, NULL};
 // Enabling homremoval constitutes a rather sizeable performance hit.
 consvar_t cv_homremoval = {"homremoval", "Off", CV_SAVE, CV_OnOff, NULL, 0, NULL, NULL, 0, 0, NULL};
+// textbox design cvars
+CV_PossibleValue_t textboxcons_t[] = {{0, "2.0"}, {1, "2.1"}, {0, NULL}};
+consvar_t cv_textboxdesign = {"textboxdesign", "2.1", CV_SAVE, textboxcons_t, NULL, 0, NULL, NULL, 0, 0, NULL};
 
 void SplitScreen_OnChange(void)
 {
@@ -957,6 +960,8 @@ void R_RegisterEngineStuff(void)
 	CV_RegisterVar(&cv_viewheight);
 	CV_RegisterVar (&cv_limitdraw);
 	CV_RegisterVar(&cv_grtranslucenthud);
+
+	CV_RegisterVar(&cv_textboxdesign);
 
 #ifdef HWRENDER
 	// GL-specific Commands
