@@ -1,8 +1,7 @@
-Here it is! SRB2 v2.0 source code!
+# Here it isn't! SRB2 v2.0 source code!
 
 
-Win32 with Visual C (6SP6+Processor Pack OR 7)
-~~~
+## Win32 with Visual C (6SP6+Processor Pack OR 7)
 
 2 VC++ 6.0 project files are included:
 
@@ -23,8 +22,8 @@ Some bits of code are still really scary.
 Go nuts!
 
 
-Win32 with Dev-C++ (http://bloodshed.net/ free!)
-~~~
+## Win32 with Dev-C++ (http://bloodshed.net/ free!)
+
 2 Dev-C++ project files are included:
 
 Win32/DirectX/FMOD
@@ -39,8 +38,7 @@ Note there are precompiled libpng.a and libz.a for Mingw
 you will need NASM for both SDL/SDL_mixer and DirectX/FMOD
 and you need DirectX 6 (or up) Dev-Paks to compile DirectX version
 
-GNU/Linux
-~~~
+## GNU/Linux
 
 Dependencies:
   SDL 1.2.7 or better (from libsdl.org)
@@ -66,8 +64,7 @@ follow cross-compiling instructions for cross-compiling on a x86 system:
 cd src
 make LINUX=1 WIILINUX=1
 
-Solaris
-~~~
+## Solaris
 
 Dependencies:
   SDL 1.2.5 or better (from libsdl.org)
@@ -88,8 +85,7 @@ cd src
 gmake SOLARIS=1 # you may optionally add DEBUGMODE=1 to build it
                 # with debugging symbols
 
-FreeBSD
-~~~
+## FreeBSD
 
 Dependencies:
   SDL 1.2.7 or better (from libsdl.org)
@@ -109,8 +105,7 @@ cd src
 gmake FREEBSD=1 # you may optionally add DEBUGMODE=1 to build it
                 # with debugging symbols
 
-DJGPP/DOS
-~~~
+## DJGPP/DOS
 
 Dependencies:
   Allegro 3.12 game programming library, (from
@@ -132,8 +127,7 @@ Notes:
  use tools\djgpp\all313.diff to update Allegro to a "more usable" version ;)
  Example: E:\djgpp\allegro>patch -p# < D:\SRB2Code\1.1\srb2\tools\djgpp\all313.diff
 
-Windows CE
-~~~
+## Windows CE
 
 Dependencies:
   SDL 1.27

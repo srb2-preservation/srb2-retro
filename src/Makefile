@@ -433,8 +433,7 @@ ifdef DC
 all:	 pre-build $(BIN)/$(BINNAME) post-build
 endif
 
-# mac os x lsdlsrb2 does not like objcopy
-ifndef MACOSX
+ifndef DC
 ifndef PSP
 ifndef XBOX
 ifdef MINGW
