@@ -49,6 +49,9 @@
 #include "s_sound.h"
 #include "i_system.h"
 
+// Addfile
+#include "filesrch.h"
+
 #include "m_menu.h"
 #include "v_video.h"
 #include "i_video.h"
@@ -460,20 +463,163 @@ typedef enum
 	singleplr,
 	multiplr,
 	options,
+	addons,
 	quitdoom,
 	main_end
 } main_e;
 
+// sorry
+
+static void M_DrawAddons(void)
+{
+	INT32 x, y;
+	size_t i;
+
+	// DRAW MENU
+	x = currentMenu->x;
+	y = currentMenu->y;
+
+	V_DrawString(x, y, 0, menupath);
+	y += 2*SMALLLINEHEIGHT;
+
+	for (i = dir_on; i < sizedirmenu; i++)
+	{
+		if (y > BASEVIDHEIGHT) break;
+		V_DrawString(x, y, 0, dirmenu[i]+2);
+		y += SMALLLINEHEIGHT;
+	}
+}
+
+static void M_HandleAddons();
+
+static menuitem_t MISC_AddonsMenu[] =
+{
+	{IT_KEYHANDLER | IT_NOTHING, NULL, "", M_HandleAddons, 0},     // dummy menuitem for the control func
+};
+
+menu_t MISC_AddonsDef =
+{
+	NULL,
+	NULL,
+	sizeof (MISC_AddonsMenu)/sizeof (menuitem_t),
+	&MainDef,
+	MISC_AddonsMenu,
+	M_DrawAddons,
+	0, 0,
+	0,
+	NULL
+};
+
+static void M_Addons(INT32 choice)
+{
+	(void)choice;
+
+	strlcpy(menupath, srb2home, 1024);
+	menupathindex[(menudepthleft = 19)] = strlen(menupath) + 1;
+
+	if (menupath[menupathindex[menudepthleft]-2] != '/')
+	{
+		menupath[menupathindex[menudepthleft]-1] = '/';
+		menupath[menupathindex[menudepthleft]] = 0;
+	}
+	else
+		--menupathindex[menudepthleft];
+
+	if (!preparefilemenu())
+	{
+		M_StartMessage("No files/folders found.\n\n(Press a key)\n",NULL,MM_NOTHING);
+		return;
+	}
+
+	MISC_AddonsDef.prevMenu = currentMenu;
+	M_SetupNextMenu(&MISC_AddonsDef);
+}
+
+static void M_HandleAddons(INT32 choice)
+{
+	boolean exitmenu = false; // exit to previous menu
+
+	switch (choice)
+	{
+		case KEY_DOWNARROW:
+			if (dir_on < sizedirmenu-1)
+				dir_on++;
+			S_StartSound(NULL, sfx_menu1);
+			break;
+		case KEY_UPARROW:
+			if (dir_on)
+				dir_on--;
+			S_StartSound(NULL, sfx_menu1);
+			break;
+		case KEY_ENTER:
+			if (dirmenu[dir_on][0] == 0) // folder
+			{
+				S_StartSound(NULL, sfx_strpst);
+				strcpy(&menupath[menupathindex[menudepthleft--]],dirmenu[dir_on]+2);
+				menupathindex[menudepthleft] = strlen(menupath);
+				menupath[menupathindex[menudepthleft]] = 0;
+
+				if (!preparefilemenu())
+				{
+					M_StartMessage("Folder is empty.\n\n(Press a key)\n",NULL,MM_NOTHING);
+					menupath[menupathindex[++menudepthleft]] = 0;
+					if (!preparefilemenu())
+					{
+						M_StartMessage("Folder no longer exists!\n\n(Press a key)\n",NULL,MM_NOTHING);
+						M_SetupNextMenu(MISC_AddonsDef.prevMenu);
+						return;
+					}
+				}
+			}
+			else if (dirmenu[dir_on][0] >= 3) // wad/soc/lua
+			{
+				S_StartSound(NULL, sfx_strpst);
+				COM_BufAddText(va("addfile %s%s", menupath, dirmenu[dir_on]+2));
+			}
+			else
+				S_StartSound(NULL, sfx_lose);
+			break;
+		case KEY_BACKSPACE:
+			if (menudepthleft < 19)
+			{
+				menupath[menupathindex[++menudepthleft]] = 0;
+				if (!preparefilemenu())
+				{
+					M_StartMessage("Folder no longer exists!\n\n(Press a key)\n",NULL,MM_NOTHING);
+					M_SetupNextMenu(MISC_AddonsDef.prevMenu);
+					return;
+				}
+				break;
+			}
+		case KEY_ESCAPE:
+			exitmenu = true;
+			break;
+
+		default:
+			break;
+	}
+	if (exitmenu)
+	{
+		if (currentMenu->prevMenu)
+			M_SetupNextMenu(currentMenu->prevMenu);
+		else
+			M_ClearMenus(true);
+	}
+}
+
+// ok its over
+
 static menuitem_t MainMenu[] =
 {
-	{IT_STRING  | IT_CALL,   NULL, "Scramble Teams...", M_TeamScramble,        56},
-	{IT_STRING  | IT_CALL,   NULL, "Spectate..."      , M_ConfirmSpectate,     64},
+	{IT_STRING  | IT_CALL,   NULL, "Scramble Teams...", M_TeamScramble,        42},
+	{IT_STRING  | IT_CALL,   NULL, "Spectate..."      , M_ConfirmSpectate,     56},
 	{IT_STRING  | IT_CALL,   NULL, "Switch Team..."   , M_TeamChange,          64},
-	{IT_STRING  | IT_CALL,   NULL, "Switch Map..."    , M_MapChange,           72},
-	{IT_CALL    | IT_STRING, NULL, "secrets"          , M_SecretsMenu,         84},
-	{IT_SUBMENU | IT_STRING, NULL, "1 player"         , &SinglePlayerDef,      92},
-	{IT_SUBMENU | IT_STRING, NULL, "multiplayer"      , &MultiPlayerDef,      100},
-	{IT_CALL    | IT_STRING, NULL, "options"          , M_OptionsMenu,        108},
+	{IT_STRING  | IT_CALL,   NULL, "Switch Map..."    , M_MapChange,           64},
+	{IT_CALL    | IT_STRING, NULL, "secrets"          , M_SecretsMenu,         72},
+	{IT_SUBMENU | IT_STRING, NULL, "1 player"         , &SinglePlayerDef,      84},
+	{IT_SUBMENU | IT_STRING, NULL, "multiplayer"      , &MultiPlayerDef,      92},
+	{IT_CALL    | IT_STRING, NULL, "options"          , M_OptionsMenu,        100},
+	{IT_CALL   |IT_STRING, NULL, "addons",      M_Addons,          108},
 	{IT_CALL    | IT_STRING, NULL, "quit  game"       , M_QuitSRB2,           116},
 };
 
@@ -4354,6 +4500,10 @@ static void M_ReplayTimeAttack(INT32 choice)
 }
 
 static void M_EraseData(INT32 choice);
+
+static void M_Addons(INT32 choice);
+static void M_DrawAddons(void);
+static void M_HandleAddons(INT32 choice);
 
 // Tails 08-11-2002
 //===========================================================================
