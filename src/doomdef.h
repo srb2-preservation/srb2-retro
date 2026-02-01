@@ -91,9 +91,11 @@
 #define LOGMESSAGES // write message in log.txt
 #endif
 
-#if defined (LOGMESSAGES) && !defined (_WINDOWS)
+#if defined (LOGMESSAGES) && !defined (_WINDOWS) && defined (SDL2)
 #include <SDL2/SDL_rwops.h>
 extern SDL_RWops* logstream;
+#elif defined (LOGMESSAGES) && !defined (_WINDOWS) && defined (SDL)
+extern FILE* logstream;
 #endif
 
 #define VERSION 200 // Game version

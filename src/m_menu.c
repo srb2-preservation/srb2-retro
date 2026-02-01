@@ -576,10 +576,18 @@ static void M_HandleAddons(INT32 choice)
 			}
 			else if (dirmenu[dir_on][0] >= 3) // wad/soc
 			{
-				S_StartSound(NULL, sfx_strpst);
-				COM_BufInsertText(va("addfile %s%s", menupath, dirmenu[dir_on]+2));
-				COM_BufInsertText("playintro");
-				M_ClearMenus(true);
+				if  (!(Playing()))
+				{
+					S_StartSound(NULL, sfx_strpst);
+					COM_BufInsertText(va("addfile %s%s", menupath, dirmenu[dir_on]+2));
+					COM_BufInsertText("playintro");
+					M_ClearMenus(true);
+				}
+				else
+				{
+					S_StartSound(NULL, sfx_strpst);
+					COM_BufInsertText(va("addfile %s%s", menupath, dirmenu[dir_on]+2));
+				}
 			}
 			else
 				S_StartSound(NULL, sfx_lose);
