@@ -726,7 +726,7 @@ void S_PauseSound(void)
 	}
 
 	// pause cd music
-#if defined (__unix__) || defined (UNIXCOMMON) || defined (SDL)
+#if defined (__unix__) || defined (UNIXCOMMON) || defined (SDL) || defined (SDL2)
 	I_PauseCD();
 #else
 	I_StopCD();
@@ -808,7 +808,7 @@ void S_UpdateSounds(void)
 	else
 		MPos.fFront = 0.0l;
 	MPos.fTop = 0.0l;
-	I_UpdateMumble(&MPos);
+	//I_UpdateMumble(&MPos);
 
 #ifdef HW3SOUND
 	if (hws_mode != HWS_DEFAULT_MODE)

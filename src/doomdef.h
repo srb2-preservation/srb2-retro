@@ -92,7 +92,8 @@
 #endif
 
 #if defined (LOGMESSAGES) && !defined (_WINDOWS)
-extern FILE *logstream;
+#include <SDL2/SDL_rwops.h>
+extern SDL_RWops* logstream;
 #endif
 
 #define VERSION 200 // Game version

@@ -104,6 +104,7 @@ void VID_PrepareModeList(void); /// note hack for SDL
 /**	\brief can video system do fullscreen
 */
 extern boolean allow_fullscreen;
+void I_ToggleFullscreen(void);
 
 /**	\brief Update video system without updating frame
 */
