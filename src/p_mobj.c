@@ -6919,7 +6919,9 @@ void P_RespawnSpecials(void)
 				volume = 255;
 
 			if (!(curWeather == PRECIP_STORM_NORAIN) && (!leveltime || leveltime % 80 == 1))
+#if !(defined(SDL2))
 				S_StartSoundAtVolume(players[displayplayer].mo, sfx_rainin, volume);
+#endif
 
 			if (curWeather == PRECIP_STORM || curWeather == PRECIP_STORM_NORAIN || curWeather == PRECIP_STORM_NOSTRIKES)
 			{

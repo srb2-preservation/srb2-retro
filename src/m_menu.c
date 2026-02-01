@@ -4680,7 +4680,7 @@ static menuitem_t OptionsMenu[] =
 	{IT_SUBMENU | IT_STRING, NULL, "Server Options...",     &ServerOptionsDef, 50},
 	{IT_SUBMENU | IT_STRING, NULL, "Sound Options...",      &SoundDef,         70},
 	{IT_SUBMENU | IT_STRING, NULL, "Video Options...",      &VideoOptionsDef,  80},
-	{IT_CVAR | IT_STRING, NULL, "Textbox Design", &cv_textboxdesign, 90} // fits here ig
+	{IT_CVAR | IT_STRING, NULL, "Textbox Design", &cv_textboxdesign, 100} // fits here ig
 };
 
 menu_t OptionsDef =
