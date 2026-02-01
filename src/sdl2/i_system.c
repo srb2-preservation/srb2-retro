@@ -5,6 +5,7 @@
 #include "../d_main.h"
 #include "../d_netcmd.h"
 #include "../doomdef.h"
+#include "../m_argv.h"
 #include "../m_misc.h"
 #include "../screen.h"
 #include "../keys.h"
@@ -15,7 +16,19 @@
 #include "i_main.h"
 
 #include <SDL2/SDL.h>
+#include <SDL2/SDL_version.h>
 #include <SDL2/SDL_keycode.h>
+
+#include <unistd.h>
+#include <termios.h>
+#include <signal.h>
+
+static struct termios tty_tc;
+static struct termios tty_con;
+static int tty_erase;
+static int tty_eof;
+static int consolevent = 1;
+static int framebuffer;
 
 UINT8 graphics_started = 0;
 
@@ -282,6 +295,66 @@ ticcmd_t *I_BaseTiccmd2(void)
 	return &emptycmd2;
 }
 
+// never exit without calling this, or your terminal will be left in a pretty bad state
+static void I_ShutdownConsole(void)
+{
+	if (consolevent)
+	{
+		I_OutputMsg("Shutdown tty console\n");
+		consolevent = SDL_FALSE;
+		tcsetattr (STDIN_FILENO, TCSADRAIN, &tty_tc);
+	}
+}
+
+static void I_StartupConsole(void)
+{
+	struct termios tc;
+
+	// TTimo
+	// https://zerowing.idsoftware.com/bugzilla/show_bug.cgi?id=390 (404)
+	// then SIGTTIN or SIGTOU is emitted, if not catched, turns into a SIGSTP
+	signal(SIGTTIN, SIG_IGN);
+	signal(SIGTTOU, SIG_IGN);
+
+#if !defined(GP2X) //read is bad on GP2X
+	consolevent = !M_CheckParm("-noconsole");
+#endif
+	framebuffer = M_CheckParm("-framebuffer");
+
+	if (framebuffer)
+		consolevent = SDL_FALSE;
+
+	if (!consolevent) return;
+
+	if (isatty(STDIN_FILENO)!=1)
+	{
+		I_OutputMsg("stdin is not a tty, tty console mode failed\n");
+		consolevent = SDL_FALSE;
+		return;
+	}
+	memset(&tty_con, 0x00, sizeof(tty_con));
+	tcgetattr (0, &tty_tc);
+	tty_erase = tty_tc.c_cc[VERASE];
+	tty_eof = tty_tc.c_cc[VEOF];
+	tc = tty_tc;
+	/*
+	 ECHO: don't echo input characters
+	 ICANON: enable canonical mode.  This  enables  the  special
+	  characters  EOF,  EOL,  EOL2, ERASE, KILL, REPRINT,
+	  STATUS, and WERASE, and buffers by lines.
+	 ISIG: when any of the characters  INTR,  QUIT,  SUSP,  or
+	  DSUSP are received, generate the corresponding signal
+	*/
+	tc.c_lflag &= ~(ECHO | ICANON);
+	/*
+	 ISTRIP strip off bit 8
+	 INPCK enable input parity checking
+	 */
+	tc.c_iflag &= ~(ISTRIP | INPCK);
+	tc.c_cc[VMIN] = 0; //1?
+	tc.c_cc[VTIME] = 0;
+	tcsetattr (0, TCSADRAIN, &tc);
+}
 
 void I_Quit(void)
 {
@@ -312,6 +385,7 @@ void I_Error(const char *error, ...)
 	I_ShutdownGraphics();
 	I_ShutdownSound();
 	I_ShutdownMusic();
+	I_ShutdownConsole();
 	I_ShutdownSystem();
 	exit(-1);
 }
@@ -407,13 +481,46 @@ void I_RemoveExitFunc(void (*func)())
 	func = NULL;
 }
 
-int I_StartupSystem(void)
+INT32 I_StartupSystem(void)
 {
-	return -1;
+	SDL_version SDLcompiled;
+	const SDL_version *SDLlinked;
+#ifdef _XBOX
+#ifdef __GNUC__
+	char DP[] ="      Sonic Robo Blast 2!\n";
+	debugPrint(DP);
+#endif
+	unlink("e:/Games/SRB2/stdout.txt");
+	freopen("e:/Games/SRB2/stdout.txt", "w+", stdout);
+	unlink("e:/Games/SRB2/stderr.txt");
+	freopen("e:/Games/SRB2/stderr.txt", "w+", stderr);
+#endif
+#ifdef _arch_dreamcast
+#ifdef _DEBUG
+	//gdb_init();
+#endif
+	printf(__FILE__":%i\n",__LINE__);
+#ifdef _DEBUG
+	//gdb_breakpoint();
+#endif
+#endif
+	SDL_VERSION(&SDLcompiled)
+	I_StartupConsole();
+	CONS_Printf("Compiled for SDL version: %d.%d.%d\n",
+	 SDLcompiled.major, SDLcompiled.minor, SDLcompiled.patch);
+	CONS_Printf("Linked with SDL version: %d.%d.%d\n",
+	 SDLlinked->major, SDLlinked->minor, SDLlinked->patch);
+#if 0 //#ifdef GP2X //start up everything
+	if (SDL_Init(SDL_INIT_NOPARACHUTE|SDL_INIT_EVERYTHING) < 0)
+#else
+	if (SDL_Init(SDL_INIT_NOPARACHUTE) < 0)
+#endif
+		I_Error("SRB2: SDL System Error: %s", SDL_GetError()); //Alam: Oh no....
+	return 0;
 }
 
 void I_ShutdownSystem(void){
-	//SDL_RWclose(logstream);
+	SDL_RWclose(logstream);
 }
 
 void I_GetDiskFreeSpace(INT64* freespace)
