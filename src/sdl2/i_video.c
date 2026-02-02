@@ -1,12 +1,15 @@
 #include <SDL2/SDL.h>
 #include <SDL2/SDL_error.h>
 #include <SDL2/SDL_pixels.h>
+#include <SDL2/SDL_mouse.h>
 #include <SDL2/SDL_render.h>
 #include <SDL2/SDL_surface.h>
 #include <SDL2/SDL_video.h>
 
 #include "../command.h"
 #include "../doomdef.h"
+#include "../doomstat.h"
+#include "../d_netcmd.h"
 #include "../i_system.h"
 #include "../i_video.h"
 #include "../m_argv.h"
@@ -18,11 +21,21 @@
 static SDL_bool disable_fullscreen = SDL_FALSE;
 #define USE_FULLSCREEN (disable_fullscreen||!allow_fullscreen)?0:cv_fullscreen.value
 
+static SDL_bool disable_mouse = SDL_FALSE;
+static Uint16 realwidth = BASEVIDWIDTH;
+static Uint16 realheight = BASEVIDHEIGHT;
+static SDL_bool windownnow = SDL_FALSE;
+#define USE_MOUSEINPUT (!disable_mouse && cv_usemouse.value && SDL_GetAppState() & SDL_APPACTIVE)
+#define MOUSE_MENU (!disable_mouse && cv_usemouse.value && menuactive && !USE_FULLSCREEN && !windownnow)
+#define HalfWarpMouse(win,x,y) SDL_WarpMouseInWindow(win,(Uint16)(x/2),(Uint16)(y/2))
+
 rendermode_t rendermode = render_soft;
 
 boolean highcolor = false;
 
 boolean allow_fullscreen = false;
+
+static SDL_bool mousegrabok = SDL_FALSE;
 
 consvar_t cv_vidwait = {"vid_wait", "On", CV_SAVE, CV_OnOff, NULL, 0, "On", NULL, 0, 0, NULL};
 
@@ -166,6 +179,27 @@ void I_ToggleFullscreen(void) {
 	VID_SetMode(currentmode);
 }
 
+static void SDLdoGrabMouse(void)
+{
+	if (SDL_FALSE == SDL_SetRelativeMouseMode(SDL_QUERY))
+	{
+		if (mousegrabok == SDL_TRUE)
+			SDL_SetRelativeMouseMode(SDL_TRUE);
+	}
+}
+
+void SDLdoUngrabMouse(void)
+{
+	if (SDL_TRUE == SDL_SetRelativeMouseMode(SDL_QUERY))
+		SDL_SetRelativeMouseMode(SDL_FALSE);
+}
+
+void SDLforceUngrabMouse(void)
+{
+	if (SDL_WasInit(SDL_INIT_VIDEO)==SDL_INIT_VIDEO)
+		SDL_SetRelativeMouseMode(SDL_FALSE);
+}
+
 void I_ShutdownGraphics(void){
 	CONS_Printf("I_ShutdownGraphics...\n");
 	SDL_DestroyRenderer(SDL_renderer);
@@ -174,6 +208,24 @@ void I_ShutdownGraphics(void){
 	free(vid.buffer);
 	SDL_QuitSubSystem(SDL_INIT_VIDEO);
 	graphics_started = false;
+}
+
+void I_StartupMouse(void)
+{
+	static SDL_bool firsttimeonmouse = SDL_TRUE;
+
+	if (disable_mouse)
+		return;
+
+	if (!firsttimeonmouse)
+		HalfWarpMouse(NULL, realwidth, realheight); // warp to center
+	else
+		firsttimeonmouse = SDL_FALSE;
+	
+	if (cv_usemouse.value)
+		SDLdoGrabMouse();
+	else
+		SDLdoUngrabMouse();
 }
 
 SDL_Color palettebuf[256];
@@ -248,6 +300,8 @@ int VID_SetMode(int modenum)
 {
 	int flags;
 
+	SDLdoUngrabMouse();
+
 	if (SDL_window != NULL)
 		SDL_DestroyWindow(SDL_window);
 
@@ -310,6 +364,14 @@ void I_StartupGraphics(void) {
 #include <SDL2/SDL_video.h>
 	surface = SDL_CreateRGBSurfaceWithFormat(0, vid.width, vid.height, 8, SDL_PIXELFORMAT_INDEX8);
 	graphics_started = true;
+
+	if (M_CheckParm("-nomousegrab"))
+	{
+		mousegrabok = SDL_FALSE;
+		SDLdoUngrabMouse();
+	}
+	else
+		mousegrabok = SDL_TRUE;
 }
 
 const char *VID_GetModeName(int modenum)
@@ -374,6 +436,8 @@ void VID_Command_Vidmode(void) {
 	} else {
 		VID_SetMode(modenum);
 	}
+
+	I_StartupMouse();
 
 	CONS_Printf("Changed to video mode %s (index %d).\n", VID_GetModeName(modenum), modenum);
 }

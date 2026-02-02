@@ -1055,7 +1055,7 @@ void G_Controldefault(void)
 	gamecontrol[gc_fire       ][1] = KEY_MOUSE1+0;
 	gamecontrol[gc_firenormal ][0] = 'c';
 	gamecontrol[gc_tossflag   ][0] = '\'';
-	gamecontrol[gc_use        ][0] = 'x';
+	gamecontrol[gc_use        ][0] = KEY_LSHIFT;
 	gamecontrol[gc_taunt      ][0] = 'v';
 	gamecontrol[gc_camleft    ][0] = '[';
 	gamecontrol[gc_camright   ][0] = ']';
@@ -1066,7 +1066,7 @@ void G_Controldefault(void)
 	gamecontrol[gc_talkkey    ][0] = 't';
 	gamecontrol[gc_teamkey    ][0] = 'y';
 	gamecontrol[gc_scores     ][0] = KEY_TAB;
-	gamecontrol[gc_jump       ][0] = 'z';
+	gamecontrol[gc_jump       ][0] = KEY_SPACE;
 	gamecontrol[gc_jump       ][1] = KEY_MOUSE1+1;
 	gamecontrol[gc_console    ][0] = KEY_CONSOLE;
 	gamecontrol[gc_pause      ][0] = KEY_PAUSE;

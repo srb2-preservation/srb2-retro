@@ -5,6 +5,7 @@
 #include "../d_main.h"
 #include "../d_netcmd.h"
 #include "../doomdef.h"
+#include "../doomstat.h"
 #include "../m_argv.h"
 #include "../m_misc.h"
 #include "../screen.h"
@@ -12,6 +13,7 @@
 #include "../i_sound.h"
 #include "../i_system.h"
 #include "../i_video.h"
+#include "i_video.h"
 
 #include "i_main.h"
 
@@ -445,13 +447,6 @@ void I_OutputMsg(const char *error, ...)
 	va_end(args);
 
 	//SDL_Log(buffer);
-}
-void I_StartupMouse(void){
-	if (cv_usemouse.value != 0) {
-		//SDL_SetRelativeMouseMode(SDL_TRUE);
-	} else {
-		//SDL_SetRelativeMouseMode(SDL_FALSE);
-	}
 }
 
 void I_StartupMouse2(void){}
