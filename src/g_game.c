@@ -3221,28 +3221,6 @@ void G_TimeDemo(const char *name)
 	G_DeferedPlayDemo(name);
 }
 
-void G_MovieMode(boolean enable)
-{
-	if (enable)
-	{
-		CONS_Printf("Movie mode enabled.\n");
-		singletics = true;
-		moviemode = true;
-#ifdef HAVE_PNG
-		M_StartMovie();
-#endif
-	}
-	else
-	{
-		CONS_Printf("Movie mode disabled.\n");
-		singletics = false;
-		moviemode = false;
-#ifdef HAVE_PNG
-		M_StopMovie();
-#endif
-	}
-}
-
 void G_DoneLevelLoad(void)
 {
 	CONS_Printf("Loaded level in %f sec\n", (double)(I_GetTime() - demostarttime) / TICRATE);

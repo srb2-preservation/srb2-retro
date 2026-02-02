@@ -2142,6 +2142,9 @@ noscript:
 	// will be set by player think.
 	players[consoleplayer].viewz = 1;
 
+	if (moviemode) // make sure we save frames for the white hold too
+		M_SaveFrame();
+
 	// Make sure all sounds are stopped before Z_FreeTags.
 	S_StopSounds();
 	S_ClearSfx();

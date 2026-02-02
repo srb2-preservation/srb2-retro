@@ -43,6 +43,8 @@
 #include "g_input.h"
 
 #include "m_argv.h"
+#include "m_anigif.h"
+#include "m_misc.h"
 
 // Data.
 #include "sounds.h"
@@ -1191,6 +1193,36 @@ static void M_Chooseroom_Onchange(void)
 		M_AlterRoomInfo();
 	}
 #endif
+}
+
+enum
+{
+	op_screenshot_folder = 2,
+	op_movie_folder = 9,
+	op_screenshot_capture = 10,
+	op_screenshot_gif_start = 11,
+	op_screenshot_gif_end = 12,
+	op_screenshot_apng_start = 13,
+	op_screenshot_apng_end = 16,
+};
+
+void Moviemode_mode_Onchange(void) // i guess this can go here?
+{
+	INT32 i, cstart, cend;
+
+	switch (cv_moviemode.value)
+	{
+		case MM_GIF:
+			cstart = op_screenshot_gif_start;
+			cend = op_screenshot_gif_end;
+			break;
+		case MM_APNG:
+			cstart = op_screenshot_apng_start;
+			cend = op_screenshot_apng_end;
+			break;
+		default:
+			return;
+	}
 }
 
 //
@@ -4688,7 +4720,7 @@ static menuitem_t OptionsMenu[] =
 	{IT_SUBMENU | IT_STRING, NULL, "Server Options...",     &ServerOptionsDef, 50},
 	{IT_SUBMENU | IT_STRING, NULL, "Sound Options...",      &SoundDef,         70},
 	{IT_SUBMENU | IT_STRING, NULL, "Video Options...",      &VideoOptionsDef,  80},
-	{IT_CVAR | IT_STRING, NULL, "Textbox Design", &cv_textboxdesign, 100} // fits here ig
+	{IT_SUBMENU | IT_STRING, NULL, "Retro Otions...", 		&RetroDef,	 	  100} // fits here ig
 };
 
 menu_t OptionsDef =
@@ -5502,9 +5534,31 @@ menu_t VideoOptionsDef =
 {
 	"M_OPTTTL",
 	"OPTIONS",
-	sizeof (VideoOptionsMenu)/sizeof (menuitem_t),
+	3,
 	&OptionsDef,
 	VideoOptionsMenu,
+	M_DrawGenericMenu,
+	60, 40,
+	0,
+	NULL
+};
+
+// retro options
+
+static menuitem_t RetroMenu[] =
+{
+	{IT_CVAR | IT_STRING, NULL, "Textbox Design", &cv_textboxdesign, 10},
+	{IT_CVAR | IT_STRING, NULL, "GIF Optimization", &cv_gif_optimize, 20},
+	{IT_CVAR | IT_STRING, NULL, "GIF Downscaling", &cv_gif_downscale, 30},
+};
+
+menu_t RetroDef =
+{
+	"M_OPTTTL",
+	"OPTIONS",
+	sizeof (RetroMenu)/sizeof (menuitem_t),
+	&OptionsDef,
+	RetroMenu,
 	M_DrawGenericMenu,
 	60, 40,
 	0,
@@ -7878,6 +7932,7 @@ boolean M_Responder(event_t *ev)
 				return true;
 
 			case KEY_F9: // Empty
+				((moviemode) ? M_StopMovie : M_StartMovie)();
 				return true;
 
 			case KEY_F10: // Quit SRB2

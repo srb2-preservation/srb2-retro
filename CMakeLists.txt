@@ -74,6 +74,7 @@ SET(COMMON_SRCS
 	src/info.c
     src/lzf.c
 	src/m_argv.c
+	src/m_anigif.c
 	src/m_bbox.c
 	src/m_cheat.c
 	src/m_fixed.c
