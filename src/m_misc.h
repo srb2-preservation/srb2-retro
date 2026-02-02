@@ -26,8 +26,20 @@
 
 #include "doomtype.h"
 #include "w_wad.h"
+#include "d_netcmd.h"
 
-extern boolean moviemode;
+typedef enum {
+	MM_OFF = 0,
+	MM_APNG,
+	MM_GIF,
+	MM_SCREENSHOT
+} moviemode_t;
+
+extern moviemode_t moviemode;
+extern consvar_t cv_moviemode;
+extern consvar_t cv_movie_option;
+extern consvar_t cv_movie_folder;
+
 
 // the file where game vars and settings are saved
 #ifdef DC
@@ -54,9 +66,9 @@ boolean FIL_CheckExtension(const char *in);
 
 #ifdef HAVE_PNG
 boolean M_SavePNG(const char *filename, void *data, int width, int height, const UINT8 *palette);
-boolean M_StartMovie(void);
+void M_StartMovie(void);
 void M_SaveFrame(void);
-boolean M_StopMovie(void);
+void M_StopMovie(void);
 #endif
 
 extern boolean takescreenshot;

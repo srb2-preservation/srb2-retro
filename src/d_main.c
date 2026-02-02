@@ -479,7 +479,10 @@ static void D_Display(void)
 
 		I_FinishUpdate(); // page flip or blit buffer
 
-		if (takescreenshot) // Only take screenshots after drawing.
+		// Only take screenshots after drawing.
+		if (moviemode)
+			M_SaveFrame();
+		if (takescreenshot)
 			M_DoScreenShot();
 
 		return;

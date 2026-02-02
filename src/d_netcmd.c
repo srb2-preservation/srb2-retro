@@ -34,6 +34,7 @@
 #include "p_local.h"
 #include "p_setup.h"
 #include "s_sound.h"
+#include "m_anigif.h"
 #include "m_misc.h"
 #include "am_map.h"
 #include "byteptr.h"
@@ -115,8 +116,6 @@ static void Fishcake_OnChange(void);
 static void Command_Playdemo_f(void);
 static void Command_Timedemo_f(void);
 static void Command_Stopdemo_f(void);
-static void Command_StartMovie_f(void);
-static void Command_StopMovie_f(void);
 static void Command_Map_f(void);
 static void Command_Teleport_f(void);
 static void Command_RTeleport_f(void);
@@ -643,8 +642,6 @@ void D_RegisterClientCommands(void)
 	COM_AddCommand("playdemo", Command_Playdemo_f);
 	COM_AddCommand("timedemo", Command_Timedemo_f);
 	COM_AddCommand("stopdemo", Command_Stopdemo_f);
-	COM_AddCommand("startmovie", Command_StartMovie_f);
-	COM_AddCommand("stopmovie", Command_StopMovie_f);
 	COM_AddCommand("teleport", Command_Teleport_f);
 	COM_AddCommand("rteleport", Command_RTeleport_f);
 	COM_AddCommand("playintro", Command_Playintro_f);
@@ -660,6 +657,14 @@ void D_RegisterClientCommands(void)
 	COM_AddCommand("screenshot", M_ScreenShot);
 	CV_RegisterVar(&cv_screenshot_option);
 	CV_RegisterVar(&cv_screenshot_folder);
+
+	CV_RegisterVar(&cv_moviemode);
+	//CV_RegisterVar(&cv_movie_option);
+	CV_RegisterVar(&cv_movie_folder);
+
+	CV_RegisterVar(&cv_gif_downscale);
+	CV_RegisterVar(&cv_gif_optimize);
+
 	CV_RegisterVar(&cv_zlib_level);
 	CV_RegisterVar(&cv_zlib_memory);
 	CV_RegisterVar(&cv_zlib_strategy);
@@ -1833,16 +1838,6 @@ static void Command_Stopdemo_f(void)
 {
 	G_CheckDemoStatus();
 	CONS_Printf("%s", text[STOPPED_DEMO]);
-}
-
-static void Command_StartMovie_f(void)
-{
-	G_MovieMode(true);
-}
-
-static void Command_StopMovie_f(void)
-{
-	G_MovieMode(false);
 }
 
 INT32 mapchangepending = 0;
