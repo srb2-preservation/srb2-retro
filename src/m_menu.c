@@ -1216,10 +1216,6 @@ void Moviemode_mode_Onchange(void) // i guess this can go here?
 			cstart = op_screenshot_gif_start;
 			cend = op_screenshot_gif_end;
 			break;
-		case MM_APNG:
-			cstart = op_screenshot_apng_start;
-			cend = op_screenshot_apng_end;
-			break;
 		default:
 			return;
 	}
