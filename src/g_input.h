@@ -103,6 +103,7 @@ typedef enum
 	gc_firenormal,
 	gc_tossflag,
 	gc_use,
+	gc_camtoggle,
 	gc_taunt,
 	gc_camleft,
 	gc_camright,

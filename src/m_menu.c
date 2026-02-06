@@ -6256,6 +6256,7 @@ static menuitem_t ControlMenu[] =
 	{IT_CALL | IT_STRING2, NULL, "Turn Right",   M_ChangeControl, gc_turnright  },
 	{IT_CALL | IT_STRING2, NULL, "Jump",         M_ChangeControl, gc_jump       },
 	{IT_CALL | IT_STRING2, NULL, "Spin",         M_ChangeControl, gc_use        }, // Tails 12-04-99
+	{IT_CALL | IT_STRING2, NULL, "Chasecam", 	 M_ChangeControl, gc_camtoggle  },
 	{IT_CALL | IT_STRING2, NULL, "Ring Toss",    M_ChangeControl, gc_fire       },
 	{IT_CALL | IT_STRING2, NULL, "Ring Toss Normal",
 	                                             M_ChangeControl, gc_firenormal },

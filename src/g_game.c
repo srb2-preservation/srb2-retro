@@ -665,6 +665,8 @@ static INT32 Joy2Axis(axis_input_e axissel)
 INT32 localaiming, localaiming2;
 angle_t localangle, localangle2;
 
+static INT32 camtoggledelay = 0;
+
 static fixed_t forwardmove[2] = {25/NEWTICRATERATIO, 50/NEWTICRATERATIO};
 static fixed_t sidemove[2] = {25/NEWTICRATERATIO, 50/NEWTICRATERATIO}; // faster!
 static fixed_t angleturn[3] = {640/NEWTICRATERATIO, 1280/NEWTICRATERATIO, 320/NEWTICRATERATIO}; // + slow turn
@@ -879,6 +881,16 @@ void G_BuildTiccmd(ticcmd_t *cmd, INT32 realtics)
 	if (gamekeydown[gamecontrol[gc_use][0]] ||
 		gamekeydown[gamecontrol[gc_use][1]])
 		cmd->buttons |= BT_USE;
+
+	// chasecam toggle
+	if (gamekeydown[gamecontrol[gc_camtoggle][0]] || gamekeydown[gamecontrol[gc_camtoggle][1]])
+	{
+		if (!camtoggledelay)
+		{
+			camtoggledelay = (TICRATE*NEWTICRATERATIO) / 7;
+			CV_SetValue(&cv_chasecam, cv_chasecam.value ? 0 : 1);
+		}
+	}
 
 	// Taunts
 	if (gamekeydown[gamecontrol[gc_taunt][0]] ||
@@ -1757,6 +1769,12 @@ dontcompleteyet:
 
 	if (pausedelay)
 		pausedelay--;
+
+	if (camtoggledelay)
+		camtoggledelay--;
+
+	if (camtoggledelay2)
+		camtoggledelay2--;
 }
 
 //

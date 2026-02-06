@@ -871,6 +871,7 @@ static const char *gamecontrolname[num_gamecontrols] =
 	"firenormal",
 	"tossflag",
 	"use",
+	"camtoggle",
 	"taunt",
 	"camleft",
 	"camright",
@@ -1056,6 +1057,7 @@ void G_Controldefault(void)
 	gamecontrol[gc_firenormal ][0] = 'c';
 	gamecontrol[gc_tossflag   ][0] = '\'';
 	gamecontrol[gc_use        ][0] = KEY_LSHIFT;
+	gamecontrol[gc_camtoggle  ][0] = 'v';
 	gamecontrol[gc_taunt      ][0] = 'v';
 	gamecontrol[gc_camleft    ][0] = '[';
 	gamecontrol[gc_camright   ][0] = ']';
