@@ -485,24 +485,124 @@ const char *I_GetJoyName(int joyindex)
 	return NULL;
 }
 
-void I_OutputMsg(const char *error, ...)
+//
+//I_OutputMsg
+//
+void I_OutputMsg(const char *fmt, ...)
 {
-	int len;
-	char* buffer;
+	size_t len;
+#ifdef LOGMESSAGES
+	size_t d;
+#endif
+	XBOXSTATIC char txt[128];
+	va_list  argptr;
 
-	va_list args;
-	va_start(args, error);
+#ifdef _arch_dreamcast
+	if (!keyboard_started) conio_printf(fmt);
+#endif
 
-	len = vsnprintf(NULL, 0, error, args);
-	va_end(args);
+	va_start(argptr,fmt);
+	vsprintf(txt, fmt, argptr);
+	va_end(argptr);
 
-	buffer = (char*)malloc(len + 1);
+#if defined (_WIN32) && !defined (_XBOX)
+	OutputDebugStringA(txt);
+#endif
 
-	va_start(args, error);
-	vsnprintf(buffer, len + 1, error, args);
-	va_end(args);
+	len = strlen(txt);
 
-	//SDL_Log(buffer);
+#ifdef LOGMESSAGES
+	if (logstream)
+	{
+		d = SDL_RWwrite(logstream, txt, 1, len);
+		SDL_RWseek(logstream, 0, RW_SEEK_CUR);
+	}
+#endif
+
+#if defined (_WIN32) && !defined (_XBOX) && !defined(_WIN32_WCE)
+#ifdef DEBUGFILE
+	if (debugfile != stderr)
+#endif
+	{
+		HANDLE co = GetStdHandle(STD_OUTPUT_HANDLE);
+		DWORD bytesWritten;
+
+		if (co == INVALID_HANDLE_VALUE)
+			return;
+
+		if (GetFileType(co) == FILE_TYPE_CHAR && GetConsoleMode(co, &bytesWritten))
+		{
+			static COORD coordNextWrite = {0,0};
+			LPVOID oldLines = NULL;
+			INT oldLength;
+			CONSOLE_SCREEN_BUFFER_INFO csbi;
+
+			// Save the lines that we're going to obliterate.
+			GetConsoleScreenBufferInfo(co, &csbi);
+			oldLength = csbi.dwSize.X * (csbi.dwCursorPosition.Y - coordNextWrite.Y) + csbi.dwCursorPosition.X - coordNextWrite.X;
+
+			if (oldLength > 0)
+			{
+				LPVOID blank = malloc(oldLength);
+				if (!blank) return;
+				memset(blank, ' ', oldLength); // Blank out.
+				oldLines = malloc(oldLength*sizeof(TCHAR));
+				if (!oldLines)
+				{
+					free(blank);
+					return;
+				}
+
+				ReadConsoleOutputCharacter(co, oldLines, oldLength, coordNextWrite, &bytesWritten);
+
+				// Move to where we what to print - which is where we would've been,
+				// had console input not been in the way,
+				SetConsoleCursorPosition(co, coordNextWrite);
+
+				WriteConsoleA(co, blank, oldLength, &bytesWritten, NULL);
+				free(blank);
+
+				// And back to where we want to print again.
+				SetConsoleCursorPosition(co, coordNextWrite);
+			}
+
+			// Actually write the string now!
+			WriteConsoleA(co, txt, (DWORD)len, &bytesWritten, NULL);
+
+			// Next time, output where we left off.
+			GetConsoleScreenBufferInfo(co, &csbi);
+			coordNextWrite = csbi.dwCursorPosition;
+
+			// Restore what was overwritten.
+			if (oldLines && entering_con_command)
+				WriteConsole(co, oldLines, oldLength, &bytesWritten, NULL);
+			if (oldLines) free(oldLines);
+		}
+		else // Redirected to a file.
+			WriteFile(co, txt, (DWORD)len, &bytesWritten, NULL);
+	}
+#else
+#ifdef HAVE_TERMIOS
+	if (consolevent)
+	{
+		tty_Hide();
+	}
+#endif
+
+	if (!framebuffer)
+		fprintf(stderr, "%s", txt);
+#ifdef HAVE_TERMIOS
+	if (consolevent)
+	{
+		tty_Show();
+	}
+#endif
+
+	// 2004-03-03 AJR Since not all messages end in newline, some were getting displayed late.
+	if (!framebuffer)
+		fflush(stderr);
+
+#endif
 }
 
 void I_StartupMouse2(void){}
