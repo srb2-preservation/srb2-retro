@@ -1772,9 +1772,6 @@ dontcompleteyet:
 
 	if (camtoggledelay)
 		camtoggledelay--;
-
-	if (camtoggledelay2)
-		camtoggledelay2--;
 }
 
 //
