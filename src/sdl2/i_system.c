@@ -1,4 +1,5 @@
 #include "../console.h"
+#include "../filesrch.h"
 #include "../g_input.h"
 #include "../g_state.h"
 #include "../d_clisrv.h"
@@ -20,6 +21,61 @@
 #include <SDL2/SDL.h>
 #include <SDL2/SDL_version.h>
 #include <SDL2/SDL_keycode.h>
+
+// Locations for searching the srb2.srb
+#ifdef _arch_dreamcast
+#define DEFAULTWADLOCATION1 "/cd"
+#define DEFAULTWADLOCATION2 "/pc"
+#define DEFAULTWADLOCATION3 "/pc/home/alam/srb2code/data"
+#define DEFAULTSEARCHPATH1 "/cd"
+#define DEFAULTSEARCHPATH2 "/pc"
+//#define DEFAULTSEARCHPATH3 "/pc/home/alam/srb2code/data"
+#elif defined (GP2X)
+#define DEFAULTWADLOCATION1 "/mnt/sd"
+#define DEFAULTWADLOCATION2 "/mnt/sd/SRB2"
+#define DEFAULTWADLOCATION3 "/tmp/mnt/sd"
+#define DEFAULTWADLOCATION4 "/tmp/mnt/sd/SRB2"
+#define DEFAULTSEARCHPATH1 "/mnt/sd"
+#define DEFAULTSEARCHPATH2 "/tmp/mnt/sd"
+#elif defined (__unix__) || defined(__APPLE__) || defined (UNIXCOMMON)
+#define DEFAULTWADLOCATION1 "/usr/local/share/games/srb2"
+#define DEFAULTWADLOCATION2 "/usr/local/games/srb2"
+#define DEFAULTWADLOCATION3 "/usr/share/games/srb2"
+#define DEFAULTWADLOCATION4 "/usr/games/srb2"
+#define DEFAULTSEARCHPATH1 "/usr/local/games/"
+#define DEFAULTSEARCHPATH2 "/usr/games"
+#define DEFAULTSEARCHPATH3 "/usr/local"
+#elif defined (_XBOX)
+#define NOCWD
+#ifdef __GNUC__
+#include <openxdk/debug.h>
+#endif
+#define DEFAULTWADLOCATION1 "c:\\srb2"
+#define DEFAULTWADLOCATION2 "d:\\srb2"
+#define DEFAULTWADLOCATION3 "e:\\srb2"
+#define DEFAULTWADLOCATION4 "f:\\srb2"
+#define DEFAULTWADLOCATION5 "g:\\srb2"
+#define DEFAULTWADLOCATION6 "h:\\srb2"
+#define DEFAULTWADLOCATION7 "i:\\srb2"
+#elif defined (_WIN32_WCE)
+#define NOCWD
+#define NOHOME
+#define DEFAULTWADLOCATION1 "\\Storage Card\\SRB2DEMO"
+#define DEFAULTSEARCHPATH1 "\\Storage Card"
+#elif defined (_WIN32)
+#define DEFAULTWADLOCATION1 "c:\\games\\srb2"
+#define DEFAULTWADLOCATION2 "\\games\\srb2"
+#define DEFAULTSEARCHPATH1 "c:\\games"
+#define DEFAULTSEARCHPATH2 "\\games"
+#endif
+
+/**	\brief WAD file to look for
+*/
+#define WADKEYWORD1 "srb2.srb"
+#define WADKEYWORD2 "srb2.wad"
+/**	\brief holds wad path
+*/
+static char returnWadPath[256];
 
 #include <unistd.h>
 #include <termios.h>
@@ -555,9 +611,198 @@ const CPUInfoFlags *I_CPUInfo(void)
 	return NULL;
 }
 
+static boolean isWadPathOk(const char *path)
+{
+	char *wad3path = malloc(256);
+
+	if (!wad3path)
+		return false;
+
+	sprintf(wad3path, pandf, path, WADKEYWORD1);
+
+	if (FIL_ReadFileOK(wad3path))
+	{
+		free(wad3path);
+		return true;
+	}
+
+	sprintf(wad3path, pandf, path, WADKEYWORD2);
+
+	if (FIL_ReadFileOK(wad3path))
+	{
+		free(wad3path);
+		return true;
+	}
+
+	free(wad3path);
+	return false;
+}
+
+static void pathonly(char *s)
+{
+	size_t j;
+
+	for (j = strlen(s); j != (size_t)-1; j--)
+		if ((s[j] == '\\') || (s[j] == ':') || (s[j] == '/'))
+		{
+			if (s[j] == ':') s[j+1] = 0;
+			else s[j] = 0;
+			return;
+		}
+}
+
+static const char *searchWad(const char *searchDir)
+{
+	static char tempsw[256] = "";
+	filestatus_t fstemp;
+
+	strcpy(tempsw, WADKEYWORD1);
+	fstemp = filesearch(tempsw,searchDir,NULL,true,20);
+	if (fstemp == FS_FOUND)
+	{
+		pathonly(tempsw);
+		return tempsw;
+	}
+
+	strcpy(tempsw, WADKEYWORD2);
+	fstemp = filesearch(tempsw, searchDir, NULL, true, 20);
+	if (fstemp == FS_FOUND)
+	{
+		pathonly(tempsw);
+		return tempsw;
+	}
+	return NULL;
+}
+
+static const char *locateWad(void)
+{
+	const char *envstr;
+	const char *WadPath;
+
+	I_OutputMsg("SRB2WADDIR");
+	// does SRB2WADDIR exist?
+	if (((envstr = I_GetEnv("SRB220WADDIR")) != NULL) && isWadPathOk(envstr))
+		return envstr;
+
+#ifdef _WIN32_WCE
+	// examine argv[0]
+	strcpy(returnWadPath, myargv[0]);
+	pathonly(returnWadPath);
+	I_PutEnv(va("HOME=%s",returnWadPath));
+	if (isWadPathOk(returnWadPath))
+		return returnWadPath;
+#endif
+
+#ifndef NOCWD
+	I_OutputMsg(",.");
+	// examine current dir
+	strcpy(returnWadPath, ".");
+	if (isWadPathOk(returnWadPath))
+		return NULL;
+#endif
+
+	// examine default dirs
+#ifdef DEFAULTWADLOCATION1
+	I_OutputMsg(","DEFAULTWADLOCATION1);
+	strcpy(returnWadPath, DEFAULTWADLOCATION1);
+	if (isWadPathOk(returnWadPath))
+		return returnWadPath;
+#endif
+#ifdef DEFAULTWADLOCATION2
+	I_OutputMsg(","DEFAULTWADLOCATION2);
+	strcpy(returnWadPath, DEFAULTWADLOCATION2);
+	if (isWadPathOk(returnWadPath))
+		return returnWadPath;
+#endif
+#ifdef DEFAULTWADLOCATION3
+	I_OutputMsg(","DEFAULTWADLOCATION3);
+	strcpy(returnWadPath, DEFAULTWADLOCATION3);
+	if (isWadPathOk(returnWadPath))
+		return returnWadPath;
+#endif
+#ifdef DEFAULTWADLOCATION4
+	I_OutputMsg(","DEFAULTWADLOCATION4);
+	strcpy(returnWadPath, DEFAULTWADLOCATION4);
+	if (isWadPathOk(returnWadPath))
+		return returnWadPath;
+#endif
+#ifdef DEFAULTWADLOCATION5
+	I_OutputMsg(","DEFAULTWADLOCATION5);
+	strcpy(returnWadPath, DEFAULTWADLOCATION5);
+	if (isWadPathOk(returnWadPath))
+		return returnWadPath;
+#endif
+#ifdef DEFAULTWADLOCATION6
+	I_OutputMsg(","DEFAULTWADLOCATION6);
+	strcpy(returnWadPath, DEFAULTWADLOCATION6);
+	if (isWadPathOk(returnWadPath))
+		return returnWadPath;
+#endif
+#ifdef DEFAULTWADLOCATION7
+	I_OutputMsg(","DEFAULTWADLOCATION7);
+	strcpy(returnWadPath, DEFAULTWADLOCATION7);
+	if (isWadPathOk(returnWadPath))
+		return returnWadPath;
+#endif
+#ifndef NOHOME
+	// find in $HOME
+	I_OutputMsg(",HOME/" DEFAULTDIR);
+	if ((envstr = I_GetEnv("HOME")) != NULL)
+	{
+		char *tmp = malloc(strlen(envstr) + 1 + sizeof(DEFAULTDIR));
+		strcpy(tmp, envstr);
+		strcat(tmp, "/");
+		strcat(tmp, DEFAULTDIR);
+		WadPath = searchWad(tmp);
+		free(tmp);
+		if (WadPath)
+			return WadPath;
+	}
+#endif
+#ifdef DEFAULTSEARCHPATH1
+	// find in /usr/local
+	I_OutputMsg(", in:"DEFAULTSEARCHPATH1);
+	WadPath = searchWad(DEFAULTSEARCHPATH1);
+	if (WadPath)
+		return WadPath;
+#endif
+#ifdef DEFAULTSEARCHPATH2
+	// find in /usr/games
+	I_OutputMsg(", in:"DEFAULTSEARCHPATH2);
+	WadPath = searchWad(DEFAULTSEARCHPATH2);
+	if (WadPath)
+		return WadPath;
+#endif
+#ifdef DEFAULTSEARCHPATH3
+	// find in ???
+	I_OutputMsg(", in:"DEFAULTSEARCHPATH3);
+	WadPath = searchWad(DEFAULTSEARCHPATH3);
+	if (WadPath)
+		return WadPath;
+#endif
+	// if nothing was found
+	return NULL;
+}
+
 const char *I_LocateWad(void)
 {
-	return NULL;
+	const char *waddir;
+
+	I_OutputMsg("Looking for WADs in: ");
+	waddir = locateWad();
+	I_OutputMsg("\n");
+
+	if (waddir)
+	{
+		// change to the directory where we found srb2.srb
+#if (defined (_WIN32) && !defined (_WIN32_WCE)) && !defined (_XBOX)
+		SetCurrentDirectoryA(waddir);
+#elif !defined (_WIN32_WCE) && !defined (_PS3)
+		if (chdir(waddir) == -1)
+			I_OutputMsg("Couldn't change working directory\n");
+#endif
+	}
+	return waddir;
 }
 
 void I_GetJoystickEvents(void){}
@@ -566,14 +811,22 @@ void I_GetJoystick2Events(void){}
 
 void I_GetMouseEvents(void){}
 
-char *I_GetEnv(const char *name) // todo: make this work
+
+char *I_GetEnv(const char *name)
 {
+#if defined(_WIN32_WCE)
 	(void)name;
 	return NULL;
+#else
+	return getenv(name);
+#endif
 }
 
-int I_PutEnv(char *variable)
+INT32 I_PutEnv(char *variable)
 {
-	variable = NULL;
-	return -1;
+#if defined(_WIN32_WCE)
+	return ((variable)?-1:0);
+#else
+	return putenv(variable);
+#endif
 }

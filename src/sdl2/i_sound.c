@@ -36,8 +36,6 @@
 
 #ifdef HAVE_PNG /// TODO: compile with zlib support without libpng
 
-#define HAVE_ZLIB
-
 #ifndef _MSC_VER
 #ifndef _WII
 #ifndef _LARGEFILE64_SOURCE
