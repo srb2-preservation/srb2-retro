@@ -15,12 +15,20 @@
 #ifdef _MSC_VER
 #pragma warning(disable : 4214 4244)
 #endif
+#ifndef _WIN32
 #include <SDL2/SDL.h>
+#else
+#include <SDL.h>
+#endif
 #ifdef _MSC_VER
 #pragma warning(default : 4214 4244)
 #endif
 
+#ifndef _WIN32
 #include <SDL2/SDL_mixer.h>
+#else
+#include <SDL_mixer.h>
+#endif
 
 /* This is the version number macro for the current SDL_mixer version: */
 #ifndef SDL_MIXER_COMPILEDVERSION

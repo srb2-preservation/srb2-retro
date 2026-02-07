@@ -1,3 +1,4 @@
+#ifndef _WIN32
 #include <SDL2/SDL.h>
 #include <SDL2/SDL_error.h>
 #include <SDL2/SDL_pixels.h>
@@ -5,6 +6,15 @@
 #include <SDL2/SDL_render.h>
 #include <SDL2/SDL_surface.h>
 #include <SDL2/SDL_video.h>
+#else
+#include <SDL.h>
+#include <SDL_error.h>
+#include <SDL_pixels.h>
+#include <SDL_mouse.h>
+#include <SDL_render.h>
+#include <SDL_surface.h>
+#include <SDL_video.h>
+#endif
 
 #include "../command.h"
 #include "../doomdef.h"

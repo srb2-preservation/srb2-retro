@@ -18,9 +18,15 @@
 
 #include "i_main.h"
 
+#ifndef _WIN32
 #include <SDL2/SDL.h>
 #include <SDL2/SDL_version.h>
 #include <SDL2/SDL_keycode.h>
+#else
+#include <SDL.h>
+#include <SDL_version.h>
+#include <SDL_keycode.h>
+#endif
 
 // Locations for searching the srb2.srb
 #ifdef _arch_dreamcast
@@ -77,6 +83,7 @@
 */
 static char returnWadPath[256];
 
+#ifndef _WIN32
 #include <fcntl.h>
 #include <unistd.h>
 #include <termios.h>
@@ -88,6 +95,7 @@ static int tty_erase;
 static int tty_eof;
 static int consolevent = 1;
 static int framebuffer;
+#endif
 
 UINT8 graphics_started = 0;
 

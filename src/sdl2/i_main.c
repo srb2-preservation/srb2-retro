@@ -1,8 +1,13 @@
 #include "../doomdef.h"
 #include "../d_main.h"
 #include "../m_argv.h"
+#ifndef _WIN32
 #include <SDL2/SDL.h>
 #include <SDL2/SDL_rwops.h>
+#else
+#include <SDL.h>
+#include <SDL_rwops.h>
+#endif
 
 SDL_RWops* logstream = NULL;
 
