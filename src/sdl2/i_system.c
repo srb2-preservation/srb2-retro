@@ -77,6 +77,7 @@
 */
 static char returnWadPath[256];
 
+#include <fcntl.h>
 #include <unistd.h>
 #include <termios.h>
 #include <signal.h>
@@ -92,10 +93,146 @@ UINT8 graphics_started = 0;
 
 UINT8 keyboard_started = 0;
 
-UINT32 I_GetFreeMem(UINT32 *total)
+
+#if defined (__unix__) || defined(__APPLE__) || (defined (UNIXCOMMON))
+#if defined (__linux__)
+#include <sys/vfs.h>
+#else
+#include <sys/param.h>
+#include <sys/mount.h>
+/*For meminfo*/
+#include <sys/types.h>
+#ifdef FREEBSD
+#include <kvm.h>
+#endif
+#include <nlist.h>
+#include <sys/vmmeter.h>
+#endif
+#endif
+
+#ifdef LINUX
+#define MEMINFO_FILE "/proc/meminfo"
+#define MEMTOTAL "MemTotal:"
+#define MEMFREE "MemFree:"
+#endif
+
+size_t I_GetFreeMem(size_t *total)
 {
-	total = NULL;
-	return 0;
+#if defined (_arch_dreamcast)
+	//Dreamcast!
+	if (total)
+		*total = 16<<20;
+	return 8<<20;
+#elif defined (_PSP)
+	// PSP
+	if (total)
+		*total = 32<<20;
+	return 16<<20;
+#elif defined (FREEBSD)
+	struct vmmeter sum;
+	kvm_t *kd;
+	struct nlist namelist[] =
+	{
+#define X_SUM   0
+		{"_cnt"},
+		{NULL}
+	};
+	if ((kd = kvm_open(NULL, NULL, NULL, O_RDONLY, "kvm_open")) == NULL)
+	{
+		*total = 0L;
+		return 0;
+	}
+	if (kvm_nlist(kd, namelist) != 0)
+	{
+		kvm_close (kd);
+		*total = 0L;
+		return 0;
+	}
+	if (kvm_read(kd, namelist[X_SUM].n_value, &sum,
+		sizeof (sum)) != sizeof (sum))
+	{
+		kvm_close(kd);
+		*total = 0L;
+		return 0;
+	}
+	kvm_close(kd);
+
+	if (total)
+		*total = sum.v_page_count * sum.v_page_size;
+	return sum.v_free_count * sum.v_page_size;
+#elif defined (SOLARIS)
+	/* Just guess */
+	if (total)
+		*total = 32 << 20;
+	return 32 << 20;
+#elif defined (LINUX)
+	/* Linux */
+	char buf[1024];
+	char *memTag;
+	size_t freeKBytes;
+	size_t totalKBytes;
+	INT32 n;
+	INT32 meminfo_fd = -1;
+
+	meminfo_fd = open(MEMINFO_FILE, O_RDONLY);
+	n = read(meminfo_fd, buf, 1023);
+	close(meminfo_fd);
+
+	if (n < 0)
+	{
+		// Error
+		*total = 0L;
+		return 0;
+	}
+
+	buf[n] = '\0';
+	if (NULL == (memTag = strstr(buf, MEMTOTAL)))
+	{
+		// Error
+		*total = 0L;
+		return 0;
+	}
+
+	memTag += sizeof (MEMTOTAL);
+	totalKBytes = (size_t)atoi(memTag);
+
+	if (NULL == (memTag = strstr(buf, MEMFREE)))
+	{
+		// Error
+		*total = 0L;
+		return 0;
+	}
+
+	memTag += sizeof (MEMFREE);
+	freeKBytes = atoi(memTag);
+
+	if (total)
+		*total = totalKBytes << 10;
+	return freeKBytes << 10;
+#elif (defined (_WIN32) || (defined (_WIN32_WCE) && !defined (__GNUC__))) && !defined (_XBOX)
+	MEMORYSTATUS info;
+
+	info.dwLength = sizeof (MEMORYSTATUS);
+	GlobalMemoryStatus( &info );
+	if (total)
+		*total = (size_t)info.dwTotalPhys;
+	return (size_t)info.dwAvailPhys;
+#elif defined (__OS2__)
+	UINT32 pr_arena;
+
+	if (total)
+		DosQuerySysInfo( QSV_TOTPHYSMEM, QSV_TOTPHYSMEM,
+							(PVOID) total, sizeof (UINT32));
+	DosQuerySysInfo( QSV_MAXPRMEM, QSV_MAXPRMEM,
+				(PVOID) &pr_arena, sizeof (UINT32));
+
+	return pr_arena;
+#else
+	// Guess 48 MB.
+	if (total)
+		*total = 48<<20;
+	return 48<<20;
+#endif /* LINUX */
 }
 
 #ifdef _WIN32
