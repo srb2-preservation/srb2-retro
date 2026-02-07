@@ -5544,8 +5544,9 @@ menu_t VideoOptionsDef =
 static menuitem_t RetroMenu[] =
 {
 	{IT_CVAR | IT_STRING, NULL, "Textbox Design", &cv_textboxdesign, 10},
-	{IT_CVAR | IT_STRING, NULL, "GIF Optimization", &cv_gif_optimize, 20},
-	{IT_CVAR | IT_STRING, NULL, "GIF Downscaling", &cv_gif_downscale, 30},
+	{IT_CVAR | IT_STRING, NULL, "Pause Design", &cv_pausedesign, 20},
+	{IT_CVAR | IT_STRING, NULL, "GIF Optimization", &cv_gif_optimize, 40},
+	{IT_CVAR | IT_STRING, NULL, "GIF Downscaling", &cv_gif_downscale, 50},
 };
 
 menu_t RetroDef =

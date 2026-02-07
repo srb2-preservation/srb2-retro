@@ -129,7 +129,10 @@ consvar_t cv_grtranslucenthud = {"gr_translucenthud", "255", CV_SAVE|CV_CALL, gr
 consvar_t cv_homremoval = {"homremoval", "Off", CV_SAVE, CV_OnOff, NULL, 0, NULL, NULL, 0, 0, NULL};
 // textbox design cvars
 CV_PossibleValue_t textboxcons_t[] = {{0, "2.0"}, {1, "2.1"}, {0, NULL}};
-consvar_t cv_textboxdesign = {"textboxdesign", "2.1", CV_SAVE, textboxcons_t, NULL, 0, NULL, NULL, 0, 0, NULL};
+consvar_t cv_textboxdesign = {"textboxdesign", "2.0", CV_SAVE, textboxcons_t, NULL, 0, NULL, NULL, 0, 0, NULL};
+// pause screen design cvars
+CV_PossibleValue_t pausecons_t[] = {{0, "2.0"}, {1, "2.2"}, {0, NULL}};
+consvar_t cv_pausedesign = {"pausedesign", "2.0", CV_SAVE, pausecons_t, NULL, 0, NULL, NULL, 0, 0, NULL};
 
 void SplitScreen_OnChange(void)
 {
@@ -963,6 +966,7 @@ void R_RegisterEngineStuff(void)
 	CV_RegisterVar(&cv_grtranslucenthud);
 
 	CV_RegisterVar(&cv_textboxdesign);
+	CV_RegisterVar(&cv_pausedesign);
 
 #ifdef HWRENDER
 	// GL-specific Commands
