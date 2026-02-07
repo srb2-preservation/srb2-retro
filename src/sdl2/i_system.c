@@ -290,7 +290,13 @@ tic_t I_GetTime(void)
 }
 #endif
 
-void I_Sleep(void){}
+void I_Sleep(void)
+{
+#if !(defined (_arch_dreamcast) || defined (_XBOX))
+	if (cv_sleep.value != -1)
+		SDL_Delay(cv_sleep.value);
+#endif
+}
 
 void I_DoStartupMouse(void) {}
 
@@ -759,13 +765,32 @@ int I_GetKey(void)
 	return 0;
 }
 
-void I_LoadingScreen(const char* msg)
+//
+//I_StartupTimer
+//
+void I_StartupTimer(void)
 {
-	//SDL_Log(msg);
+#if (defined (_WIN32) && !defined (_WIN32_WCE)) && !defined (_XBOX)
+	// for win2k time bug
+	if (M_CheckParm("-gettickcount"))
+	{
+		starttickcount = GetTickCount();
+		CONS_Printf("Using GetTickCount()\n");
+	}
+	winmm = LoadLibraryA("winmm.dll");
+	if (winmm)
+	{
+		p_timeEndPeriod pfntimeBeginPeriod = (p_timeEndPeriod)GetProcAddress(winmm, "timeBeginPeriod");
+		if (pfntimeBeginPeriod)
+			pfntimeBeginPeriod(1);
+		pfntimeGetTime = (p_timeGetTime)GetProcAddress(winmm, "timeGetTime");
+	}
+	I_AddExitFunc(I_ShutdownTimer);
+#elif 0 //#elif !defined (_arch_dreamcast) && !defined(GP2X) // the DC have it own timer and GP2X have broken pthreads?
+	if (SDL_InitSubSystem(SDL_INIT_TIMER) < 0)
+		I_Error("SRB2: Needs SDL_Timer, Error: %s", SDL_GetError());
+#endif
 }
-
-
-void I_StartupTimer(void){}
 
 void I_AddExitFunc(void (*func)())
 {
