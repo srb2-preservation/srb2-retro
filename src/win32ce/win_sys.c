@@ -262,6 +262,12 @@ tic_t I_GetTime(void)
 	return newtics;
 }
 
+fixed_t I_GetTimeFrac(void)
+{
+  // STUB -- Fury
+  return 0;
+}
+
 
 void I_Sleep(void)
 {

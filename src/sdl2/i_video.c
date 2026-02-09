@@ -24,6 +24,7 @@
 #include "../i_video.h"
 #include "../m_argv.h"
 #include "../screen.h"
+#include "../v_video.h"
 #include "../z_zone.h"
 
 #include "i_video.h"
@@ -391,8 +392,87 @@ const char *VID_GetModeName(int modenum)
 
 void I_UpdateNoBlit(void){}
 
+#define SCALE      3
+#define PUTDOT(xx,yy,cc) screens[0][((yy)*vid.width+(xx))*vid.bpp]=(cc)
+
+static tic_t fpsgraph[OLDTICRATE];
+
+static void displayticrate(fixed_t value)
+{
+	int j,l,i;
+	static tic_t lasttic;
+	tic_t tics,t;
+
+	t = I_GetTime();
+	tics = (t - lasttic)/NEWTICRATERATIO;
+	lasttic = t;
+	if (tics > OLDTICRATE) tics = OLDTICRATE;
+
+	for (i=0;i<OLDTICRATE-1;i++)
+		fpsgraph[i]=fpsgraph[i+1];
+	fpsgraph[OLDTICRATE-1]=OLDTICRATE-tics;
+
+	if (value == 1 || value == 3)
+	{
+		char s[11];
+		sprintf(s, "FPS: %d/%u", OLDTICRATE-tics+1, OLDTICRATE);
+		V_DrawString(BASEVIDWIDTH - V_StringWidth(s), BASEVIDHEIGHT-ST_HEIGHT+24, V_YELLOWMAP, s);
+	}
+	if (value == 1)
+		return;
+
+	if (rendermode == render_soft)
+	{
+		int k;
+		// draw dots
+		for (j=0;j<=OLDTICRATE*SCALE*vid.dupy;j+=2*SCALE*vid.dupy)
+		{
+			l=(vid.height-1-j)*vid.width*vid.bpp;
+			for (i=0;i<OLDTICRATE*SCALE*vid.dupx;i+=2*SCALE*vid.dupx)
+				screens[0][l+i]=0xff;
+		}
+
+		// draw the graph
+		for (i=0;i<OLDTICRATE;i++)
+			for (k=0;k<SCALE*vid.dupx;k++)
+				PUTDOT(i*SCALE*vid.dupx+k, vid.height-1-(fpsgraph[i]*SCALE*vid.dupy),0xff);
+	}
+#ifdef HWRENDER
+	else
+	{
+		fline_t p;
+		for (j=0;j<=OLDTICRATE*SCALE*vid.dupy;j+=2*SCALE*vid.dupy)
+		{
+			l=(vid.height-1-j);
+			for (i=0;i<OLDTICRATE*SCALE*vid.dupx;i+=2*SCALE*vid.dupx)
+			{
+				p.a.x = i;
+				p.a.y = l;
+				p.b.x = i+1;
+				p.b.y = l;
+				HWR_drawAMline(&p, 0xff);
+			}
+		}
+
+		for (i=1;i<OLDTICRATE;i++)
+		{
+			p.a.x = SCALE * (i-1);
+			p.a.y = vid.height-1-fpsgraph[i-1]*SCALE*vid.dupy;
+			p.b.x = SCALE * i;
+			p.b.y = vid.height-1-fpsgraph[i]*SCALE*vid.dupy;
+			HWR_drawAMline(&p, 0xff);
+		}
+	}
+#endif
+}
+#undef SCALE
+#undef PUTDOT
+
 void I_FinishUpdate(void)
 {
+	if (cv_ticrate.value) // FPS counter
+		displayticrate(cv_ticrate.value);
+
 	UINT8 *pixels = surface->pixels;
 	// Copy vid.buffer to our surface
 	for (i = 0; i < vid.width * vid.height; i++) {

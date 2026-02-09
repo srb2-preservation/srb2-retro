@@ -5547,6 +5547,8 @@ static menuitem_t RetroMenu[] =
 	{IT_CVAR | IT_STRING, NULL, "Pause Design", &cv_pausedesign, 20},
 	{IT_CVAR | IT_STRING, NULL, "GIF Optimization", &cv_gif_optimize, 40},
 	{IT_CVAR | IT_STRING, NULL, "GIF Downscaling", &cv_gif_downscale, 50},
+	{IT_STRING | IT_CVAR, NULL, "Cap Framerate",       &cv_capframerate, 70},
+	{IT_STRING | IT_CVAR,    NULL, "FPS Meter",           &cv_ticrate,       80}
 };
 
 menu_t RetroDef =

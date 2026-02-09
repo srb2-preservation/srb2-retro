@@ -15,6 +15,7 @@
 #include "../i_system.h"
 #include "../i_video.h"
 #include "i_video.h"
+#include "../r_main.h" // Uncapped
 
 #include "i_main.h"
 
@@ -281,14 +282,33 @@ tic_t I_GetTime(void)
 tic_t I_GetTime(void)
 {
 	tic_t ticks = SDL_GetTicks();
+	tic_t tics;
 
 	ticks = (ticks*TICRATE);
+	tics = ticks;
+	tics -= ticks;
 
 	ticks = (ticks/1000);
 
 	return ticks;
 }
 #endif
+
+fixed_t I_GetTimeFrac (void)
+{
+	Uint32 ticks;
+	Uint32 prevticks;
+	Uint32 nextticks;
+	fixed_t frac;
+
+	ticks = SDL_GetTicks() - ticks;
+	//if (ticks > tics * 1000 / TICRATE) return 1 * FRACUNIT;
+	prevticks = prev_tics * 1000 / TICRATE;
+	nextticks = prevticks + (int)roundf((1.f/TICRATE)*1000);
+
+	frac = FixedDiv((ticks - prevticks) * FRACUNIT, (int)roundf((1.f/TICRATE)*1000 * FRACUNIT));
+	return frac > FRACUNIT ? FRACUNIT : frac;
+}
 
 void I_Sleep(void)
 {

@@ -95,6 +95,7 @@ SET(COMMON_SRCS
 	src/r_bsp.c
 	src/r_data.c
 	src/r_draw.c
+	src/r_fps.c
 	src/r_main.c
 	src/r_plane.c
 	src/r_segs.c

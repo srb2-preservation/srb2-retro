@@ -2106,7 +2106,11 @@ void I_StartupTimer(void)
 #endif
 }
 
-
+fixed_t I_GetTimeFrac(void)
+{
+  // STUB -- Fury
+  return 0;
+}
 
 void I_Sleep(void)
 {
