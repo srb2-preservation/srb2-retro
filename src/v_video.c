@@ -41,8 +41,7 @@
 UINT8 *screens[5];
 
 static CV_PossibleValue_t ticrate_cons_t[] = {
-	{0, "Off"}, {1, "Counter"}, {2, "Graph"}, {3, "Both"},
-	{0, NULL}};
+	{0, "Off"}, {1, "On"}, {0, NULL}};
 static CV_PossibleValue_t gamma_cons_t[] = {{0, "MIN"}, {4, "MAX"}, {0, NULL}};
 static void CV_usegamma_OnChange(void);
 
