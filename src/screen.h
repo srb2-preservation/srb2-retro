@@ -172,5 +172,7 @@ void SCR_SetDefaultMode (void);
 void SCR_Startup (void);
 
 void SCR_ChangeFullscreen (void);
+
+void SCR_CalcAproxFps(void);
 #undef DNWH
 #endif //__SCREEN_H__
