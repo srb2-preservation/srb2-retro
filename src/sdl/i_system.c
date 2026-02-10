@@ -199,6 +199,7 @@ static char returnWadPath[256];
 #include "../d_net.h"
 #include "../g_game.h"
 #include "../filesrch.h"
+#include "../r_main.h"
 #include "endtxt.h"
 #include "sdlmain.h"
 
@@ -259,6 +260,21 @@ SDL_bool consolevent = SDL_FALSE;
 SDL_bool framebuffer = SDL_FALSE;
 
 UINT8 keyboard_started = false;
+
+// uncapped
+static Uint64 timer_frequency;
+static Uint64 tic_epoch;
+static double tic_frequency;
+// sdl1.2 doesnt have these
+uint64_t SDL_GetPerformanceCounter(void)
+{
+    return (uint64_t)SDL_GetTicks();
+}
+
+uint64_t SDL_GetPerformanceFrequency(void)
+{
+    return 1000; // ticks per second
+}
 
 #if 0
 static void signal_handler(INT32 num)
@@ -2058,32 +2074,41 @@ tic_t I_GetTime (void)
 	static Uint64 basetime = 0;
 	       Uint64 ticks = timer_ms_gettime64(); //using timer_ms_gettime64 instand of SDL_GetTicks for the Dreamcast
 #else
-	static Uint32 basetime = 0;
-	       Uint32 ticks = SDL_GetTicks();
+	static double elapsed;
+
+	const Uint64 now = SDL_GetPerformanceCounter();
+	elapsed += (now - tic_epoch) / tic_frequency;
 #endif
 
-	if (!basetime)
-		basetime = ticks;
+	tic_epoch = now; // moving epoch
 
-	ticks -= basetime;
-
-	ticks = (ticks*TICRATE);
-
-#if 0 //#ifdef _WIN32_WCE
-	ticks = (ticks/10);
-#else
-	ticks = (ticks/1000);
-#endif
-
-	return (tic_t)ticks;
+	return (tic_t)elapsed;
 }
 #endif
+
+
+precise_t I_GetPreciseTime(void)
+{
+	return SDL_GetPerformanceCounter();
+}
+
+int I_PreciseToMicros(precise_t d)
+{
+	return (int)(d / (timer_frequency / 1000000.0));
+}
+Uint64 I_GetPrecisePrecision(void)
+{
+	return SDL_GetPerformanceFrequency();
+}
 
 //
 //I_StartupTimer
 //
 void I_StartupTimer(void)
 {
+	timer_frequency = SDL_GetPerformanceFrequency();
+	tic_epoch       = SDL_GetPerformanceCounter();
+	tic_frequency   = timer_frequency / (double)(NEWTICRATERATIO*TICRATE);
 #if (defined (_WIN32) && !defined (_WIN32_WCE)) && !defined (_XBOX)
 	// for win2k time bug
 	if (M_CheckParm("-gettickcount"))
@@ -2106,7 +2131,21 @@ void I_StartupTimer(void)
 #endif
 }
 
+fixed_t I_GetTimeFrac (void)
+{
+	Uint32 ticks;
+	Uint32 prevticks;
+	Uint32 nextticks;
+	fixed_t frac;
 
+	ticks = SDL_GetTicks() - ticks;
+	//if (ticks > tics * 1000 / TICRATE) return 1 * FRACUNIT;
+	prevticks = prev_tics * 1000 / TICRATE;
+	nextticks = prevticks + (int)lroundf((1.f/TICRATE)*1000);
+
+	frac = FixedDiv((ticks - prevticks) * FRACUNIT, (int)roundf((1.f/TICRATE)*1000 * FRACUNIT));
+	return frac > FRACUNIT ? FRACUNIT : frac;
+}
 
 void I_Sleep(void)
 {
@@ -2776,7 +2815,7 @@ const char *I_LocateWad(void)
 #endif
 
 // quick fix for compil
-UINT32 I_GetFreeMem(UINT32 *total)
+size_t I_GetFreeMem(size_t *total)
 {
 #if defined (_arch_dreamcast)
 	//Dreamcast!
@@ -2829,8 +2868,8 @@ UINT32 I_GetFreeMem(UINT32 *total)
 	/* Linux */
 	char buf[1024];
 	char *memTag;
-	UINT32 freeKBytes;
-	UINT32 totalKBytes;
+	size_t freeKBytes;
+	size_t totalKBytes;
 	INT32 n;
 	INT32 meminfo_fd = -1;
 
@@ -2854,7 +2893,7 @@ UINT32 I_GetFreeMem(UINT32 *total)
 	}
 
 	memTag += sizeof (MEMTOTAL);
-	totalKBytes = atoi(memTag);
+	totalKBytes = (size_t)atoi(memTag);
 
 	if (NULL == (memTag = strstr(buf, MEMFREE)))
 	{
@@ -2875,8 +2914,8 @@ UINT32 I_GetFreeMem(UINT32 *total)
 	info.dwLength = sizeof (MEMORYSTATUS);
 	GlobalMemoryStatus( &info );
 	if (total)
-		*total = (UINT32)info.dwTotalPhys;
-	return (UINT32)info.dwAvailPhys;
+		*total = (size_t)info.dwTotalPhys;
+	return (size_t)info.dwAvailPhys;
 #elif defined (__OS2__)
 	UINT32 pr_arena;
 

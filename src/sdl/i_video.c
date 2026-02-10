@@ -1287,31 +1287,83 @@ void I_UpdateNoBlit(void)
 #define SCALE      3
 #define PUTDOT(xx,yy,cc) screens[0][((yy)*vid.width+(xx))*vid.bpp]=(cc)
 
-static tic_t fpsgraph[OLDTICRATE];
+static boolean ticsgraph[TICRATE];
+
+static UINT32 fpstime = 0;
+static UINT32 lastupdatetime = 0;
+
+#define FPSUPDATERATE 1/20 
+#define FPSMAXSAMPLES 16
+
+static UINT32 fpssamples[FPSMAXSAMPLES];
+static UINT32 fpssampleslen = 0;
+static UINT32 fpssum = 0;
+static double aproxfps = 0.0f;
+
+void SCR_CalcAproxFps(void)
+{
+	tic_t i = 0;
+	if (I_PreciseToMicros(fpstime - lastupdatetime) > 1000000 * FPSUPDATERATE)
+	{
+		if (fpssampleslen == FPSMAXSAMPLES)
+		{
+			fpssum -= fpssamples[0];
+
+			for (i = 1; i < fpssampleslen; i++)
+				fpssamples[i-1] = fpssamples[i];
+		}
+		else
+			fpssampleslen++;
+
+		fpssamples[fpssampleslen-1] = I_GetPreciseTime() - fpstime;
+		fpssum += fpssamples[fpssampleslen-1];
+
+		aproxfps = 1000000 / (I_PreciseToMicros(fpssum) / (double)fpssampleslen);
+
+		lastupdatetime = I_GetPreciseTime();
+	}
+
+	fpstime = I_GetPreciseTime();
+}
 
 static void displayticrate(fixed_t value)
 {
 	int j,l,i;
 	static tic_t lasttic;
 	tic_t tics,t;
+	tic_t ontic = I_GetTime();
+	tic_t totaltics = 0;
+	const INT32 h = vid.height-(8*vid.dupy);
+
+	if (gamestate == GS_NULL)
+		return;
+
+	if (ticsgraph[i])
+		++totaltics;
 
 	t = I_GetTime();
 	tics = (t - lasttic)/NEWTICRATERATIO;
 	lasttic = t;
 	if (tics > OLDTICRATE) tics = OLDTICRATE;
 
+	for (i = lasttic + 1; i < TICRATE+lasttic && i < ontic; ++i)
+	ticsgraph[i % TICRATE] = false;
+
+	ticsgraph[ontic % TICRATE] = true;
+
 	for (i=0;i<OLDTICRATE-1;i++)
-		fpsgraph[i]=fpsgraph[i+1];
-	fpsgraph[OLDTICRATE-1]=OLDTICRATE-tics;
+		ticsgraph[i]=ticsgraph[i+1];
+	ticsgraph[OLDTICRATE-1]=OLDTICRATE-tics;
 
 	if (value == 1 || value == 3)
 	{
-		char s[11];
-		sprintf(s, "FPS: %d/%u", OLDTICRATE-tics+1, OLDTICRATE);
-		V_DrawString(BASEVIDWIDTH - V_StringWidth(s), BASEVIDHEIGHT-ST_HEIGHT+24, V_YELLOWMAP, s);
+		V_DrawString(vid.width- (80 * vid.dupx), h, V_NOSCALESTART,
+			va("FPS:% 02.2f", aproxfps));
 	}
 	if (value == 1)
 		return;
+
+	lasttic = ontic;
 
 	if (rendermode == render_soft)
 	{
@@ -1327,7 +1379,7 @@ static void displayticrate(fixed_t value)
 		// draw the graph
 		for (i=0;i<OLDTICRATE;i++)
 			for (k=0;k<SCALE*vid.dupx;k++)
-				PUTDOT(i*SCALE*vid.dupx+k, vid.height-1-(fpsgraph[i]*SCALE*vid.dupy),0xff);
+				PUTDOT(i*SCALE*vid.dupx+k, vid.height-1-(ticsgraph[i]*SCALE*vid.dupy),0xff);
 	}
 #ifdef HWRENDER
 	else
@@ -1349,9 +1401,9 @@ static void displayticrate(fixed_t value)
 		for (i=1;i<OLDTICRATE;i++)
 		{
 			p.a.x = SCALE * (i-1);
-			p.a.y = vid.height-1-fpsgraph[i-1]*SCALE*vid.dupy;
+			p.a.y = vid.height-1-ticsgraph[i-1]*SCALE*vid.dupy;
 			p.b.x = SCALE * i;
-			p.b.y = vid.height-1-fpsgraph[i]*SCALE*vid.dupy;
+			p.b.y = vid.height-1-ticsgraph[i]*SCALE*vid.dupy;
 			HWR_drawAMline(&p, 0xff);
 		}
 	}
@@ -1409,6 +1461,9 @@ static inline SDL_bool SDLmatchVideoformat(void)
 //
 void I_FinishUpdate(void)
 {
+
+	SCR_CalcAproxFps();
+
 	if (!vidSurface)
 		return; //Alam: No software or OpenGl surface
 

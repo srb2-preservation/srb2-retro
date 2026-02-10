@@ -46,6 +46,7 @@
 #include "r_things.h"
 #include "y_inter.h"
 #include "v_video.h"
+#include "r_fps.h" // Uncapped
 
 gameaction_t gameaction;
 gamestate_t gamestate = GS_NULL;
@@ -1708,6 +1709,7 @@ dontcompleteyet:
 	switch (gamestate)
 	{
 		case GS_LEVEL:
+			R_UpdateViewInterpolation();
 			P_Ticker(); // tic the game
 			ST_Ticker();
 			AM_Ticker();

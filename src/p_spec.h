@@ -79,6 +79,10 @@ typedef struct
 	INT32 resetcount;
 	INT32 maxlight;    ///< The brightest light level to use.
 	INT32 minlight;    ///< The darkest light level to use.
+
+	INT16 old_lightlevel;
+	INT16 new_lightlevel;
+	INT32 firstlerp;
 } fireflicker_t;
 
 typedef struct
@@ -87,6 +91,10 @@ typedef struct
 	sector_t *sector;
 	INT32 maxlight;
 	INT32 minlight;
+
+	INT16 old_lightlevel;
+	INT16 new_lightlevel;
+	INT32 firstlerp;
 } lightflash_t;
 
 /** Laser block thinker.
@@ -98,6 +106,10 @@ typedef struct
 	sector_t *sector;  ///< Sector in which the effect takes place.
 	sector_t *sec;
 	line_t *sourceline;
+
+	INT16 old_lightlevel;
+	INT16 new_lightlevel;
+	INT32 firstlerp;
 } laserthink_t;
 
 /** Strobe light action structure..
@@ -111,6 +123,10 @@ typedef struct
 	INT32 maxlight;    ///< The maximum light level to use.
 	INT32 darktime;    ///< How INT32 to use minlight.
 	INT32 brighttime;  ///< How INT32 to use maxlight.
+
+	INT16 old_lightlevel;
+	INT16 new_lightlevel;
+	INT32 firstlerp;
 } strobe_t;
 
 typedef struct
@@ -121,6 +137,10 @@ typedef struct
 	INT32 maxlight;
 	INT32 direction;
 	INT32 speed;
+
+	INT16 old_lightlevel;
+	INT16 new_lightlevel;
+	INT32 firstlerp;
 } glow_t;
 
 /** Thinker struct for fading lights.
@@ -131,6 +151,10 @@ typedef struct
 	sector_t *sector;  ///< Sector where action is taking place.
 	INT32 destlevel;   ///< Light level we're fading to.
 	INT32 speed;       ///< Speed at which to change light level.
+
+	INT16 old_lightlevel;
+	INT16 new_lightlevel;
+	INT32 firstlerp;
 } lightlevel_t;
 
 #define GLOWSPEED 8
@@ -210,6 +234,10 @@ typedef struct
 	INT32 olddirection;
 	fixed_t origspeed;    ///< The original, "real" speed.
 	INT32 sourceline;     ///< Index of the source linedef
+
+	fixed_t old_ceilingheight;
+	fixed_t new_ceilingheight;
+	INT32 firstlerp;
 } ceiling_t;
 
 #define CEILSPEED (FRACUNIT/NEWTICRATERATIO)
@@ -271,6 +299,10 @@ typedef struct
 	fixed_t origspeed;
 	fixed_t delay;
 	fixed_t delaytimer;
+
+	fixed_t old_floorheight;
+	fixed_t new_floorheight;
+	INT32 firstlerp;
 } floormove_t;
 
 typedef struct
@@ -293,6 +325,12 @@ typedef struct
 	fixed_t ceilingwasheight; // Height the ceiling WAS at
 	player_t *player; // Player who initiated the thinker (used for airbob)
 	line_t *sourceline;
+
+	fixed_t old_floorheight;
+	fixed_t old_ceilingheight;
+	fixed_t new_floorheight;
+	fixed_t new_ceilingheight;
+	INT32 firstlerp;
 } elevator_t;
 
 typedef struct
@@ -301,6 +339,12 @@ typedef struct
 	fixed_t vars[16];   // Misc. variables
 	line_t *sourceline; // Source line of the thinker
 	sector_t *sector;   // Sector the thinker is from
+
+	fixed_t old_floorheight;
+	fixed_t old_ceilingheight;
+	fixed_t new_floorheight;
+	fixed_t new_ceilingheight;
+	INT32 firstlerp;
 } levelspecthink_t;
 
 #define ELEVATORSPEED (FRACUNIT*4/NEWTICRATERATIO)
@@ -377,6 +421,19 @@ typedef struct
 		sc_carry,        ///< Carry objects on floor.
 		sc_carry_ceiling,///< Carry objects on ceiling (for 3Dfloor conveyors).
 	} type;
+
+	// sc_side
+	fixed_t old_textureoffset;
+	fixed_t new_textureoffset;
+	fixed_t old_rowoffset;
+	fixed_t new_rowoffset;
+
+	// sc_floor/ceiling
+	fixed_t old_xoffs;
+	fixed_t new_xoffs;
+	fixed_t old_yoffs;
+	fixed_t new_yoffs;
+	INT32 firstlerp;
 } scroll_t;
 
 void T_Scroll(scroll_t *s);
