@@ -90,7 +90,7 @@ static INT32      srate;                   // Default sample rate
 
 
 // output all debugging messages to this file
-#if defined (DEBUG_TO_FILE) && !defined (SDL)
+#if defined (DEBUG_TO_FILE) && !defined (SDL) && !defined (SDL2)
 static HANDLE  logstream = INVALID_HANDLE_VALUE;
 #endif
 

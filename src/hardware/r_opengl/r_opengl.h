@@ -107,7 +107,7 @@ extern RGBA_t           myPaletteData[];
 #ifdef _WINDOWS
 extern HANDLE           logstream;
 #else
-extern FILE             *logstream;
+//extern FILE             *logstream;
 #endif
 #endif
 extern GLint            screen_width;

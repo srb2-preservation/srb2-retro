@@ -1,0 +1,37 @@
+/** SRB2 CMake Configuration */
+
+#ifndef __CONFIG_H__
+#define __CONFIG_H__
+
+/* DO NOT MODIFY config.h DIRECTLY! It will be overwritten by cmake.
+ * If you want to change a configuration option here, modify it in
+ * your CMakeCache.txt. config.h.in is used as a template for CMake
+ * variables, so you can insert them here too.
+ */
+
+#ifdef CMAKECONFIG
+
+#define ASSET_HASH_SRB2_SRB   "${SRB2_ASSET_srb2.srb_HASH}"
+#define ASSET_HASH_SONIC_PLR "${SRB2_ASSET_sonic.plr_HASH}"
+#define ASSET_HASH_TAILS_PLR "${SRB2_ASSET_tails.plr_HASH}"
+#define ASSET_HASH_KNUX_PLR "${SRB2_ASSET_knux.plr_HASH}"
+#define ASSET_HASH_RINGS_WPN  "${SRB2_ASSET_rings.wpn_HASH}"
+#define ASSET_HASH_ZONES_DTA  "${SRB2_ASSET_zones.dta_HASH}"
+#define ASSET_HASH_SOAR_DTA  "${SRB2_ASSET_soar.dta_HASH}"
+#define ASSET_HASH_DRILL_DTA  "${SRB2_ASSET_drill.dta_HASH}"
+
+#define SRB2_COMP_REVISION    "${SRB2_COMP_REVISION}"
+
+#else
+
+#define ASSET_HASH_SRB2_SRB   "1f698dd35bcedb04631568a84a97d72b"
+#define ASSET_HASH_SONIC_PLR "f699d4702b9b505db621e5ad5af4f352"
+#define ASSET_HASH_TAILS_PLR "dfbbc38080485c70a84a57bb734ceee9"
+#define ASSET_HASH_KNUX_PLR "1ea958e2aee87b6995226a120ba3eaac"
+#define ASSET_HASH_RINGS_WPN  "8f702416c15060cd3c53c71b91116914"
+#define ASSET_HASH_ZONES_DTA  "86ae3f9179c64358d1c88060e41bd415"
+#define ASSET_HASH_SOAR_DTA  "8d080c050ecf03691562aa7b60156fec"
+#define ASSET_HASH_DRILL_DTA  "6b1cf9b41e41a46ac58606dc6e7c9e05"
+
+#endif
+#endif

@@ -1031,7 +1031,7 @@ boolean D_CheckNetGame(void)
 	multiplayer = false;
 
 	// only dos version with external driver will return true
-	netgame = I_InitNetwork();
+	//netgame = I_InitNetwork();
 	if (!netgame && !I_NetOpenSocket)
 	{
 		D_SetDoomcom();

@@ -1,148 +1,126 @@
-#
-# Simple CMakeLists for Sonic Robo Blast 2
-#
-PROJECT(SRB2)
+cmake_minimum_required(VERSION 3.0)
+project(SRB2
+	VERSION 2.0.7
+	LANGUAGES C)
 
-CMAKE_MINIMUM_REQUIRED(VERSION 2.8)
+# Set up CMAKE path
+set(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} "${CMAKE_SOURCE_DIR}/cmake/Modules/")
 
-#
-# Variables
-#
+### Useful functions
 
-set(SRB2_DEBUG_BUILD OFF CACHE BOOL "Compile a debug build")
+# Prepend sources with current source directory
+function(prepend_sources SOURCE_FILES)
+	foreach(SOURCE_FILE ${${SOURCE_FILES}})
+		set(MODIFIED ${MODIFIED} ${CMAKE_CURRENT_SOURCE_DIR}/${SOURCE_FILE})
+	endforeach()
+	set(${SOURCE_FILES} ${MODIFIED} PARENT_SCOPE)
+endfunction()
 
-#
-# Dependencies
-#
+# Macro to add OSX framework
+macro(add_framework fwname appname)
+	find_library(FRAMEWORK_${fwname}
+    	NAMES ${fwname}
+    	PATHS ${CMAKE_OSX_SYSROOT}/System/Library
+    		${CMAKE_OSX_SYSROOT}/Library
+    		/System/Library
+    		/Library
+    	PATH_SUFFIXES Frameworks
+    	NO_DEFAULT_PATH)
+    if( ${FRAMEWORK_${fwname}} STREQUAL FRAMEWORK_${fwname}-NOTFOUND)
+        MESSAGE(ERROR ": Framework ${fwname} not found")
+    else()
+        TARGET_LINK_LIBRARIES(${appname} PRIVATE "${FRAMEWORK_${fwname}}/${fwname}")
+        MESSAGE(STATUS "Framework ${fwname} found at ${FRAMEWORK_${fwname}}")
+    endif()
+endmacro()
 
-include(cmake/CPM.cmake)
-add_subdirectory(thirdparty)
+# Macro to copy Windows DLLs to Debug/Release folder for easy debugging
+# Note: this is general purpose, we could copy anything. Just using for DLLs on MSVC though
+macro(copy_files_to_build_dir target dlllist_var)
+	if(MSVC)
+		# http://stackoverflow.com/a/26983405/3064195
+		foreach(dlllist_item ${${dlllist_var}})
+			get_filename_component(dllname ${dlllist_item} NAME)
+			add_custom_command(TARGET ${target} POST_BUILD
+				COMMAND ${CMAKE_COMMAND} -E copy_if_different
+				${dlllist_item}
+				${CMAKE_CURRENT_BINARY_DIR}/\$\(Configuration\)/${dllname}
+			)
+		endforeach()
+	endif()
+endmacro()
 
-#
-# Common stuff
-#
-
-ADD_DEFINITIONS(-DHAVE_ZLIB -DHAVE_PNG -D_LARGEFILE64_SOURCE -D_FILE_OFFSET_BITS=64 -DDIRECTFULLSCREEN -DSDL2 -DHAVE_MIXER -DNOHW -DNOASM)
-set(CMAKE_C_FLAGS "-std=gnu17") # most people have the latest gcc soo...
-
-# debug build
-if (${SRB2_DEBUG_BUILD})
-	set(CMAKE_C_FLAGS "-Wall -DPARANOIA -DRANGECHECK -std=gnu17")
+# 64-bit check
+if(${CMAKE_SIZEOF_VOID_P} EQUAL 8)
+	message(STATUS "Target is 64-bit")
+	set(SRB2_SYSTEM_BITS 64)
+else()
+	set(SRB2_SYSTEM_BITS 32)
 endif()
 
-SET(COMMON_SRCS
-	src/sdl2/dosstr.c
-	src/sdl2/i_cdmus.c
-	src/sdl2/i_main.c
-	src/sdl2/i_net.c
-	src/sdl2/i_sound.c
-	src/sdl2/i_system.c
-	src/sdl2/i_video.c
-	src/am_map.c
-	src/command.c
-	src/comptime.c
-	src/console.c
-	src/d_clisrv.c
-	src/d_main.c
-	src/d_net.c
-	src/d_netcmd.c
-	src/d_netfil.c
-	src/dehacked.c
-    src/dstrings.c
-	src/f_finale.c
-	src/f_wipe.c
-	src/filesrch.c
-	src/g_game.c
-	src/g_input.c
-	src/hardware/hw3sound.c
-	src/hu_stuff.c
-	src/i_tcp.c
-	src/info.c
-    src/lzf.c
-	src/m_argv.c
-	src/m_anigif.c
-	src/m_bbox.c
-	src/m_cheat.c
-	src/m_fixed.c
-	src/m_menu.c
-	src/m_misc.c
-	src/m_queue.c
-	src/m_random.c
-	src/md5.c
-	src/mserv.c
-	src/p_ceilng.c
-	src/p_enemy.c
-	src/p_fab.c
-	src/p_floor.c
-	src/p_inter.c
-	src/p_lights.c
-	src/p_map.c
-	src/p_maputl.c
-	src/p_mobj.c
-	src/p_polyobj.c
-	src/p_saveg.c
-	src/p_setup.c
-	src/p_sight.c
-	src/p_spec.c
-	src/p_telept.c
-	src/p_tick.c
-	src/p_user.c
-	src/r_bsp.c
-	src/r_data.c
-	src/r_draw.c
-	src/r_fps.c
-	src/r_main.c
-	src/r_plane.c
-	src/r_segs.c
-	src/r_sky.c
-	src/r_splats.c
-	src/r_things.c
-	src/s_sound.c
-	src/screen.c
-	src/sounds.c
-	src/st_stuff.c
-	src/string.c
-	src/tables.c
-	src/v_video.c
-	src/w_wad.c
-	src/y_inter.c
-	src/z_zone.c
-)
+if(MSVC)
+	message(WARNING "!! MSVC BUILDS OF SRB2 CANNOT PLAY MULTIPLAYER !! You're more than welcome to try and fix this!")
+endif()
 
-#
-# Platform-specific stuff
-#
+# OS macros
+if (UNIX)
+	add_definitions(-DUNIXCOMMON)
+endif()
 
-MACRO(EXTRALIB NAME)
-	FIND_LIBRARY(${NAME}_LIBRARY NAMES ${NAME})
-	IF(${NAME}_LIBRARY)
-		MESSAGE(STATUS "Found lib${NAME}: ${${NAME}_LIBRARY}")
-		SET(EXTRA_LIBRARIES ${EXTRA_LIBRARIES} ${${NAME}_LIBRARY})
-	ELSE(${NAME}_LIBRARY)
-		MESSAGE(FATAL_ERROR "Could not find lib${NAME}!")
-	ENDIF(${NAME}_LIBRARY)
-ENDMACRO(EXTRALIB)
+if(CMAKE_COMPILER_IS_GNUCC)
+	find_program(OBJCOPY objcopy)
+endif()
 
-IF(${CMAKE_SYSTEM} MATCHES "FreeBSD")
-	ADD_DEFINITIONS(-DUNIXCOMMON -DLINUX -DFREEBSD)
-	EXTRALIB(kvm)
-ELSEIF(${CMAKE_SYSTEM} MATCHES "Linux")
-	ADD_DEFINITIONS(-DUNIXCOMMON -DLINUX)
-	EXTRALIB(m)
-	EXTRALIB(rt)
-ELSE(${CMAKE_SYSTEM} MATCHES "Windows")
-	ADD_DEFINITIONS(-DWINDOWSHELL -DMINGW -D_WIN32)
-	MESSAGE(WARNING "No specific settings for your system, it may be not supported!")
-ENDIF(${CMAKE_SYSTEM} MATCHES "FreeBSD")
+if(${CMAKE_SYSTEM} MATCHES "Linux")
+	add_definitions(-DLINUX)
+	if(${SRB2_SYSTEM_BITS} EQUAL 64)
+		add_definitions(-DLINUX64)
+	endif()
+endif()
 
-# 3% chance windows actually works, i dont have a device running windows so who knows?
+if(${CMAKE_SYSTEM} MATCHES "Darwin")
+	add_definitions(-DMACOSX)
+	if(${CMAKE_C_COMPILER_ID} MATCHES "Clang")
+		set(CLANG ON)
+	endif()
+endif()
 
-#
-# Targets
-#
+# Set EXE names so the assets CMakeLists can refer to its target
+set(SRB2_SDL2_EXE_NAME srb2)
+set(SRB2_WIN_EXE_NAME srb2dd)
 
-message(STATUS "Using SDL2")
+include_directories(${CMAKE_CURRENT_BINARY_DIR}/src)
 
-INCLUDE_DIRECTORIES(${ZLIB_INCLUDE_DIRS} ${SDL2_INCLUDE_DIRS} ${SDL2_mixer_INCLUDE_DIRS})
-ADD_EXECUTABLE(lsdl2srb2 ${COMMON_SRCS})
-TARGET_LINK_LIBRARIES(lsdl2srb2 ZLIB png SDL2 SDL2_mixer SDL2_image ${EXTRA_LIBRARIES})
+add_subdirectory(src)
+add_subdirectory(assets)
+
+
+## config.h generation
+set(GIT_EXECUTABLE "git" CACHE FILEPATH "Path to git binary")
+include(GitUtilities)
+git_describe(SRB2_COMP_REVISION "${CMAKE_CURRENT_SOURCE_DIR}")
+configure_file(${CMAKE_CURRENT_SOURCE_DIR}/src/config.h.in ${CMAKE_CURRENT_BINARY_DIR}/src/config.h)
+
+
+
+##### PACKAGE CONFIGURATION #####
+
+if(${CMAKE_SYSTEM} MATCHES "Windows")
+	set(CPACK_GENERATOR "ZIP")
+endif()
+if(${CMAKE_SYSTEM} MATCHES "Linux")
+	set(CPACK_GENERATOR "TGZ")
+endif()
+if(${CMAKE_SYSTEM} MATCHES "Darwin")
+	set(CPACK_GENERATOR "DragNDrop")
+endif()
+
+set(CPACK_PACKAGE_DESCRIPTION_SUMMARY "Sonic Robo Blast 2")
+set(CPACK_PACKAGE_VENDOR "Sonic Team Jr.")
+#set(CPACK_PACKAGE_DESCRIPTION_FILE )
+set(CPACK_RESOURCE_FILE_LICENSE "${CMAKE_CURRENT_SOURCE_DIR}/LICENSE")
+set(CPACK_PACKAGE_VERSION_MAJOR ${SRB2_VERSION_MAJOR})
+set(CPACK_PACKAGE_VERSION_MINOR ${SRB2_VERSION_MINOR})
+set(CPACK_PACKAGE_VERSION_PATCH ${SRB2_VERSION_PATCH})
+set(CPACK_PACKAGE_INSTALL_DIRECTORY "CMake ${CMAKE_VERSION_MAJOR}.${CMAKE_VERSION_MINOR}")
+include(CPack)

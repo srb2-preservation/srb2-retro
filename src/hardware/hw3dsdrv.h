@@ -24,7 +24,7 @@
 #include "hw_dll.h"
 #include "hws_data.h"
 
-#if defined (SDL) || !defined (HWD)
+#if defined (SDL) || defined (SDL2) || !defined (HWD)
 EXPORT void HWRAPI(Shutdown) (void);
 #endif
 

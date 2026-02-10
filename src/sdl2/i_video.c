@@ -351,7 +351,7 @@ int VID_SetMode(int modenum)
 	SDL_window = SDL_CreateWindow(va("SRB2 %s (SDL2 WIP)", VERSIONSTRING), SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED, vid.width, vid.height, flags);
 
 #ifdef HAVE_IMAGE
-	icoSurface = IMG_ReadXPMFromArray(SDL_icon_xpm);
+	//icoSurface = IMG_ReadXPMFromArray(SDL_icon_xpm);
 #endif
 	SDL_SetWindowIcon(SDL_window, icoSurface);
 

@@ -1046,7 +1046,7 @@ void CONS_Printf(const char *fmt, ...)
 	// if not in display loop, force screen update
 	if (con_startup)
 	{
-#if (defined (_WINDOWS)) || (defined (__OS2__) && !defined (SDL))
+#if (defined (_WINDOWS)) || (defined (__OS2__) && !defined (SDL) && !defined (SDL2))
 		// show startup screen and message using only 'software' graphics
 		// (rendermode may be hardware accelerated, but the video mode is not set yet)
 		CON_DrawBackpic(con_backpic, 0, vid.width); // put console background

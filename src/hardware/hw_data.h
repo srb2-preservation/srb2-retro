@@ -26,7 +26,7 @@
 #include <windows.h>
 #endif
 
-#if defined (VID_X11) && !defined (SDL)
+#if defined (VID_X11) && !defined (SDL) && !defined(SDL2)
 #include <GL/glx.h>
 #endif
 
