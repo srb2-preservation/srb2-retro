@@ -9,8 +9,7 @@ CMAKE_MINIMUM_REQUIRED(VERSION 2.8)
 # Variables
 #
 
-set(SRB2_USE_SDL2 ON CACHE BOOL "Use SDL2 instead of SDL1.2")
-# use sdl2 by default
+set(SRB2_DEBUG_BUILD OFF CACHE BOOL "Compile a debug build")
 
 #
 # Dependencies
@@ -23,26 +22,22 @@ add_subdirectory(thirdparty)
 # Common stuff
 #
 
-if (${SRB2_USE_SDL2})
-	ADD_DEFINITIONS(-DHAVE_ZLIB -DHAVE_PNG -D_LARGEFILE64_SOURCE -D_FILE_OFFSET_BITS=64 -DDIRECTFULLSCREEN -DSDL2 -DHAVE_MIXER -DNOHW -DNOASM)
-else()
-	ADD_DEFINITIONS(-DHAVE_ZLIB -DHAVE_PNG -D_LARGEFILE64_SOURCE -D_FILE_OFFSET_BITS=64 -DDIRECTFULLSCREEN -DSDL -DHAVE_MIXER -DNOHW -DHW3SOUND -DNOASM)
-endif()
+ADD_DEFINITIONS(-DHAVE_ZLIB -DHAVE_PNG -D_LARGEFILE64_SOURCE -D_FILE_OFFSET_BITS=64 -DDIRECTFULLSCREEN -DSDL2 -DHAVE_MIXER -DNOHW -DNOASM)
+set(CMAKE_C_FLAGS "-std=gnu17") # most people have the latest gcc soo...
 
-if (${SRB2_USE_SDL2})
-	SET(SDL_DIR sdl2)
-else()
-	SET(SDL_DIR sdl)
+# debug build
+if (${SRB2_DEBUG_BUILD})
+	set(CMAKE_C_FLAGS "-Wall -DPARANOIA -DRANGECHECK -std=gnu17")
 endif()
 
 SET(COMMON_SRCS
-	src/${SDL_DIR}/dosstr.c
-	src/${SDL_DIR}/i_cdmus.c
-	src/${SDL_DIR}/i_main.c
-	src/${SDL_DIR}/i_net.c
-	src/${SDL_DIR}/i_sound.c
-	src/${SDL_DIR}/i_system.c
-	src/${SDL_DIR}/i_video.c
+	src/sdl2/dosstr.c
+	src/sdl2/i_cdmus.c
+	src/sdl2/i_main.c
+	src/sdl2/i_net.c
+	src/sdl2/i_sound.c
+	src/sdl2/i_system.c
+	src/sdl2/i_video.c
 	src/am_map.c
 	src/command.c
 	src/comptime.c
@@ -114,11 +109,6 @@ SET(COMMON_SRCS
 	src/z_zone.c
 )
 
-SET(SDL12_SRCS
-	src/${SDL_DIR}/hwsym_sdl.c
-	src/${SDL_DIR}/endtxt.c
-)
-
 #
 # Platform-specific stuff
 #
@@ -151,16 +141,8 @@ ENDIF(${CMAKE_SYSTEM} MATCHES "FreeBSD")
 # Targets
 #
 
-if (NOT (${SRB2_USE_SDL2}))
-	message(STATUS "Using SDL1.2")
+message(STATUS "Using SDL2")
 
-	INCLUDE_DIRECTORIES(${ZLIB_INCLUDE_DIRS} ${PNG_INCLUDE_DIRS} ${SDL_INCLUDE_DIR} ${SDL_MIXER_INCLUDE_DIR})
-	ADD_EXECUTABLE(lsdlsrb2 ${COMMON_SRCS} ${SDL12_SRCS})
-	LINK_LIBRARIES(lsdlsrb2 ${ZLIB_LIBRARIES} ${PNG_LIBRARIES} ${SDL_LIBRARY} ${SDL_MIXER_LIBRARY} ${EXTRA_LIBRARIES})
-else()
-	message(STATUS "Using SDL2")
-
-	INCLUDE_DIRECTORIES(${ZLIB_INCLUDE_DIRS} ${SDL2_INCLUDE_DIRS} ${SDL2_mixer_INCLUDE_DIRS})
-	ADD_EXECUTABLE(lsdl2srb2 ${COMMON_SRCS})
-	TARGET_LINK_LIBRARIES(lsdl2srb2 ZLIB png SDL2 SDL2_mixer SDL2_image ${EXTRA_LIBRARIES})
-endif()
+INCLUDE_DIRECTORIES(${ZLIB_INCLUDE_DIRS} ${SDL2_INCLUDE_DIRS} ${SDL2_mixer_INCLUDE_DIRS})
+ADD_EXECUTABLE(lsdl2srb2 ${COMMON_SRCS})
+TARGET_LINK_LIBRARIES(lsdl2srb2 ZLIB png SDL2 SDL2_mixer SDL2_image ${EXTRA_LIBRARIES})

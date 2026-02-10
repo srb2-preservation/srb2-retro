@@ -1064,7 +1064,7 @@ static void R_ProjectSprite(mobj_t *thing)
 
 	if (rot >= sprdef->numframes)
 #ifdef RANGECHECK
-		I_Error("R_ProjectSprite: invalid sprite frame %u : %"PRIdS"/%"PRIdS" for %s",
+		I_Error("R_ProjectSprite: invalid sprite frame %u : %s/%s for %s",
 		 thing->sprite, rot, sprdef->numframes, sprnames[thing->sprite]);
 #else
 	{

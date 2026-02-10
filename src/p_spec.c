@@ -1508,7 +1508,7 @@ void P_LinedefExecute(INT32 tag, mobj_t *actor, sector_t *caller)
 			if (masterlineindex == (size_t)-1)
 			{
 				const size_t li = (size_t)(ctlsector->lines[i] - lines);
-				I_Error("Line %"PRIdS" isn't linked into its front sector", li);
+				I_Error("Line %s isn't linked into its front sector", li);
 			}
 #endif
 
