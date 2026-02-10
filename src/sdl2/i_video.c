@@ -28,6 +28,14 @@
 
 #include "i_video.h"
 
+#include <SDL2/SDL_image.h>
+#if !(defined (DC) || defined (_WIN32_WCE) || defined (PSP) || defined(GP2X))
+#define LOAD_XPM //I want XPM!
+#define HAVE_IMAGE //I have SDL_Image, sortof
+
+#include "SDL_icon.xpm"
+#endif
+
 static SDL_bool disable_fullscreen = SDL_FALSE;
 #define USE_FULLSCREEN (disable_fullscreen||!allow_fullscreen)?0:cv_fullscreen.value
 
@@ -46,6 +54,8 @@ boolean highcolor = false;
 boolean allow_fullscreen = false;
 
 static SDL_bool mousegrabok = SDL_FALSE;
+
+static SDL_Surface *icoSurface = NULL;
 
 consvar_t cv_vidwait = {"vid_wait", "On", CV_SAVE, CV_OnOff, NULL, 0, "On", NULL, 0, 0, NULL};
 
@@ -336,7 +346,12 @@ int VID_SetMode(int modenum)
 		flags = 0;
 
 	// Init window (hardcoded to 640x400 for now) in the center of the screen
-		SDL_window = SDL_CreateWindow(va("SRB2 %s (SDL2 WIP)", VERSIONSTRING), SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED, vid.width, vid.height, flags);
+	SDL_window = SDL_CreateWindow(va("SRB2 %s (SDL2 WIP)", VERSIONSTRING), SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED, vid.width, vid.height, flags);
+
+#ifdef HAVE_IMAGE
+	icoSurface = IMG_ReadXPMFromArray(SDL_icon_xpm);
+#endif
+	SDL_SetWindowIcon(SDL_window, icoSurface);
 
 	if (!SDL_window)
 		I_Error("VID_SetMode(): Could not create window!");
