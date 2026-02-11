@@ -750,7 +750,7 @@ static void DebugPrintpacket(const char *header)
 			break;
 		case PT_SERVERTICS:
 		fprintf(debugfile, "    firsttic %u ply %d tics %d ntxtcmd %s\n    ",
-			(UINT32)ExpandTics(netbuffer->u.serverpak.starttic), netbuffer->u.serverpak.numslots,
+			(UINT32)netbuffer->u.serverpak.starttic, netbuffer->u.serverpak.numslots,
 			netbuffer->u.serverpak.numtics,
 			sizeu1((size_t)(&((UINT8 *)netbuffer)[doomcom->datalength] - (UINT8 *)&netbuffer->u.serverpak.cmds[netbuffer->u.serverpak.numslots*netbuffer->u.serverpak.numtics])));
 		fprintfstring((char *)&netbuffer->u.serverpak.cmds[netbuffer->u.serverpak.numslots*netbuffer->u.serverpak.numtics],(size_t)(
@@ -775,8 +775,8 @@ static void DebugPrintpacket(const char *header)
 		case PT_NODEKEEPALIVE:
 		case PT_NODEKEEPALIVEMIS:
 			fprintf(debugfile, "    tic %4u resendfrom %u\n",
-				(UINT32)ExpandTics(netbuffer->u.clientpak.client_tic),
-				(UINT32)ExpandTics (netbuffer->u.clientpak.resendfrom));
+				(UINT32)ExpandTics(netbuffer->u.clientpak.client_tic, doomcom->remotenode),
+				(UINT32)ExpandTics (netbuffer->u.clientpak.resendfrom, doomcom->remotenode));
 			break;
 		case PT_TEXTCMD:
 		case PT_TEXTCMD2:

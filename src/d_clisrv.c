@@ -159,18 +159,18 @@ static inline void *G_ScpyTiccmd(ticcmd_t* dest, void* src, const size_t n)
 // of 512 octet is like 0.1)
 UINT16 software_MAXPACKETLENGTH;
 
-tic_t ExpandTics(INT32 low)
+tic_t ExpandTics(INT32 low, INT32 node)
 {
 	INT32 delta;
 
-	delta = low - (maketic & UINT8_MAX);
+	delta = low - (nettics[node] & UINT8_MAX);
 
 	if (delta >= -64 && delta <= 64)
-		return (maketic & ~UINT8_MAX) + low;
+		return (nettics[node] & ~UINT8_MAX) + low;
 	else if (delta > 64)
-		return (maketic & ~UINT8_MAX) - 256 + low;
+		return (nettics[node] & ~UINT8_MAX) - 256 + low;
 	else //if (delta < -64)
-		return (maketic & ~UINT8_MAX) + 256 + low;
+		return (nettics[node] & ~UINT8_MAX) + 256 + low;
 }
 
 // -----------------------------------------------------------------
@@ -1797,6 +1797,9 @@ static void Got_KickCmd(UINT8 **p, INT32 playernum)
 		CL_RemovePlayer(pnum);
 }
 
+static CV_PossibleValue_t netticbuffer_cons_t[] = {{0, "MIN"}, {3, "MAX"}, {0, NULL}};
+consvar_t cv_netticbuffer = {"netticbuffer", "1", CV_SAVE, netticbuffer_cons_t, NULL, 0, NULL, NULL, 0, 0, NULL};
+
 consvar_t cv_allownewplayer = {"allowjoin", "On", CV_NETVAR, CV_OnOff, NULL, 0, NULL, NULL, 0, 0, NULL	};
 consvar_t cv_joinnextround = {"joinnextround", "Off", CV_NETVAR, CV_OnOff, NULL, 0, NULL, NULL, 0, 0, NULL}; /// \todo not done
 static CV_PossibleValue_t maxplayers_cons_t[] = {{2, "MIN"}, {32, "MAX"}, {0, NULL}};
@@ -2840,8 +2843,8 @@ FILESTAMP
 
 				// to save bytes, only the low byte of tic numbers are sent
 				// Figure out what the rest of the bytes are
-				realstart = ExpandTics(netbuffer->u.clientpak.client_tic);
-				realend = ExpandTics(netbuffer->u.clientpak.resendfrom);
+				realstart = ExpandTics(netbuffer->u.clientpak.client_tic, node);
+				realend = ExpandTics(netbuffer->u.clientpak.resendfrom, node);
 
 				if (netbuffer->packettype == PT_CLIENTMIS || netbuffer->packettype == PT_CLIENT2MIS
 					|| netbuffer->packettype == PT_NODEKEEPALIVEMIS
@@ -3024,14 +3027,14 @@ FILESTAMP
 					break;
 				}
 
-				realstart = ExpandTics(netbuffer->u.serverpak.starttic);
+				realstart = netbuffer->u.serverpak.starttic;
 				realend = realstart + netbuffer->u.serverpak.numtics;
 
 				txtpak = (UINT8 *)&netbuffer->u.serverpak.cmds[netbuffer->u.serverpak.numslots
 					* netbuffer->u.serverpak.numtics];
 
-				if (realend > gametic + BACKUPTICS)
-					realend = gametic + BACKUPTICS;
+				if (realend > gametic + CLIENTBACKUPTICS)
+					realend = gametic + CLIENTBACKUPTICS;
 				cl_packetmissed = realstart > neededtic;
 
 				if (realstart <= neededtic && realend > neededtic)
@@ -3235,11 +3238,12 @@ static void SV_SendTics(void)
 	for (n = 1; n < MAXNETNODES; n++)
 		if (nodeingame[n])
 		{
-			lasttictosend = maketic;
 
 			// assert supposedtics[n]>=nettics[n]
 			realfirsttic = supposedtics[n];
-			if (realfirsttic >= maketic)
+			lasttictosend = min(maketic, realfirsttic + CLIENTBACKUPTICS);
+
+			if (realfirsttic >= lasttictosend)
 			{
 				// well we have sent all tics we will so use extrabandwidth
 				// to resent packet that are supposed lost (this is necessary since lost
@@ -3248,7 +3252,7 @@ static void SV_SendTics(void)
 				DEBFILE(va("Nothing to send node %u mak=%u sup=%u net=%u \n",
 					n, maketic, supposedtics[n], nettics[n]));
 				realfirsttic = nettics[n];
-				if (realfirsttic >= maketic || (I_GetTime() + n)&3)
+				if (realfirsttic >= lasttictosend || (I_GetTime() + n)&3)
 					// all tic are ok
 					continue;
 				DEBFILE(va("Sent %d anyway\n", realfirsttic));
@@ -3291,7 +3295,7 @@ static void SV_SendTics(void)
 
 			// Send the tics
 			netbuffer->packettype = PT_SERVERTICS;
-			netbuffer->u.serverpak.starttic = (UINT8)realfirsttic;
+			netbuffer->u.serverpak.starttic = realfirsttic;
 			netbuffer->u.serverpak.numtics = (UINT8)(lasttictosend - realfirsttic);
 			netbuffer->u.serverpak.numslots = (UINT8)SHORT(doomcom->numslots);
 			bufpos = (UINT8 *)&netbuffer->u.serverpak.cmds;
@@ -3456,6 +3460,10 @@ void TryRunTics(tic_t realtics)
 					neededtic++;
 				else
 					consistancy[gametic%BACKUPTICS] = Consistancy();
+
+				// Leave a certain amount of tics present in the net buffer as long as we've ran at least one tic this frame.
+				if (players && gamestate == GS_LEVEL && leveltime > 3 && neededtic <= gametic + cv_netticbuffer.value)
+					break;
 			}
 	}
 }
@@ -3555,7 +3563,7 @@ void NetUpdate(void)
 		// update node latency values so we can take an average later.
 		for (i = 0; i < MAXNETNODES; i++)
 			if (playeringame[i])
-				realpingtable[i] += G_TicsToMilliseconds(GetLag(i));
+				realpingtable[i] += GetLag(i) * (1000.00f / TICRATE);
 		pingmeasurecount++;
 	}
 #endif

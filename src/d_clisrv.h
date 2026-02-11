@@ -34,7 +34,8 @@
 //  be transmitted.
 
 // Networking and tick handling related.
-#define BACKUPTICS 32
+#define BACKUPTICS 1024
+#define CLIENTBACKUPTICS 32
 #define MAXTEXTCMD 256
 //
 // Packet structure
@@ -111,7 +112,7 @@ typedef struct
 // this packet is too large
 typedef struct
 {
-	UINT8 starttic;
+	tic_t starttic;
 	UINT8 numtics;
 	UINT8 numslots; // "Slots filled": Highest player number in use plus one.
 	UINT8 padding1[1];
@@ -453,10 +454,10 @@ extern UINT32 realpingtable[MAXPLAYERS];
 extern UINT32 playerpingtable[MAXPLAYERS];
 #endif
 
-extern consvar_t cv_joinnextround, cv_allownewplayer, cv_maxplayers, cv_consfailprotect, cv_blamecfail, cv_maxsend;
+extern consvar_t cv_joinnextround, cv_allownewplayer, cv_maxplayers, cv_consfailprotect, cv_blamecfail, cv_maxsend, cv_netticbuffer;
 
 // used in d_net, the only dependence
-tic_t ExpandTics(INT32 low);
+tic_t ExpandTics(INT32 low, INT32 node);
 void D_ClientServerInit(void);
 
 // initialise the other field
