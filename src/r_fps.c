@@ -61,12 +61,12 @@ void R_InterpolateView(fixed_t frac)
 	if (frac >= FRACUNIT)
 	{
 	//	viewplayer = newview->player;
-	//	viewsector = newview->sector;
+		viewsector = newview->sector;
 	}
 	else
 	{
 	//	viewplayer = oldview->player;
-	//	viewsector = oldview->sector;
+		viewsector = oldview->sector;
 	}
 
 	if (rendermode == render_soft)
