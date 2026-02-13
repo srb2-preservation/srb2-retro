@@ -1189,7 +1189,7 @@ void R_PrecacheLevel(void)
 	if (spritepresent == NULL) I_Error("%s: Out of memory looking up sprites", "R_PrecacheLevel");
 
 	for (th = thinkercap.next; th != &thinkercap; th = th->next)
-		if (th->function.acp1 == (actionf_p1)P_MobjThinker)
+		if (th->function == (actionf_p1)P_MobjThinker)
 			spritepresent[((mobj_t *)th)->sprite] = 1;
 
 	spritememory = 0;

@@ -36,12 +36,6 @@
 #include "i_video.h"
 #include "dstrings.h"
 
-//Real Prototypes to A_*
-void A_Boss1Chase(mobj_t *actor);
-void A_Boss2Chase(mobj_t *actor);
-void A_Boss2Pogo(mobj_t *actor);
-void A_BossJetFume(mobj_t *actor);
-
 // protos.
 static CV_PossibleValue_t viewheight_cons_t[] = {{16, "MIN"}, {56, "MAX"}, {0, NULL}};
 
@@ -67,7 +61,7 @@ void P_RunCachedActions(void)
 	{
 		var1 = states[ac->statenum].var1;
 		var2 = states[ac->statenum].var2;
-		states[ac->statenum].action.acp1(ac->mobj);
+		states[ac->statenum].action(ac->mobj);
 		next = ac->next;
 		Z_Free(ac);
 	}
@@ -186,11 +180,11 @@ boolean P_SetPlayerMobjState(mobj_t *mobj, statenum_t state)
 		// Modified handling.
 		// Call action functions when the state is set
 
-		if (st->action.acp1)
+		if (st->action)
 		{
 			var1 = st->var1;
 			var2 = st->var2;
-			st->action.acp1(mobj);
+			st->action(mobj);
 		}
 
 		seenstate[state] = 1 + st->nextstate;
@@ -248,11 +242,11 @@ boolean P_SetMobjState(mobj_t *mobj, statenum_t state)
 		// Modified handling.
 		// Call action functions when the state is set
 
-		if (st->action.acp1)
+		if (st->action)
 		{
 			var1 = st->var1;
 			var2 = st->var2;
-			st->action.acp1(mobj);
+			st->action(mobj);
 		}
 
 		seenstate[state] = 1 + st->nextstate;
@@ -340,7 +334,7 @@ void P_EmeraldManager(void)
 
 	for (think = thinkercap.next; think != &thinkercap; think = think->next)
 	{
-		if (think->function.acp1 != (actionf_p1)P_MobjThinker)
+		if (think->function != (actionf_p1)P_MobjThinker)
 			continue; // not a mobj thinker
 
 		mo = (mobj_t *)think;
@@ -2598,7 +2592,7 @@ void P_DestroyRobots(void)
 	count = 0;
 	for (think = thinkercap.next; think != &thinkercap; think = think->next)
 	{
-		if (think->function.acp1 != (actionf_p1)P_MobjThinker)
+		if (think->function != (actionf_p1)P_MobjThinker)
 			continue; // not a mobj thinker
 
 		mo = (mobj_t *)think;
@@ -2791,7 +2785,7 @@ static void P_PlayerMobjThinker(mobj_t *mobj)
 	{
 		P_XYMovement(mobj);
 
-		if (mobj->thinker.function.acv == P_RemoveThinkerDelayed)
+		if (mobj->thinker.function == P_RemoveThinkerDelayed)
 			return; // mobj was removed
 	}
 	else
@@ -2907,7 +2901,7 @@ static void P_PlayerMobjThinker(mobj_t *mobj)
 				mobj->momz = 0;
 		}
 
-		if (mobj->thinker.function.acv == P_RemoveThinkerDelayed)
+		if (mobj->thinker.function == P_RemoveThinkerDelayed)
 			return; // mobj was removed
 	}
 	else
@@ -3045,7 +3039,7 @@ static void P_RingThinker(mobj_t *mobj)
 	{
 		P_RingXYMovement(mobj);
 
-		if (mobj->thinker.function.acv == P_RemoveThinkerDelayed)
+		if (mobj->thinker.function == P_RemoveThinkerDelayed)
 			return; // mobj was removed
 	}
 
@@ -3056,7 +3050,7 @@ static void P_RingThinker(mobj_t *mobj)
 		P_RingZMovement(mobj);
 		P_CheckPosition(mobj, mobj->x, mobj->y); // Need this to pick up objects!
 
-		if (mobj->thinker.function.acv == P_RemoveThinkerDelayed)
+		if (mobj->thinker.function == P_RemoveThinkerDelayed)
 			return; // mobj was removed
 	}
 
@@ -3474,7 +3468,7 @@ static void P_Boss3Thinker(mobj_t *mobj)
 		// the number
 		for (th = thinkercap.next; th != &thinkercap; th = th->next)
 		{
-			if (th->function.acp1 != (actionf_p1)P_MobjThinker)
+			if (th->function != (actionf_p1)P_MobjThinker)
 				continue;
 
 			mo2 = (mobj_t *)th;
@@ -3830,7 +3824,7 @@ static void P_Boss7Thinker(mobj_t *mobj)
 		// if all bosses are dead
 		for (th = thinkercap.next; th != &thinkercap; th = th->next)
 		{
-			if (th->function.acp1 != (actionf_p1)P_MobjThinker)
+			if (th->function != (actionf_p1)P_MobjThinker)
 				continue;
 
 			mo2 = (mobj_t *)th;
@@ -4157,7 +4151,7 @@ RetryAttack:
 				// Find waypoint he is closest to
 				for (th = thinkercap.next; th != &thinkercap; th = th->next)
 				{
-					if (th->function.acp1 != (actionf_p1)P_MobjThinker)
+					if (th->function != (actionf_p1)P_MobjThinker)
 						continue;
 
 					mo2 = (mobj_t *)th;
@@ -4212,7 +4206,7 @@ RetryAttack:
 		// the waypoint to use
 		for (th = thinkercap.next; th != &thinkercap; th = th->next)
 		{
-			if (th->function.acp1 != (actionf_p1)P_MobjThinker)
+			if (th->function != (actionf_p1)P_MobjThinker)
 				continue;
 
 			mo2 = (mobj_t *)th;
@@ -4388,7 +4382,7 @@ mobj_t *P_GetClosestAxis(mobj_t *source)
 	// scan the thinkers to find the closest axis point
 	for (th = thinkercap.next; th != &thinkercap; th = th->next)
 	{
-		if (th->function.acp1 != (actionf_p1)P_MobjThinker)
+		if (th->function != (actionf_p1)P_MobjThinker)
 			continue;
 
 		mo2 = (mobj_t *)th;
@@ -4671,7 +4665,7 @@ static boolean P_BossDoesntExist(void)
 	// scan the thinkers
 	for (th = thinkercap.next; th != &thinkercap; th = th->next)
 	{
-		if (th->function.acp1 != (actionf_p1)P_MobjThinker)
+		if (th->function != (actionf_p1)P_MobjThinker)
 			continue;
 
 		mo2 = (mobj_t *)th;
@@ -4835,7 +4829,6 @@ static boolean P_AddShield(mobj_t *thing)
 	return true;
 }
 
-void A_BossDeath(mobj_t *mo);
 // AI for the Koopa boss.
 static void P_KoopaThinker(mobj_t *koopa)
 {
@@ -6105,7 +6098,7 @@ void P_MobjThinker(mobj_t *mobj)
 	{
 		P_XYMovement(mobj);
 
-		if (mobj->thinker.function.acv == P_RemoveThinkerDelayed)
+		if (mobj->thinker.function == P_RemoveThinkerDelayed)
 			return; // mobj was removed
 	}
 
@@ -6121,7 +6114,7 @@ void P_MobjThinker(mobj_t *mobj)
 			P_CheckPosition(mobj, mobj->x, mobj->y); // Need this to pick up objects!
 		}
 
-		if (mobj->thinker.function.acv == P_RemoveThinkerDelayed)
+		if (mobj->thinker.function == P_RemoveThinkerDelayed)
 			return; // mobj was removed
 	}
 	else
@@ -6188,7 +6181,7 @@ void P_RailThinker(mobj_t *mobj)
 	{
 		P_XYMovement(mobj);
 
-		if (mobj->thinker.function.acv == P_RemoveThinkerDelayed)
+		if (mobj->thinker.function == P_RemoveThinkerDelayed)
 			return; // mobj was removed
 	}
 
@@ -6199,7 +6192,7 @@ void P_RailThinker(mobj_t *mobj)
 		P_ZMovement(mobj);
 		P_CheckPosition(mobj, mobj->x, mobj->y); // Need this to pick up objects!
 
-		if (mobj->thinker.function.acv == P_RemoveThinkerDelayed)
+		if (mobj->thinker.function == P_RemoveThinkerDelayed)
 			return; // mobj was removed
 	}
 }
@@ -6299,7 +6292,7 @@ void P_SceneryThinker(mobj_t *mobj)
 	{
 		P_SceneryXYMovement(mobj);
 
-		if (mobj->thinker.function.acv == P_RemoveThinkerDelayed)
+		if (mobj->thinker.function == P_RemoveThinkerDelayed)
 			return; // mobj was removed
 	}
 
@@ -6317,7 +6310,7 @@ void P_SceneryThinker(mobj_t *mobj)
 			mobj->ceilingz = tmceilingz;
 		}
 
-		if (mobj->thinker.function.acv == P_RemoveThinkerDelayed)
+		if (mobj->thinker.function == P_RemoveThinkerDelayed)
 			return; // mobj was removed
 	}
 	else
@@ -6494,12 +6487,12 @@ mobj_t *P_SpawnMobj(fixed_t x, fixed_t y, fixed_t z, mobjtype_t type)
 
 	if (!(mobj->type & MF_NOTHINK))
 	{
-		mobj->thinker.function.acp1 = (actionf_p1)P_MobjThinker;
+		mobj->thinker.function = (actionf_p1)P_MobjThinker;
 		P_AddThinker(&mobj->thinker);
 	}
 
 	// Call action functions when the state is set
-	if (st->action.acp1 && (mobj->flags & MF_RUNSPAWNFUNC))
+	if (st->action && (mobj->flags & MF_RUNSPAWNFUNC))
 	{
 		if (levelloading)
 		{
@@ -6513,7 +6506,7 @@ mobj_t *P_SpawnMobj(fixed_t x, fixed_t y, fixed_t z, mobjtype_t type)
 		{
 			var1 = st->var1;
 			var2 = st->var2;
-			st->action.acp1(mobj);
+			st->action(mobj);
 		}
 	}
 
@@ -6552,7 +6545,7 @@ static inline precipmobj_t *P_SpawnRainMobj(fixed_t x, fixed_t y, fixed_t z, mob
 	mobj->z = z;
 	mobj->momz = mobjinfo[type].speed;
 
-	mobj->thinker.function.acp1 = (actionf_p1)P_RainThinker;
+	mobj->thinker.function = (actionf_p1)P_RainThinker;
 	P_AddThinker(&mobj->thinker);
 
 	CalculatePrecipFloor(mobj);
@@ -6586,7 +6579,7 @@ static precipmobj_t *P_SpawnSnowMobj(fixed_t x, fixed_t y, fixed_t z, mobjtype_t
 	mobj->z = z;
 	mobj->momz = mobjinfo[type].speed;
 
-	mobj->thinker.function.acp1 = (actionf_p1)P_SnowThinker;
+	mobj->thinker.function = (actionf_p1)P_SnowThinker;
 	P_AddThinker(&mobj->thinker);
 
 	CalculatePrecipFloor(mobj);
@@ -7138,7 +7131,7 @@ void P_SpawnPlayer(mapthing_t *mthing, INT32 playernum)
 			P_ResetCamera(p, &camera2);
 	}
 
-	// set the scale to the mobj's destscale so settings get correctly set.  if we don't, they sometimes don't. 
+	// set the scale to the mobj's destscale so settings get correctly set.  if we don't, they sometimes don't.
 	P_SetScale(mobj, mobj->destscale);
 }
 
@@ -7818,7 +7811,7 @@ ML_NOCLIMB : Direction not controllable
 		// See if other starposts exist in this level that have the same value.
 		for (th = thinkercap.next; th != &thinkercap; th = th->next)
 		{
-			if (th->function.acp1 != (actionf_p1)P_MobjThinker)
+			if (th->function != (actionf_p1)P_MobjThinker)
 				continue;
 
 			mo2 = (mobj_t *)th;
