@@ -972,7 +972,7 @@ void D_SRB2Main(void)
 #ifdef PC_DOS
 	D_Titlebar(srb2, title);
 #else
-	CONS_Printf("SRB2"VERSIONSTRING"\n");
+	CONS_Printf("SRB2 Retro"VERSIONSTRING"\n");
 #endif
 
 #if defined (__OS2__) && !defined (SDL)
