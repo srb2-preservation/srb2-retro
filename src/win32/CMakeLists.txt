@@ -1,0 +1,9 @@
+set(SRB2_WIN_EXE_NAME srb2dd)
+
+add_executable(${SRB2_WIN_EXE_NAME} EXCLUDE_FROM_ALL
+	${SRB2_CORE_SOURCES}
+	${SRB2_CORE_HEADERS})
+
+target_compile_definitions(${SRB2_WIN_EXE_NAME} PRIVATE
+	-D_WINDOWS
+)
