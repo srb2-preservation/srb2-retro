@@ -58,14 +58,14 @@ void R_InterpolateView(fixed_t frac)
 
 	// this is gonna create some interesting visual errors for long distance teleports...
 	// might want to recalculate the view sector every frame instead...
-	if (frac >= FRACUNIT)
+	if (frac >= FRACUNIT && newview->player)
 	{
-	//	viewplayer = newview->player;
+		viewplayer = newview->player;
 		viewsector = newview->sector;
 	}
-	else
+	else if (oldview->player)
 	{
-	//	viewplayer = oldview->player;
+		viewplayer = oldview->player;
 		viewsector = oldview->sector;
 	}
 
