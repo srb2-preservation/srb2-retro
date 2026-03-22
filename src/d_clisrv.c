@@ -47,7 +47,6 @@
 #include "r_local.h"
 #include "m_argv.h"
 #include "p_setup.h"
-#include "r_fps.h"
 
 #ifdef _XBOX
 #include "sdl/SRB2XBOX/xboxhelp.h"
@@ -3451,7 +3450,6 @@ void TryRunTics(tic_t realtics)
 			{
 				DEBFILE(va("============ Running tic %d (local %d)\n", gametic, localgametic));
 
-				prev_tics = I_GetTime();
 				G_Ticker();
 				ExtraDataTicker();
 				gametic++;

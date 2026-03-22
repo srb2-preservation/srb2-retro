@@ -77,7 +77,6 @@ int	snprintf(char *str, size_t n, const char *fmt, ...);
 #include "p_local.h" // chasecam
 #include "mserv.h" // cv_internetserver
 #include "m_misc.h" // screenshot functionality
-#include "r_fps.h" // Uncapped
 
 #ifdef CMAKECONFIG
 #include "config.h"
@@ -225,11 +224,6 @@ static void D_Display(void)
 
 	if (nodrawers)
 		return; // for comparative timing/profiling
-
-	if (cv_capframerate.value == 0)
-	{
-		R_DoThinkerLerp(I_GetTimeFrac());
-	}
 
 	// check for change of screen size (video mode)
 	if (setmodeneeded && !wipe)
@@ -579,32 +573,26 @@ void D_SRB2Loop(void)
 				debugload--;
 #endif
 
-		/*if (!realtics && !singletics)
+		if (!realtics && !singletics)
 		{
 			I_Sleep();
 			continue;
-		}*/
+		}
 
 #ifdef HW3SOUND
 		HW3S_BeginFrameUpdate();
 #endif
 
 		// process tics (but maybe not if realtic == 0)
-
 		TryRunTics(realtics);
 
-		if (cv_capframerate.value == 0)
-		{
-
-			D_Display();
-		}
 		if (lastdraw || singletics || gametic > rendergametic)
 		{
 			rendergametic = gametic;
 			rendertimeout = entertic+TICRATE/17;
 
 			// Update display, next frame, with current state.
-			cv_capframerate.value == 1 ? D_Display() : 0;
+			D_Display();
 			supdate = false;
 
 			if (moviemode)
@@ -626,7 +614,7 @@ void D_SRB2Loop(void)
 				if (camera.chase)
 					P_MoveChaseCamera(&players[displayplayer], &camera, true);
 			}
-			cv_capframerate.value == 1 ? D_Display() : 0;
+			D_Display();
 		}
 
 		// consoleplayer -> displayplayer (hear sounds from viewpoint)

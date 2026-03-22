@@ -25,7 +25,6 @@
 #include "st_stuff.h"
 #include "p_polyobj.h"
 #include "m_random.h"
-#include "r_fps.h"
 
 tic_t leveltime;
 
@@ -421,9 +420,6 @@ void P_Ticker(void)
 {
 	INT32 i;
 
-	R_SetThinkerOldStates();
-	R_ResetThinkerLerp();
-
 	//Increment jointime even if paused.
 	for (i = 0; i < MAXPLAYERS; i++)
 		if (playeringame[i])
@@ -644,8 +640,6 @@ void P_Ticker(void)
 		countdown2--;
 
 	P_MapEnd();
-
-	R_SetThinkerNewStates();
 
 //	Z_CheckMemCleanup();
 }

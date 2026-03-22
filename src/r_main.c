@@ -35,8 +35,6 @@
 #include "d_main.h"
 #include "v_video.h"
 #include "dstrings.h"
-#include "r_fps.h" // Uncapped framerate -- Fury
-#include "i_system.h"
 
 #ifdef HWRENDER
 #include "hardware/hw_main.h"
@@ -104,9 +102,6 @@ lighttable_t *scalelight[LIGHTLEVELS][MAXLIGHTSCALE];
 lighttable_t *scalelightfixed[MAXLIGHTSCALE];
 lighttable_t *zlight[LIGHTLEVELS][MAXLIGHTZ];
 
-// Uncapped Framerate
-tic_t prev_tics;
-
 // Hack to support extra boom colormaps.
 size_t num_extra_colormaps;
 extracolormap_t extra_colormaps[MAXCOLORMAPS];
@@ -125,10 +120,6 @@ consvar_t cv_shadow = {"shadow", "Off", CV_SAVE, CV_OnOff, NULL, 0, NULL, NULL, 
 consvar_t cv_shadowoffs = {"offsetshadows", "Off", CV_SAVE, CV_OnOff, NULL, 0, NULL, NULL, 0, 0, NULL};
 consvar_t cv_precipdensity = {"precipdensity", "Heavy", CV_SAVE, precipdensity_cons_t, NULL, 0, NULL, NULL, 0, 0, NULL};
 consvar_t cv_soniccd = {"soniccd", "Off", CV_NETVAR, CV_OnOff, NULL, 0, NULL, NULL, 0, 0, NULL};
-
-// Uncapped framerate
-consvar_t cv_capframerate = {"capframerate", "Off", CV_SAVE, CV_OnOff, NULL, 0, NULL, NULL, 0, 0, NULL};
-
 consvar_t cv_allowmlook = {"allowmlook", "Yes", CV_NETVAR, CV_YesNo, NULL, 0, NULL, NULL, 0, 0, NULL};
 consvar_t cv_precipdist = {"precipdist", "1024", CV_SAVE, CV_Unsigned, NULL, 0, NULL, NULL, 0, 0, NULL};
 consvar_t cv_showhud = {"showhud", "Yes", CV_CALL,  CV_YesNo, R_SetViewSize, 0, NULL, NULL, 0, 0, NULL};
@@ -738,14 +729,10 @@ void R_SetupFrame(player_t *player)
 	if (splitscreen && player == &players[secondarydisplayplayer]
 		&& player != &players[consoleplayer])
 	{
-		R_SetViewContext(VIEWCONTEXT_PLAYER2);
 		thiscam = &camera2;
 	}
 	else
-	{
 		thiscam = &camera;
-		R_SetViewContext(VIEWCONTEXT_PLAYER1);
-	}
 
 	if (cv_chasecam.value && thiscam == &camera && !thiscam->chase)
 	{
@@ -766,9 +753,9 @@ void R_SetupFrame(player_t *player)
 	{
 		// cut-away view stuff
 		viewmobj = player->awayviewmobj; // should be a MT_ALTVIEWMAN
-		newview->z = viewmobj->z + 20*FRACUNIT;
-		newview->aim = player->awayviewaiming;
-		newview->angle = viewmobj->angle;
+		viewz = viewmobj->z + 20*FRACUNIT;
+		aimingangle = player->awayviewaiming;
+		viewangle = viewmobj->angle;
 	}
 	else if ((cv_chasecam.value && thiscam == &camera)
 		|| (cv_chasecam2.value && thiscam == &camera2))
@@ -776,30 +763,30 @@ void R_SetupFrame(player_t *player)
 	{
 		viewmobj = player->mo; // LIES! FILTHY STINKING LIES!!!
 		I_Assert(viewmobj != NULL);
-		newview->z = thiscam->z + (thiscam->height>>1);
-		newview->aim = thiscam->aiming;
-		newview->angle = thiscam->angle;
+		viewz = thiscam->z + (thiscam->height>>1);
+		aimingangle = thiscam->aiming;
+		viewangle = thiscam->angle;
 	}
 	else
 	// use the player's eyes view
 	{
-		newview->z = player->viewz;
+		viewz = player->viewz;
 
 		viewmobj = player->mo;
 
 		aimingangle = player->aiming;
-		newview->angle = viewmobj->angle;
+		viewangle = viewmobj->angle;
 
 		if (!demoplayback && player->playerstate != PST_DEAD)
 		{
 			if (player == &players[consoleplayer])
 			{
-				newview->angle = localangle; // WARNING: camera uses this
-				newview->aim = localaiming;
+				viewangle = localangle; // WARNING: camera uses this
+				aimingangle = localaiming;
 			}
 			else if (player == &players[secondarydisplayplayer])
 			{
-				newview->angle = localangle2;
+				viewangle = localangle2;
 				aimingangle = localaiming2;
 			}
 		}
@@ -820,34 +807,34 @@ void R_SetupFrame(player_t *player)
 	if (((cv_chasecam.value && thiscam == &camera) || (cv_chasecam2.value && thiscam == &camera2))
 		&& !player->awayviewtics)
 	{
-		newview->x = thiscam->x;
-		newview->y = thiscam->y;
+		viewx = thiscam->x;
+		viewy = thiscam->y;
 
 		if (thiscam->subsector)
-			newview->sector = thiscam->subsector->sector;
+			viewsector = thiscam->subsector->sector;
 		else
-			newview->sector = R_PointInSubsector(viewx, viewy)->sector;
+			viewsector = R_PointInSubsector(viewx, viewy)->sector;
 	}
 	else
 	{
-		newview->x = viewmobj->x;
-		newview->y = viewmobj->y;
+		viewx = viewmobj->x;
+		viewy = viewmobj->y;
 
 		if (viewmobj->subsector)
-			newview->sector = viewmobj->subsector->sector;
+			viewsector = viewmobj->subsector->sector;
 		else
-			newview->sector = R_PointInSubsector(viewx, viewy)->sector;
+			viewsector = R_PointInSubsector(viewx, viewy)->sector;
 	}
 
-	//newview->sin = FINESINE(newview->angle>>ANGLETOFINESHIFT);
-	//newview->cos = FINECOSINE(newview->angle>>ANGLETOFINESHIFT);
+	viewsin = FINESINE(viewangle>>ANGLETOFINESHIFT);
+	viewcos = FINECOSINE(viewangle>>ANGLETOFINESHIFT);
 
 	sscount = 0;
 
 	// recalc necessary stuff for mouseaiming
 	// slopes are already calculated for the full possible view (which is 4*viewheight).
 
-	/*if (rendermode == render_soft)
+	if (rendermode == render_soft)
 	{
 		// clip it in the case we are looking a hardware 90 degrees full aiming
 		// (lmps, network and use F12...)
@@ -861,9 +848,7 @@ void R_SetupFrame(player_t *player)
 		yslope = &yslopetab[(3*viewheight/2) - dy];
 	}
 	centery = (viewheight/2) + dy;
-	centeryfrac = centery<<FRACBITS;*/
-
-	R_InterpolateView(cv_capframerate.value == 0 ? I_GetTimeFrac() : FRACUNIT);
+	centeryfrac = centery<<FRACBITS;
 
 	framecount++;
 	validcount++;
@@ -977,10 +962,6 @@ void R_RegisterEngineStuff(void)
 	// Default viewheight is changeable,
 	// initialized to standard viewheight
 	CV_RegisterVar(&cv_viewheight);
-
-	// Uncapped
-	CV_RegisterVar(&cv_capframerate);
-
 	CV_RegisterVar (&cv_limitdraw);
 	CV_RegisterVar(&cv_grtranslucenthud);
 

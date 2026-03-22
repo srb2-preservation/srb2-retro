@@ -98,10 +98,6 @@ extern consvar_t cv_shadowoffs;
 extern consvar_t cv_textboxdesign;
 extern consvar_t cv_pausedesign;
 
-// Uncapped Framerate
-extern tic_t prev_tics;
-extern consvar_t cv_capframerate;
-
 // Called by startup code.
 void R_Init(void);
 

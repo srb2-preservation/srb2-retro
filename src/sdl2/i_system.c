@@ -15,7 +15,6 @@
 #include "../i_system.h"
 #include "../i_video.h"
 #include "i_video.h"
-#include "../r_main.h" // Uncapped
 
 #include "i_main.h"
 
@@ -279,52 +278,17 @@ tic_t I_GetTime(void)
 	return newtics;
 }
 #else
-
-static Uint64 timer_frequency;
-static Uint64 tic_epoch;
-static double tic_frequency;
-
 tic_t I_GetTime(void)
 {
-	static double elapsed;
+	tic_t ticks = SDL_GetTicks();
 
-	const Uint64 now = SDL_GetPerformanceCounter();
-	elapsed += (now - tic_epoch) / tic_frequency;
-	tic_epoch = now; // moving epoch
+	ticks = (ticks*TICRATE);
 
-	return (tic_t)elapsed;
+	ticks = (ticks/1000);
+
+	return ticks;
 }
 #endif
-
-precise_t I_GetPreciseTime(void)
-{
-	return SDL_GetPerformanceCounter();
-}
-
-int I_PreciseToMicros(precise_t d)
-{
-	return (int)(d / (timer_frequency / 1000000.0));
-}
-Uint64 I_GetPrecisePrecision(void)
-{
-	return SDL_GetPerformanceFrequency();
-}
-
-fixed_t I_GetTimeFrac (void)
-{
-	Uint32 ticks;
-	Uint32 prevticks;
-	Uint32 nextticks;
-	fixed_t frac;
-
-	ticks = SDL_GetTicks() - ticks;
-	//if (ticks > tics * 1000 / TICRATE) return 1 * FRACUNIT;
-	prevticks = prev_tics * 1000 / TICRATE;
-	nextticks = prevticks + (int)lroundf((1.f/TICRATE)*1000);
-
-	frac = FixedDiv((ticks - prevticks) * FRACUNIT, (int)roundf((1.f/TICRATE)*1000 * FRACUNIT));
-	return frac > FRACUNIT ? FRACUNIT : frac;
-}
 
 void I_Sleep(void)
 {
@@ -806,10 +770,6 @@ int I_GetKey(void)
 //
 void I_StartupTimer(void)
 {
-
-	timer_frequency = SDL_GetPerformanceFrequency();
-	tic_epoch       = SDL_GetPerformanceCounter();
-	tic_frequency   = timer_frequency / (double)(NEWTICRATERATIO*TICRATE);
 #if (defined (_WIN32) && !defined (_WIN32_WCE)) && !defined (_XBOX)
 	// for win2k time bug
 	if (M_CheckParm("-gettickcount"))

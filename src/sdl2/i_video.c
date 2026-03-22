@@ -23,9 +23,7 @@
 #include "../i_system.h"
 #include "../i_video.h"
 #include "../m_argv.h"
-#include "../r_main.h"
 #include "../screen.h"
-#include "../v_video.h"
 #include "../z_zone.h"
 
 #include "i_video.h"
@@ -408,98 +406,8 @@ const char *VID_GetModeName(int modenum)
 
 void I_UpdateNoBlit(void){}
 
-#define SCALE      3
-#define PUTDOT(xx,yy,cc) screens[0][((yy)*vid.width+(xx))*vid.bpp]=(cc)
-
-static boolean ticsgraph[TICRATE];
-
-static UINT32 fpstime = 0;
-static UINT32 lastupdatetime = 0;
-
-#define FPSUPDATERATE 1/20 
-#define FPSMAXSAMPLES 16
-
-static UINT32 fpssamples[FPSMAXSAMPLES];
-static UINT32 fpssampleslen = 0;
-static UINT32 fpssum = 0;
-static double aproxfps = 0.0f;
-
-void SCR_CalcAproxFps(void)
-{
-	tic_t i = 0;
-	if (I_PreciseToMicros(fpstime - lastupdatetime) > 1000000 * FPSUPDATERATE)
-	{
-		if (fpssampleslen == FPSMAXSAMPLES)
-		{
-			fpssum -= fpssamples[0];
-
-			for (i = 1; i < fpssampleslen; i++)
-				fpssamples[i-1] = fpssamples[i];
-		}
-		else
-			fpssampleslen++;
-
-		fpssamples[fpssampleslen-1] = I_GetPreciseTime() - fpstime;
-		fpssum += fpssamples[fpssampleslen-1];
-
-		aproxfps = 1000000 / (I_PreciseToMicros(fpssum) / (double)fpssampleslen);
-
-		lastupdatetime = I_GetPreciseTime();
-	}
-
-	fpstime = I_GetPreciseTime();
-}
-
-static void displayticrate(fixed_t value)
-{
-	int j,l,i;
-	static tic_t lasttic;
-	tic_t tics,t;
-	tic_t ontic = I_GetTime();
-	tic_t totaltics = 0;
-	const INT32 h = vid.height-(8*vid.dupy);
-
-	if (gamestate == GS_NULL)
-		return;
-
-	if (ticsgraph[i])
-		++totaltics;
-
-	t = I_GetTime();
-	tics = (t - lasttic)/NEWTICRATERATIO;
-	lasttic = t;
-	if (tics > OLDTICRATE) tics = OLDTICRATE;
-
-	for (i = lasttic + 1; i < TICRATE+lasttic && i < ontic; ++i)
-	ticsgraph[i % TICRATE] = false;
-
-	ticsgraph[ontic % TICRATE] = true;
-
-	for (i=0;i<OLDTICRATE-1;i++)
-		ticsgraph[i]=ticsgraph[i+1];
-	ticsgraph[OLDTICRATE-1]=OLDTICRATE-tics;
-
-	if (value == 1 || value == 3)
-	{
-
-		V_DrawString(vid.width- (80 * vid.dupx), h, V_NOSCALESTART,
-			va("FPS:% 02.2f", aproxfps));
-	}
-	if (value == 1)
-		return;
-
-	lasttic = ontic;
-}
-#undef SCALE
-#undef PUTDOT
-
 void I_FinishUpdate(void)
 {
-	SCR_CalcAproxFps();
-
-	if (cv_ticrate.value) // FPS counter
-		displayticrate(cv_ticrate.value);
-
 	UINT8 *pixels = surface->pixels;
 	// Copy vid.buffer to our surface
 	for (i = 0; i < vid.width * vid.height; i++) {

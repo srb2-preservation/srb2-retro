@@ -4,8 +4,8 @@ SRB2 Retro is an updated fork of [Sonic Robo Blast 2](https://srb2.org) 2.0.7.
 The goal of SRB2 Retro is to include essential fixes and QOL improvements seen in 2.1 and 2.2.
 
 ## Dependencies
-- SDL1.2/SDL2
-- SDL-Mixer/SDL2-Mixer
+- SDL2
+- SDL2-Mixer
 - zlib
 - libpng
 

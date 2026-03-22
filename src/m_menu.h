@@ -210,8 +210,6 @@ extern INT32 ultmode;
 
 extern boolean StartSplitScreenGame;
 
-#define MAXSAVEGAMES 30
-
 void Moviemode_mode_Onchange(void);
 
 void M_CheatActivationResponder(INT32 ch);
