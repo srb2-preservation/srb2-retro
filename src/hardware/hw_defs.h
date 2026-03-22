@@ -20,8 +20,8 @@
 #define _HWR_DEFS_
 #include "../doomtype.h"
 
-#define ZCLIP_PLANE 4.0f
-#define NZCLIP_PLANE 0.9f
+#define ZCLIP_PLANE 4.0f // Used for the actual game drawing
+#define NZCLIP_PLANE 0.9f // Seems to be only used for the HUD and screen textures
 
 // ==========================================================================
 //                                                               SIMPLE TYPES
@@ -41,8 +41,14 @@ typedef unsigned char   FBOOLEAN;
 // ==========================================================================
 
 // byte value for paletted graphics, which represent the transparent color
+#ifdef _NDS
+// NDS is hardwired to use zero as transparent color
+#define HWR_PATCHES_CHROMAKEY_COLORINDEX   0
+#define HWR_CHROMAKEY_EQUIVALENTCOLORINDEX 1
+#else
 #define HWR_PATCHES_CHROMAKEY_COLORINDEX   247
-#define HWR_CHROMAKEY_EQUIVALENTCOLORINDEX  31
+#define HWR_CHROMAKEY_EQUIVALENTCOLORINDEX 220
+#endif
 
 // the chroma key color shows on border sprites, set it to black
 #define HWR_PATCHES_CHROMAKEY_COLORVALUE     (0x00000000)    //RGBA format as in grSstWinOpen()
@@ -102,6 +108,7 @@ typedef struct
 	FLOAT       scalex,scaley,scalez;
 	FLOAT       fovxangle, fovyangle;
 	INT32       splitscreen;
+	boolean     flip;            // screenflip
 } FTransform;
 
 // Transformed vector, as passed to HWR API
@@ -126,12 +133,13 @@ enum EPolyFlags
 
 	PF_Masked           = 0x00000001,   // Poly is alpha scaled and 0 alpha pels are discarded (holes in texture)
 	PF_Translucent      = 0x00000002,   // Poly is transparent, alpha = level of transparency
-	PF_Additive         = 0x00000024,   // Poly is added to the frame buffer
+	PF_Additive         = 0x00000004,   // Poly is added to the frame buffer
 	PF_Environment      = 0x00000008,   // Poly should be drawn environment mapped.
 	                                    // Hurdler: used for text drawing
 	PF_Substractive     = 0x00000010,   // for splat
 	PF_NoAlphaTest      = 0x00000020,   // hiden param
-	PF_Blending         = (PF_Environment|PF_Additive|PF_Translucent|PF_Masked|PF_Substractive)&~PF_NoAlphaTest,
+	PF_Fog              = 0x00000040,   // Fog blocks
+	PF_Blending         = (PF_Environment|PF_Additive|PF_Translucent|PF_Masked|PF_Substractive|PF_Fog)&~PF_NoAlphaTest,
 
 		// other flag bits
 
@@ -217,9 +225,7 @@ enum hwdfiltermode
 	HWD_SET_TEXTUREFILTER_TRILINEAR,
 	HWD_SET_TEXTUREFILTER_MIXED1,
 	HWD_SET_TEXTUREFILTER_MIXED2,
-#ifdef SHUFFLE
 	HWD_SET_TEXTUREFILTER_MIXED3,
-#endif
 };
 
 
