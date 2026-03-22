@@ -19,3 +19,4 @@ src/comptime.c
 src/comptime.c
 objs/djgppdos/Release/depend.ped
 CMakeCache.txt
+/bin
