@@ -381,7 +381,7 @@ UINT8 P_FindLowestMare(void)
 	// to find the egg capsule with the lowest mare
 	for (th = thinkercap.next; th != &thinkercap; th = th->next)
 	{
-		if (th->function.acp1 != (actionf_p1)P_MobjThinker)
+		if (th->function != (actionf_p1)P_MobjThinker)
 			continue;
 
 		mo2 = (mobj_t *)th;
@@ -430,7 +430,7 @@ boolean P_TransferToNextMare(player_t *player)
 	// to find the closest axis point
 	for (th = thinkercap.next; th != &thinkercap; th = th->next)
 	{
-		if (th->function.acp1 != (actionf_p1)P_MobjThinker)
+		if (th->function != (actionf_p1)P_MobjThinker)
 			continue;
 
 		mo2 = (mobj_t *)th;
@@ -481,7 +481,7 @@ static mobj_t *P_FindAxis(INT32 mare, INT32 axisnum)
 	// to find the closest axis point
 	for (th = thinkercap.next; th != &thinkercap; th = th->next)
 	{
-		if (th->function.acp1 != (actionf_p1)P_MobjThinker)
+		if (th->function != (actionf_p1)P_MobjThinker)
 			continue;
 
 		mo2 = (mobj_t *)th;
@@ -514,7 +514,7 @@ static mobj_t *P_FindAxisTransfer(INT32 mare, INT32 axisnum, mobjtype_t type)
 	// to find the closest axis point
 	for (th = thinkercap.next; th != &thinkercap; th = th->next)
 	{
-		if (th->function.acp1 != (actionf_p1)P_MobjThinker)
+		if (th->function != (actionf_p1)P_MobjThinker)
 			continue;
 
 		mo2 = (mobj_t *)th;
@@ -554,7 +554,7 @@ void P_TransferToAxis(player_t *player, INT32 axisnum)
 	// to find the closest axis point
 	for (th = thinkercap.next; th != &thinkercap; th = th->next)
 	{
-		if (th->function.acp1 != (actionf_p1)P_MobjThinker)
+		if (th->function != (actionf_p1)P_MobjThinker)
 			continue;
 
 		mo2 = (mobj_t *)th;
@@ -666,7 +666,7 @@ static void P_DeNightserizePlayer(player_t *player)
 	// Check to see if the player should be killed.
 	for (th = thinkercap.next; th != &thinkercap; th = th->next)
 	{
-		if (th->function.acp1 != (actionf_p1)P_MobjThinker)
+		if (th->function != (actionf_p1)P_MobjThinker)
 			continue;
 
 		mo2 = (mobj_t *)th;
@@ -1163,7 +1163,7 @@ void P_SpawnShieldOrb(player_t *player)
 	// blaze through the thinkers to see if an orb already exists!
 	for (th = thinkercap.next; th != &thinkercap; th = th->next)
 	{
-		if (th->function.acp1 != (actionf_p1)P_MobjThinker)
+		if (th->function != (actionf_p1)P_MobjThinker)
 			continue;
 
 		shieldobj = (mobj_t *)th;
@@ -3001,7 +3001,7 @@ static void P_NightsTransferPoints(player_t *player, fixed_t xspeed, fixed_t rad
 		// Find next waypoint
 		for (th = thinkercap.next; th != &thinkercap; th = th->next)
 		{
-			if (th->function.acp1 != (actionf_p1)P_MobjThinker) // Not a mobj thinker
+			if (th->function != (actionf_p1)P_MobjThinker) // Not a mobj thinker
 				continue;
 
 			mo2 = (mobj_t *)th;
@@ -3037,7 +3037,7 @@ static void P_NightsTransferPoints(player_t *player, fixed_t xspeed, fixed_t rad
 		{
 			for (th = thinkercap.next; th != &thinkercap; th = th->next)
 			{
-				if (th->function.acp1 != (actionf_p1)P_MobjThinker) // Not a mobj thinker
+				if (th->function != (actionf_p1)P_MobjThinker) // Not a mobj thinker
 					continue;
 
 				mo2 = (mobj_t *)th;
@@ -3065,7 +3065,7 @@ static void P_NightsTransferPoints(player_t *player, fixed_t xspeed, fixed_t rad
 		{
 			for (th = thinkercap.next; th != &thinkercap; th = th->next)
 			{
-				if (th->function.acp1 != (actionf_p1)P_MobjThinker) // Not a mobj thinker
+				if (th->function != (actionf_p1)P_MobjThinker) // Not a mobj thinker
 					continue;
 
 				mo2 = (mobj_t *)th;
@@ -3426,7 +3426,7 @@ static void P_NiGHTSMovement(player_t *player)
 		// to find the closest axis point
 		for (th = thinkercap.next; th != &thinkercap; th = th->next)
 		{
-			if (th->function.acp1 != (actionf_p1)P_MobjThinker)
+			if (th->function != (actionf_p1)P_MobjThinker)
 				continue;
 
 			mo2 = (mobj_t *)th;
@@ -5300,7 +5300,7 @@ static void P_ObjectplaceMovement(player_t *player)
 		// scan the thinkers
 		for (th = thinkercap.next; th != &thinkercap; th = th->next)
 		{
-			if (th->function.acp1 != (actionf_p1)P_MobjThinker)
+			if (th->function != (actionf_p1)P_MobjThinker)
 				continue;
 
 			mo2 = (mobj_t *)th;
@@ -5659,7 +5659,7 @@ static void P_MovePlayer(player_t *player)
 
 		for (th = thinkercap.next; th != &thinkercap; th = th->next)
 		{
-			if (th->function.acp1 != (actionf_p1)P_MobjThinker)
+			if (th->function != (actionf_p1)P_MobjThinker)
 				continue;
 
 			mo2 = (mobj_t *)th;
@@ -5703,7 +5703,7 @@ static void P_MovePlayer(player_t *player)
 
 			for (th = thinkercap.next; th != &thinkercap; th = th->next)
 			{
-				if (th->function.acp1 != (actionf_p1)P_MobjThinker)
+				if (th->function != (actionf_p1)P_MobjThinker)
 					continue;
 
 				mo2 = (mobj_t *)th;
@@ -6655,7 +6655,7 @@ if (gametype == GT_TAG)
 
 			for (think = thinkercap.next; think != &thinkercap; think = think->next)
 			{
-				if (think->function.acp1 != (actionf_p1)P_MobjThinker) // Not a mobj thinker
+				if (think->function != (actionf_p1)P_MobjThinker) // Not a mobj thinker
 					continue;
 
 				mo =(mobj_t *)think;
@@ -7038,7 +7038,7 @@ if (gametype == GT_TAG)
 
 				for (think = thinkercap.next; think != &thinkercap; think = think->next)
 				{
-					if (think->function.acp1 != (actionf_p1)T_Scroll)
+					if (think->function != (actionf_p1)T_Scroll)
 						continue;
 
 					scroller = (scroll_t *)think;
@@ -8395,7 +8395,7 @@ static void P_DoZoomTube(player_t *player)
 		// Find next waypoint
 		for (th = thinkercap.next; th != &thinkercap; th = th->next)
 		{
-			if (th->function.acp1 != (actionf_p1)P_MobjThinker) // Not a mobj thinker
+			if (th->function != (actionf_p1)P_MobjThinker) // Not a mobj thinker
 				continue;
 
 			mo2 = (mobj_t *)th;
@@ -8559,7 +8559,7 @@ static void P_DoRopeHang(player_t *player, boolean minecart)
 		// Find next waypoint
 		for (th = thinkercap.next; th != &thinkercap; th = th->next)
 		{
-			if (th->function.acp1 != (actionf_p1)P_MobjThinker) // Not a mobj thinker
+			if (th->function != (actionf_p1)P_MobjThinker) // Not a mobj thinker
 				continue;
 
 			mo2 = (mobj_t *)th;
@@ -8585,7 +8585,7 @@ static void P_DoRopeHang(player_t *player, boolean minecart)
 			// Wrap around back to first waypoint
 			for (th = thinkercap.next; th != &thinkercap; th = th->next)
 			{
-				if (th->function.acp1 != (actionf_p1)P_MobjThinker) // Not a mobj thinker
+				if (th->function != (actionf_p1)P_MobjThinker) // Not a mobj thinker
 					continue;
 
 				mo2 = (mobj_t *)th;
@@ -8665,7 +8665,7 @@ static void P_NukeAllPlayers(player_t *player)
 
 	for (think = thinkercap.next; think != &thinkercap; think = think->next)
 	{
-		if (think->function.acp1 != (actionf_p1)P_MobjThinker)
+		if (think->function != (actionf_p1)P_MobjThinker)
 			continue; // not a mobj thinker
 
 		mo = (mobj_t *)think;
@@ -8711,7 +8711,7 @@ void P_NukeEnemies(player_t *player)
 
 	for (think = thinkercap.next; think != &thinkercap; think = think->next)
 	{
-		if (think->function.acp1 != (actionf_p1)P_MobjThinker)
+		if (think->function != (actionf_p1)P_MobjThinker)
 			continue; // not a mobj thinker
 
 		mo = (mobj_t *)think;
@@ -8749,7 +8749,7 @@ boolean P_LookForEnemies(player_t *player)
 
 	for (think = thinkercap.next; think != &thinkercap; think = think->next)
 	{
-		if (think->function.acp1 != (actionf_p1)P_MobjThinker)
+		if (think->function != (actionf_p1)P_MobjThinker)
 			continue; // not a mobj thinker
 
 		mo = (mobj_t *)think;
@@ -8883,7 +8883,7 @@ void P_FindEmerald(void)
 	// to find all emeralds
 	for (th = thinkercap.next; th != &thinkercap; th = th->next)
 	{
-		if (th->function.acp1 != (actionf_p1)P_MobjThinker)
+		if (th->function != (actionf_p1)P_MobjThinker)
 			continue;
 
 		mo2 = (mobj_t *)th;

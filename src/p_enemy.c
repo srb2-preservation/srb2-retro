@@ -66,131 +66,6 @@ static dirtype_t diags[] =
 	DI_NORTHWEST, DI_NORTHEAST, DI_SOUTHWEST, DI_SOUTHEAST
 };
 
-//Real Prototypes to A_*
-void A_Fall(mobj_t *actor);
-void A_Look(mobj_t *actor);
-void A_Chase(mobj_t *actor);
-void A_JetJawRoam(mobj_t *actor);
-void A_JetJawChomp(mobj_t *actor);
-void A_PointyThink(mobj_t *actor);
-void A_CheckBuddy(mobj_t *actor);
-void A_HoodThink(mobj_t *actor);
-void A_ArrowCheck(mobj_t *actor);
-void A_SnailerThink(mobj_t *actor);
-void A_SharpChase(mobj_t *actor);
-void A_SharpSpin(mobj_t *actor);
-void A_VultureVtol(mobj_t *actor);
-void A_VultureCheck(mobj_t *actor);
-void A_SkimChase(mobj_t *actor);
-void A_FaceTarget(mobj_t *actor);
-void A_LobShot(mobj_t *actor);
-void A_CannonLook(mobj_t *actor);
-void A_FireShot(mobj_t *actor);
-void A_SuperFireShot(mobj_t *actor);
-void A_BossFireShot(mobj_t *actor);
-void A_SkullAttack(mobj_t *actor);
-void A_BossZoom(mobj_t *actor);
-void A_BossScream(mobj_t *actor);
-void A_Scream(mobj_t *actor);
-void A_Pain(mobj_t *actor);
-void A_1upThinker(mobj_t *actor);
-void A_MonitorPop(mobj_t *actor);
-void A_Explode(mobj_t *actor);
-void A_BossDeath(mobj_t *actor);
-void A_CustomPower(mobj_t *actor);
-void A_GiveWeapon(mobj_t *actor);
-void A_JumpShield(mobj_t *actor);
-void A_RingShield(mobj_t *actor);
-void A_RingBox(mobj_t *actor);
-void A_Invincibility(mobj_t *actor);
-void A_SuperSneakers(mobj_t *actor);
-void A_ExtraLife(mobj_t *actor);
-void A_BombShield(mobj_t *actor);
-void A_WaterShield(mobj_t *actor);
-void A_ForceShield(mobj_t *actor);
-void A_GravityBox(mobj_t *actor);
-void A_ScoreRise(mobj_t *actor);
-void A_ParticleSpawn(mobj_t *actor);
-void A_BunnyHop(mobj_t *actor);
-void A_BubbleSpawn(mobj_t *actor);
-void A_BubbleRise(mobj_t *actor);
-void A_BubbleCheck(mobj_t *actor);
-void A_AttractChase(mobj_t *actor);
-void A_DropMine(mobj_t *actor);
-void A_FishJump(mobj_t *actor);
-void A_ThrownRing(mobj_t *actor);
-void A_GrenadeRing(mobj_t *actor);
-void A_SetSolidSteam(mobj_t *actor);
-void A_UnsetSolidSteam(mobj_t *actor);
-void A_SignPlayer(mobj_t *actor);
-void A_JetChase(mobj_t *actor);
-void A_JetbThink(mobj_t *actor);
-void A_JetgShoot(mobj_t *actor);
-void A_JetgThink(mobj_t *actor);
-void A_ShootBullet(mobj_t *actor);
-void A_MinusDigging(mobj_t *actor);
-void A_MinusPopup(mobj_t *actor);
-void A_MinusCheck(mobj_t *actor);
-void A_ChickenCheck(mobj_t *actor);
-void A_MouseThink(mobj_t *actor);
-void A_DetonChase(mobj_t *actor);
-void A_CapeChase(mobj_t *actor);
-void A_RotateSpikeBall(mobj_t *actor);
-void A_MaceRotate(mobj_t *actor);
-void A_RockSpawn(mobj_t *actor);
-void A_SnowBall(mobj_t *actor);
-void A_CrawlaCommanderThink(mobj_t *actor);
-void A_RingExplode(mobj_t *actor);
-void A_OldRingExplode(mobj_t *actor);
-void A_MixUp(mobj_t *actor);
-void A_RecyclePowers(mobj_t *actor);
-void A_Invinciblerize(mobj_t *actor);
-void A_DeInvinciblerize(mobj_t *actor);
-void A_GoopSplat(mobj_t *actor);
-void A_Boss2PogoSFX(mobj_t *actor);
-void A_EggmanBox(mobj_t *actor);
-void A_TurretFire(mobj_t *actor);
-void A_SuperTurretFire(mobj_t *actor);
-void A_TurretStop(mobj_t *actor);
-void A_SparkFollow(mobj_t *actor);
-void A_BuzzFly(mobj_t *actor);
-void A_GuardChase(mobj_t *actor);
-void A_SetReactionTime(mobj_t *actor);
-void A_Boss3TakeDamage(mobj_t *actor);
-void A_LinedefExecute(mobj_t *actor);
-void A_PlaySeeSound(mobj_t *actor);
-void A_PlayAttackSound(mobj_t *actor);
-void A_PlayActiveSound(mobj_t *actor);
-void A_SmokeTrailer(mobj_t *actor);
-void A_SpawnObjectAbsolute(mobj_t *actor);
-void A_SpawnObjectRelative(mobj_t *actor);
-void A_ChangeAngleRelative(mobj_t *actor);
-void A_ChangeAngleAbsolute(mobj_t *actor);
-void A_PlaySound(mobj_t *actor);
-void A_FindTarget(mobj_t *actor);
-void A_FindTracer(mobj_t *actor);
-void A_SetTics(mobj_t *actor);
-void A_SetRandomTics(mobj_t *actor);
-void A_ChangeColorRelative(mobj_t *actor);
-void A_ChangeColorAbsolute(mobj_t *actor);
-void A_MoveRelative(mobj_t *actor);
-void A_MoveAbsolute(mobj_t *actor);
-void A_Thrust(mobj_t *actor);
-void A_ZThrust(mobj_t *actor);
-void A_SetTargetsTarget(mobj_t *actor);
-void A_SetObjectFlags(mobj_t *actor);
-void A_SetObjectFlags2(mobj_t *actor);
-void A_RandomState(mobj_t *actor);
-void A_RandomStateRange(mobj_t *actor);
-void A_DualAction(mobj_t *actor);
-void A_RemoteAction(mobj_t *actor);
-void A_ToggleFlameJet(mobj_t *actor);
-//for p_enemy.c
-void A_Boss1Chase(mobj_t *actor);
-void A_Boss2Chase(mobj_t *actor);
-void A_Boss2Pogo(mobj_t *actor);
-void A_BossJetFume(mobj_t *actor);
-
 typedef fixed_t TVector[4];
 typedef fixed_t TMatrix[4][4];
 
@@ -223,6 +98,7 @@ static TMatrix *RotateXMatrix(angle_t rad)
 #if 0
 static TMatrix *RotateYMatrix(angle_t rad)
 {
+	mobj_t *actor = thing;
 	static TMatrix ret;
 	const angle_t fa = rad>>ANGLETOFINESHIFT;
 	const fixed_t cosrad = FINECOSINE(fa), sinrad = FINESINE(fa);
@@ -259,8 +135,9 @@ static TMatrix *RotateZMatrix(angle_t rad)
 //
 // P_CheckMeleeRange
 //
-static boolean P_CheckMeleeRange(mobj_t *actor)
+static boolean P_CheckMeleeRange(void *thing)
 {
+	mobj_t *actor = thing;
 	mobj_t *pl;
 	fixed_t dist;
 
@@ -316,8 +193,9 @@ static boolean P_CheckMeleeRange(mobj_t *actor)
 //
 // P_CheckMissileRange
 //
-static boolean P_CheckMissileRange(mobj_t *actor)
+static boolean P_CheckMissileRange(void *thing)
 {
+	mobj_t *actor = thing;
 	fixed_t dist;
 
 	if (!P_CheckSight(actor, actor->target))
@@ -444,16 +322,18 @@ static boolean P_Move(mobj_t *actor, fixed_t speed)
   * \param actor Actor to move.
   * \return True if the move succeeds, false if the move is blocked.
   */
-static boolean P_TryWalk(mobj_t *actor)
+static boolean P_TryWalk(void *thing)
 {
+	mobj_t *actor = thing;
 	if (!P_Move(actor, actor->info->speed))
 		return false;
 	actor->movecount = P_Random() & 15;
 	return true;
 }
 
-static void P_NewChaseDir(mobj_t *actor)
+static void P_NewChaseDir(void *thing)
 {
+	mobj_t *actor = thing;
 	fixed_t deltax, deltay;
 	dirtype_t d[3];
 	dirtype_t tdir = DI_NODIR, olddir, turnaround;
@@ -665,8 +545,9 @@ boolean P_LookForPlayers(mobj_t *actor, boolean allaround, boolean tracer, fixed
   * \return True if a player with ring shield is found, otherwise false.
   * \sa A_AttractChase
   */
-static boolean P_LookForShield(mobj_t *actor)
+static boolean P_LookForShield(void *thing)
 {
+	mobj_t *actor = thing;
 	INT32 c = 0, stop;
 	player_t *player;
 	sector_t *sector;
@@ -727,8 +608,9 @@ static boolean P_LookForShield(mobj_t *actor)
 //		upper 16 bits = distance limit
 // var2 = If 1, only change to seestate. If 2, only play seesound. If 0, do both.
 //
-void A_Look(mobj_t *actor)
+void A_Look(void *thing)
 {
+	mobj_t *actor = thing;
 	INT32 locvar1 = var1;
 	INT32 locvar2 = var2;
 
@@ -757,8 +639,9 @@ void A_Look(mobj_t *actor)
 //		3 = don't check meleestate and missilestate
 // var2 = unused
 //
-void A_Chase(mobj_t *actor)
+void A_Chase(void *thing)
 {
+	mobj_t *actor = thing;
 	INT32 delta;
 	INT32 locvar1 = var1;
 
@@ -843,8 +726,9 @@ nomissile:
 // var1 = unused
 // var2 = unused
 //
-void A_JetJawRoam(mobj_t *actor)
+void A_JetJawRoam(void *thing)
 {
+	mobj_t *actor = thing;
 	if (actor->reactiontime)
 	{
 		actor->reactiontime--;
@@ -867,8 +751,9 @@ void A_JetJawRoam(mobj_t *actor)
 // var1 = unused
 // var2 = unused
 //
-void A_JetJawChomp(mobj_t *actor)
+void A_JetJawChomp(void *thing)
 {
+	mobj_t *actor = thing;
 	INT32 delta;
 
 	// turn towards movement direction if not there yet
@@ -903,8 +788,9 @@ void A_JetJawChomp(mobj_t *actor)
 // var1 = unused
 // var2 = unused
 //
-void A_PointyThink(mobj_t *actor)
+void A_PointyThink(void *thing)
 {
+	mobj_t *actor = thing;
 	INT32 i;
 	player_t *player = NULL;
 	mobj_t *ball;
@@ -1006,8 +892,9 @@ void A_PointyThink(mobj_t *actor)
 //		1 = tracer
 // var2 = unused
 //
-void A_CheckBuddy(mobj_t *actor)
+void A_CheckBuddy(void *thing)
 {
+	mobj_t *actor = thing;
 	INT32 locvar1 = var1;
 
 	if (locvar1 && (!actor->tracer || actor->tracer->health <= 0))
@@ -1023,8 +910,9 @@ void A_CheckBuddy(mobj_t *actor)
 // var1 = unused
 // var2 = unused
 //
-void A_HoodThink(mobj_t *actor)
+void A_HoodThink(void *thing)
 {
+	mobj_t *actor = thing;
 	// Currently in the air...
 	if (actor->z > actor->floorz)
 	{
@@ -1077,8 +965,9 @@ void A_HoodThink(mobj_t *actor)
 // var1 = unused
 // var2 = unused
 //
-void A_ArrowCheck(mobj_t *actor)
+void A_ArrowCheck(void *thing)
 {
+	mobj_t *actor = thing;
 	fixed_t x,y,z;
 	angle_t angle;
 	fixed_t dist;
@@ -1116,8 +1005,9 @@ void A_ArrowCheck(mobj_t *actor)
 // var1 = unused
 // var2 = unused
 //
-void A_SnailerThink(mobj_t *actor)
+void A_SnailerThink(void *thing)
 {
+	mobj_t *actor = thing;
 	if (!actor->target)
 	{
 		// look for a new target
@@ -1151,8 +1041,9 @@ void A_SnailerThink(mobj_t *actor)
 // var1 = unused
 // var2 = unused
 //
-void A_SharpChase(mobj_t *actor)
+void A_SharpChase(void *thing)
 {
+	mobj_t *actor = thing;
 	if (!actor->health)
 	{
 		P_SetMobjState(actor, actor->info->deathstate);
@@ -1206,8 +1097,9 @@ void A_SharpChase(mobj_t *actor)
 // var1 = unused
 // var2 = unused
 //
-void A_SharpSpin(mobj_t *actor)
+void A_SharpSpin(void *thing)
 {
+	mobj_t *actor = thing;
 	if (!actor->health)
 	{
 		P_SetMobjState(actor, actor->info->deathstate);
@@ -1237,8 +1129,9 @@ void A_SharpSpin(mobj_t *actor)
 // var1 = unused
 // var2 = unused
 //
-void A_VultureVtol(mobj_t *actor)
+void A_VultureVtol(void *thing)
 {
+	mobj_t *actor = thing;
 	if (!actor->target)
 		return;
 
@@ -1269,8 +1162,9 @@ void A_VultureVtol(mobj_t *actor)
 // var1 = unused
 // var2 = unused
 //
-void A_VultureCheck(mobj_t *actor)
+void A_VultureCheck(void *thing)
 {
+	mobj_t *actor = thing;
 	if (actor->momx || actor->momy)
 		return;
 
@@ -1290,8 +1184,9 @@ void A_VultureCheck(mobj_t *actor)
 // var1 = unused
 // var2 = unused
 //
-void A_SkimChase(mobj_t *actor)
+void A_SkimChase(void *thing)
 {
+	mobj_t *actor = thing;
 	INT32 delta;
 
 	if (actor->reactiontime)
@@ -1375,8 +1270,9 @@ nomissile:
 // var1 = unused
 // var2 = unused
 //
-void A_FaceTarget(mobj_t *actor)
+void A_FaceTarget(void *thing)
 {
+	mobj_t *actor = thing;
 	if (!actor->target)
 		return;
 
@@ -1394,8 +1290,9 @@ void A_FaceTarget(mobj_t *actor)
 //		var2 >> 16 = height offset
 //		var2 & 65535 = airtime
 //
-void A_LobShot(mobj_t *actor)
+void A_LobShot(void *thing)
 {
+	mobj_t *actor = thing;
 	INT32 locvar1 = var1;
 	INT32 locvar2 = var2 >> 16;
 	mobj_t *shot, *hitspot;
@@ -1473,8 +1370,9 @@ void A_LobShot(mobj_t *actor)
 // var1 = unused
 // var2 = unused
 //
-void A_CannonLook(mobj_t *actor)
+void A_CannonLook(void *thing)
 {
+	mobj_t *actor = thing;
 	P_LookForPlayers(actor, true, false , 16384*FRACUNIT);
 }
 
@@ -1485,8 +1383,9 @@ void A_CannonLook(mobj_t *actor)
 // var1 = object # to shoot
 // var2 = height offset
 //
-void A_FireShot(mobj_t *actor)
+void A_FireShot(void *thing)
 {
+	mobj_t *actor = thing;
 	fixed_t z;
 	INT32 locvar1 = var1;
 	INT32 locvar2 = var2;
@@ -1516,8 +1415,9 @@ void A_FireShot(mobj_t *actor)
 // var1 = object # to shoot
 // var2 = height offset
 //
-void A_SuperFireShot(mobj_t *actor)
+void A_SuperFireShot(void *thing)
 {
+	mobj_t *actor = thing;
 	fixed_t z;
 	mobj_t *mo;
 	INT32 locvar1 = var1;
@@ -1557,8 +1457,9 @@ void A_SuperFireShot(mobj_t *actor)
 //		4 - Boss 3 Right side upper
 //		5 - Boss 3 Right side lower
 //
-void A_BossFireShot(mobj_t *actor)
+void A_BossFireShot(void *thing)
 {
+	mobj_t *actor = thing;
 	fixed_t x, y, z;
 	INT32 locvar1 = var1;
 	INT32 locvar2 = var2;
@@ -1622,8 +1523,9 @@ void A_BossFireShot(mobj_t *actor)
 //
 #define SKULLSPEED (20*FRACUNIT)
 
-void A_SkullAttack(mobj_t *actor)
+void A_SkullAttack(void *thing)
 {
+	mobj_t *actor = thing;
 	mobj_t *dest;
 	angle_t an;
 	INT32 dist;
@@ -1675,8 +1577,9 @@ void A_SkullAttack(mobj_t *actor)
 // var1 = unused
 // var2 = unused
 //
-void A_BossZoom(mobj_t *actor)
+void A_BossZoom(void *thing)
 {
+	mobj_t *actor = thing;
 	mobj_t *dest;
 	angle_t an;
 	INT32 dist;
@@ -1707,8 +1610,9 @@ void A_BossZoom(mobj_t *actor)
 // var1 = unused
 // var2 = unused
 //
-void A_BossScream(mobj_t *actor)
+void A_BossScream(void *thing)
 {
+	mobj_t *actor = thing;
 	fixed_t x, y, z;
 	angle_t fa;
 
@@ -1729,8 +1633,9 @@ void A_BossScream(mobj_t *actor)
 // var1 = unused
 // var2 = unused
 //
-void A_Scream(mobj_t *actor)
+void A_Scream(void *thing)
 {
+	mobj_t *actor = thing;
 	if (actor->tracer && (actor->tracer->type == MT_SHELL || actor->tracer->type == MT_FIREBALL))
 		S_StartScreamSound(actor, sfx_lose);
 	else if (actor->info->deathsound)
@@ -1744,8 +1649,9 @@ void A_Scream(mobj_t *actor)
 // var1 = unused
 // var2 = unused
 //
-void A_Pain(mobj_t *actor)
+void A_Pain(void *thing)
 {
+	mobj_t *actor = thing;
 	if (actor->info->painsound)
 		S_StartSound(actor, actor->info->painsound);
 }
@@ -1757,8 +1663,9 @@ void A_Pain(mobj_t *actor)
 // var1 = unused
 // var2 = unused
 //
-void A_Fall(mobj_t *actor)
+void A_Fall(void *thing)
 {
+	mobj_t *actor = thing;
 	// actor is on ground, it can be walked over
 	actor->flags &= ~MF_SOLID;
 
@@ -1779,8 +1686,9 @@ void A_Fall(mobj_t *actor)
 // var1 = unused
 // var2 = unused
 //
-void A_1upThinker(mobj_t *actor)
+void A_1upThinker(void *thing)
 {
+	mobj_t *actor = thing;
 	#ifdef LIVESBOXDISPLAYPLAYER
 	if (!splitscreen)
 	{
@@ -1849,8 +1757,9 @@ void A_1upThinker(mobj_t *actor)
 // var1 = unused
 // var2 = unused
 //
-void A_MonitorPop(mobj_t *actor)
+void A_MonitorPop(void *thing)
 {
+	mobj_t *actor = thing;
 	mobj_t *remains;
 	mobjtype_t item = 0;
 	INT32 prandom;
@@ -2060,8 +1969,9 @@ void A_MonitorPop(mobj_t *actor)
 // var1 = unused
 // var2 = unused
 //
-void A_Explode(mobj_t *actor)
+void A_Explode(void *thing)
 {
+	mobj_t *actor = thing;
 	P_RadiusAttack(actor, actor->target, actor->info->damage);
 }
 
@@ -2072,8 +1982,9 @@ void A_Explode(mobj_t *actor)
 // var1 = unused
 // var2 = unused
 //
-void A_BossDeath(mobj_t *mo)
+void A_BossDeath(void *thing)
 {
+	mobj_t *mo = thing;
 	thinker_t *th;
 	mobj_t *mo2;
 	line_t junk;
@@ -2104,7 +2015,7 @@ void A_BossDeath(mobj_t *mo)
 	// if all bosses are dead
 	for (th = thinkercap.next; th != &thinkercap; th = th->next)
 	{
-		if (th->function.acp1 != (actionf_p1)P_MobjThinker)
+		if (th->function != (actionf_p1)P_MobjThinker)
 			continue;
 
 		mo2 = (mobj_t *)th;
@@ -2140,7 +2051,7 @@ void A_BossDeath(mobj_t *mo)
 		// scan the thinkers to find the runaway point
 		for (th = thinkercap.next; th != &thinkercap; th = th->next)
 		{
-			if (th->function.acp1 != (actionf_p1)P_MobjThinker)
+			if (th->function != (actionf_p1)P_MobjThinker)
 				continue;
 
 			mo2 = (mobj_t *)th;
@@ -2203,8 +2114,9 @@ void A_BossDeath(mobj_t *mo)
 // var1 = Power index #
 // var2 = Power duration in tics
 //
-void A_CustomPower(mobj_t *actor)
+void A_CustomPower(void *thing)
 {
+	mobj_t *actor = thing;
 	player_t *player;
 	INT32 locvar1 = var1;
 	INT32 locvar2 = var2;
@@ -2245,8 +2157,9 @@ void A_CustomPower(mobj_t *actor)
 // var1 = Weapon index #
 // var2 = unused
 //
-void A_GiveWeapon(mobj_t *actor)
+void A_GiveWeapon(void *thing)
 {
+	mobj_t *actor = thing;
 	player_t *player;
 	INT32 locvar1 = var1;
 
@@ -2277,8 +2190,9 @@ void A_GiveWeapon(mobj_t *actor)
 // var1 = unused
 // var2 = unused
 //
-void A_JumpShield(mobj_t *actor)
+void A_JumpShield(void *thing)
 {
+	mobj_t *actor = thing;
 	player_t *player;
 
 	if (!actor->target || !actor->target->player)
@@ -2309,8 +2223,9 @@ void A_JumpShield(mobj_t *actor)
 // var1 = unused
 // var2 = unused
 //
-void A_RingShield(mobj_t *actor)
+void A_RingShield(void *thing)
 {
+	mobj_t *actor = thing;
 	player_t *player;
 
 	if (!actor->target || !actor->target->player)
@@ -2341,8 +2256,9 @@ void A_RingShield(mobj_t *actor)
 // var1 = unused
 // var2 = unused
 //
-void A_RingBox(mobj_t *actor)
+void A_RingBox(void *thing)
 {
+	mobj_t *actor = thing;
 	player_t *player;
 
 	if (!actor->target || !actor->target->player)
@@ -2366,8 +2282,9 @@ void A_RingBox(mobj_t *actor)
 // var1 = unused
 // var2 = unused
 //
-void A_Invincibility(mobj_t *actor)
+void A_Invincibility(void *thing)
 {
+	mobj_t *actor = thing;
 	player_t *player;
 
 	if (!actor->target || !actor->target->player)
@@ -2397,8 +2314,9 @@ void A_Invincibility(mobj_t *actor)
 // var1 = unused
 // var2 = unused
 //
-void A_SuperSneakers(mobj_t *actor)
+void A_SuperSneakers(void *thing)
 {
+	mobj_t *actor = thing;
 	player_t *player;
 
 	if (!actor->target || !actor->target->player)
@@ -2431,8 +2349,9 @@ void A_SuperSneakers(mobj_t *actor)
 // var1 = unused
 // var2 = unused
 //
-void A_ExtraLife(mobj_t *actor)
+void A_ExtraLife(void *thing)
 {
+	mobj_t *actor = thing;
 	player_t *player;
 
 	if (!actor->target || !actor->target->player)
@@ -2471,8 +2390,9 @@ void A_ExtraLife(mobj_t *actor)
 // var1 = unused
 // var2 = unused
 //
-void A_BombShield(mobj_t *actor)
+void A_BombShield(void *thing)
 {
+	mobj_t *actor = thing;
 	player_t *player;
 
 	if (!actor->target || !actor->target->player)
@@ -2503,8 +2423,9 @@ void A_BombShield(mobj_t *actor)
 // var1 = unused
 // var2 = unused
 //
-void A_WaterShield(mobj_t *actor)
+void A_WaterShield(void *thing)
 {
+	mobj_t *actor = thing;
 	player_t *player;
 
 	if (!actor->target || !actor->target->player)
@@ -2545,8 +2466,9 @@ void A_WaterShield(mobj_t *actor)
 // var1 = unused
 // var2 = unused
 //
-void A_ForceShield(mobj_t *actor)
+void A_ForceShield(void *thing)
 {
+	mobj_t *actor = thing;
 	player_t *player;
 
 	if (!actor->target || !actor->target->player)
@@ -2579,8 +2501,9 @@ void A_ForceShield(mobj_t *actor)
 // var1 = unused
 // var2 = unused
 //
-void A_GravityBox(mobj_t *actor)
+void A_GravityBox(void *thing)
 {
+	mobj_t *actor = thing;
 	player_t *player;
 
 	if (!actor->target || !actor->target->player)
@@ -2603,8 +2526,9 @@ void A_GravityBox(mobj_t *actor)
 // var1 = unused
 // var2 = unused
 //
-void A_ScoreRise(mobj_t *actor)
+void A_ScoreRise(void *thing)
 {
+	mobj_t *actor = thing;
 	actor->momz = actor->info->speed; // make logo rise!
 }
 
@@ -2615,8 +2539,9 @@ void A_ScoreRise(mobj_t *actor)
 // var1 = unused
 // var2 = unused
 //
-void A_ParticleSpawn(mobj_t *actor)
+void A_ParticleSpawn(void *thing)
 {
+	mobj_t *actor = thing;
 	fixed_t speed;
 	mobjtype_t type;
 	mobj_t *spawn;
@@ -2644,8 +2569,9 @@ void A_ParticleSpawn(mobj_t *actor)
 // var1 = jump strength
 // var2 = horizontal movement
 //
-void A_BunnyHop(mobj_t *actor)
+void A_BunnyHop(void *thing)
 {
+	mobj_t *actor = thing;
 	INT32 locvar1 = var1;
 	INT32 locvar2 = var2;
 
@@ -2664,8 +2590,9 @@ void A_BunnyHop(mobj_t *actor)
 // var1 = unused
 // var2 = unused
 //
-void A_BubbleSpawn(mobj_t *actor)
+void A_BubbleSpawn(void *thing)
 {
+	mobj_t *actor = thing;
 	UINT8 prandom;
 	mobj_t *bubble = NULL;
 	if (!(actor->eflags & MFE_UNDERWATER))
@@ -2701,8 +2628,9 @@ void A_BubbleSpawn(mobj_t *actor)
 //		1 = Rise straight up
 // var2 = rising speed
 //
-void A_BubbleRise(mobj_t *actor)
+void A_BubbleRise(void *thing)
 {
+	mobj_t *actor = thing;
 	INT32 locvar1 = var1;
 	INT32 locvar2 = var2;
 
@@ -2739,8 +2667,9 @@ void A_BubbleRise(mobj_t *actor)
 // var1 = unused
 // var2 = unused
 //
-void A_BubbleCheck(mobj_t *actor)
+void A_BubbleCheck(void *thing)
 {
+	mobj_t *actor = thing;
 	if (actor->eflags & MFE_UNDERWATER)
 		actor->flags2 &= ~MF2_DONTDRAW; // underwater so draw
 	else
@@ -2754,8 +2683,9 @@ void A_BubbleCheck(mobj_t *actor)
 // var1 = unused
 // var2 = unused
 //
-void A_AttractChase(mobj_t *actor)
+void A_AttractChase(void *thing)
 {
+	mobj_t *actor = thing;
 	if (actor->flags2 & MF2_NIGHTSPULL)
 		return;
 
@@ -2814,8 +2744,9 @@ void A_AttractChase(mobj_t *actor)
 //		lower 16 bits = proximity check distance (0 disables)
 //		upper 16 bits = 0 to check proximity with target, 1 for tracer
 //
-void A_DropMine(mobj_t *actor)
+void A_DropMine(void *thing)
 {
+	mobj_t *actor = thing;
 	INT32 locvar1 = var1;
 	INT32 locvar2 = var2;
 
@@ -2852,8 +2783,9 @@ void A_DropMine(mobj_t *actor)
 // var1 = Jump strength (in FRACBITS), if specified. Otherwise, uses the angle value.
 // var2 = unused
 //
-void A_FishJump(mobj_t *actor)
+void A_FishJump(void *thing)
 {
+	mobj_t *actor = thing;
 	INT32 locvar1 = var1;
 
 	if ((actor->z <= actor->floorz) || (actor->z <= actor->watertop - (64 << FRACBITS)))
@@ -2882,8 +2814,9 @@ void A_FishJump(mobj_t *actor)
 // var1 = unused
 // var2 = unused
 //
-void A_ThrownRing(mobj_t *actor)
+void A_ThrownRing(void *thing)
 {
+	mobj_t *actor = thing;
 	INT32 c = 0;
 	INT32 stop;
 	player_t *player;
@@ -3027,6 +2960,7 @@ static mobj_t *grenade;
 
 static inline boolean PIT_GrenadeRing(mobj_t *thing)
 {
+	mobj_t *actor = thing;
 	if (!grenade)
 		return true;
 
@@ -3072,8 +3006,9 @@ static inline boolean PIT_GrenadeRing(mobj_t *thing)
 // var1 = unused
 // var2 = unused
 //
-void A_GrenadeRing(mobj_t *actor)
+void A_GrenadeRing(void *thing)
 {
+	mobj_t *actor = thing;
 	INT32 bx, by, xl, xh, yl, yh;
 	const fixed_t explodedist = actor->info->painchance;
 
@@ -3100,8 +3035,9 @@ void A_GrenadeRing(mobj_t *actor)
 // var1 = unused
 // var2 = unused
 //
-void A_SetSolidSteam(mobj_t *actor)
+void A_SetSolidSteam(void *thing)
 {
+	mobj_t *actor = thing;
 	actor->flags &= ~MF_NOCLIP;
 	actor->flags |= MF_SOLID;
 	if (!(P_Random() % 8))
@@ -3125,8 +3061,9 @@ void A_SetSolidSteam(mobj_t *actor)
 // var1 = unused
 // var2 = unused
 //
-void A_UnsetSolidSteam(mobj_t *actor)
+void A_UnsetSolidSteam(void *thing)
 {
+	mobj_t *actor = thing;
 	actor->flags &= ~MF_SOLID;
 	actor->flags |= MF_NOCLIP;
 }
@@ -3138,8 +3075,9 @@ void A_UnsetSolidSteam(mobj_t *actor)
 // var1 = unused
 // var2 = unused
 //
-void A_SignPlayer(mobj_t *actor)
+void A_SignPlayer(void *thing)
 {
+	mobj_t *actor = thing;
 	if (!actor->target)
 		return;
 
@@ -3157,8 +3095,9 @@ void A_SignPlayer(mobj_t *actor)
 // var1 = unused
 // var2 = unused
 //
-void A_JetChase(mobj_t *actor)
+void A_JetChase(void *thing)
 {
+	mobj_t *actor = thing;
 	fixed_t thefloor;
 
 	if (actor->flags & MF_AMBUSH)
@@ -3249,8 +3188,9 @@ void A_JetChase(mobj_t *actor)
 // var1 = unused
 // var2 = unused
 //
-void A_JetbThink(mobj_t *actor)
+void A_JetbThink(void *thing)
 {
+	mobj_t *actor = thing;
 	sector_t *nextsector;
 
 	fixed_t thefloor;
@@ -3307,8 +3247,9 @@ void A_JetbThink(mobj_t *actor)
 // var1 = unused
 // var2 = unused
 //
-void A_JetgShoot(mobj_t *actor)
+void A_JetgShoot(void *thing)
 {
+	mobj_t *actor = thing;
 	fixed_t dist;
 
 	if (!actor->target)
@@ -3344,8 +3285,9 @@ void A_JetgShoot(mobj_t *actor)
 // var1 = unused
 // var2 = unused
 //
-void A_ShootBullet(mobj_t *actor)
+void A_ShootBullet(void *thing)
 {
+	mobj_t *actor = thing;
 	fixed_t dist;
 
 	if (!actor->target)
@@ -3370,8 +3312,9 @@ void A_ShootBullet(mobj_t *actor)
 // var1 = unused
 // var2 = unused
 //
-void A_MinusDigging(mobj_t *actor)
+void A_MinusDigging(void *thing)
 {
+	mobj_t *actor = thing;
 	actor->flags &= ~MF_SPECIAL;
 	actor->flags &= ~MF_SHOOTABLE;
 	actor->flags &= ~MF_ENEMY;
@@ -3415,8 +3358,9 @@ void A_MinusDigging(mobj_t *actor)
 // var1 = unused
 // var2 = unused
 //
-void A_MinusPopup(mobj_t *actor)
+void A_MinusPopup(void *thing)
 {
+	mobj_t *actor = thing;
 	actor->momz = 10*FRACUNIT;
 
 	actor->flags |= MF_SPECIAL;
@@ -3434,8 +3378,9 @@ void A_MinusPopup(mobj_t *actor)
 // var1 = unused
 // var2 = unused
 //
-void A_MinusCheck(mobj_t *actor)
+void A_MinusCheck(void *thing)
 {
+	mobj_t *actor = thing;
 	if (actor->z <= actor->floorz)
 	{
 		P_SetMobjState(actor, actor->info->seestate);
@@ -3458,8 +3403,9 @@ void A_MinusCheck(mobj_t *actor)
 // var1 = unused
 // var2 = unused
 //
-void A_ChickenCheck(mobj_t *actor)
+void A_ChickenCheck(void *thing)
 {
+	mobj_t *actor = thing;
 	if (actor->z <= actor->floorz)
 	{
 		if (!(actor->momx || actor->momy || actor->momz)
@@ -3482,8 +3428,9 @@ void A_ChickenCheck(mobj_t *actor)
 // var1 = unused
 // var2 = unused
 //
-void A_JetgThink(mobj_t *actor)
+void A_JetgThink(void *thing)
 {
+	mobj_t *actor = thing;
 	sector_t *nextsector;
 
 	fixed_t thefloor;
@@ -3533,8 +3480,9 @@ void A_JetgThink(mobj_t *actor)
 // var1 = unused
 // var2 = unused
 //
-void A_MouseThink(mobj_t *actor)
+void A_MouseThink(void *thing)
 {
+	mobj_t *actor = thing;
 	if (actor->reactiontime)
 		actor->reactiontime--;
 
@@ -3557,8 +3505,9 @@ void A_MouseThink(mobj_t *actor)
 // var1 = unused
 // var2 = unused
 //
-void A_DetonChase(mobj_t *actor)
+void A_DetonChase(void *thing)
 {
+	mobj_t *actor = thing;
 	angle_t exact;
 	fixed_t xydist, dist;
 	mobj_t *oldtracer;
@@ -3702,8 +3651,9 @@ void A_DetonChase(mobj_t *actor)
 //		upper 16 bits = forward/backward offset
 //		lower 16 bits = sideways offset
 //
-void A_CapeChase(mobj_t *actor)
+void A_CapeChase(void *thing)
 {
+	mobj_t *actor = thing;
 	mobj_t *chaser;
 	fixed_t foffsetx, foffsety, boffsetx, boffsety;
 	INT32 locvar1 = var1;
@@ -3750,8 +3700,9 @@ void A_CapeChase(mobj_t *actor)
 // var1 = unused
 // var2 = unused
 //
-void A_RotateSpikeBall(mobj_t *actor)
+void A_RotateSpikeBall(void *thing)
 {
+	mobj_t *actor = thing;
 	const fixed_t radius = 12*actor->info->speed;
 
 	if (actor->type == MT_SPECIALSPIKEBALL)
@@ -3788,8 +3739,9 @@ void A_RotateSpikeBall(mobj_t *actor)
 //
 // var1 = unused
 // var2 = unused
-void A_RockSpawn(mobj_t *actor)
+void A_RockSpawn(void *thing)
 {
+	mobj_t *actor = thing;
 	mobj_t *mo;
 	mobjtype_t type;
 	INT32 i = P_FindSpecialLineFromTag(12, (INT16)actor->threshold, -1);
@@ -3841,8 +3793,9 @@ void A_RockSpawn(mobj_t *actor)
 // var1 = unused
 // var2 = unused
 //
-void A_MaceRotate(mobj_t *actor)
+void A_MaceRotate(void *thing)
 {
+	mobj_t *actor = thing;
 	TVector v;
 	TVector *res;
 	fixed_t radius = actor->info->speed*actor->reactiontime;
@@ -3932,8 +3885,9 @@ movedir - current angle holder
 // var1 = duration before disappearing (in seconds).
 // var2 = unused
 //
-void A_SnowBall(mobj_t *actor)
+void A_SnowBall(void *thing)
 {
+	mobj_t *actor = thing;
 	INT32 locvar1 = var1;
 	//INT32 locvar2 = var2;
 
@@ -3949,8 +3903,9 @@ void A_SnowBall(mobj_t *actor)
 // var1 = shoot bullets?
 // var2 = "pogo mode" speed
 //
-void A_CrawlaCommanderThink(mobj_t *actor)
+void A_CrawlaCommanderThink(void *thing)
 {
+	mobj_t *actor = thing;
 	fixed_t dist;
 	sector_t *nextsector;
 	fixed_t thefloor;
@@ -4090,8 +4045,9 @@ void A_CrawlaCommanderThink(mobj_t *actor)
 // var1 = unused
 // var2 = unused
 //
-void A_RingExplode(mobj_t *actor)
+void A_RingExplode(void *thing)
 {
+	mobj_t *actor = thing;
 	mobj_t *mo2;
 	thinker_t *th;
 	INT32 d;
@@ -4103,7 +4059,7 @@ void A_RingExplode(mobj_t *actor)
 
 	for (th = thinkercap.next; th != &thinkercap; th = th->next)
 	{
-		if (th->function.acp1 != (actionf_p1)P_MobjThinker)
+		if (th->function != (actionf_p1)P_MobjThinker)
 			continue;
 
 		mo2 = (mobj_t *)th;
@@ -4171,7 +4127,9 @@ void A_RingExplode(mobj_t *actor)
 // var1 = object # to explode as debris
 // var2 = unused
 //
-void A_OldRingExplode(mobj_t *actor) {
+void A_OldRingExplode(void *thing)
+{
+	mobj_t *actor = thing;
 	UINT8 i;
 	mobj_t *mo;
 	const fixed_t ns = 20 * FRACUNIT;
@@ -4250,8 +4208,9 @@ void A_OldRingExplode(mobj_t *actor) {
 // var1 = unused
 // var2 = unused
 //
-void A_MixUp(mobj_t *actor)
+void A_MixUp(void *thing)
 {
+	mobj_t *actor = thing;
 	boolean teleported[MAXPLAYERS];
 	INT32 i, numplayers = 0, prandom = 0;
 
@@ -4461,8 +4420,9 @@ void A_MixUp(mobj_t *actor)
 // var1 = unused
 // var2 = unused
 //
-void A_RecyclePowers(mobj_t *actor)
+void A_RecyclePowers(void *thing)
 {
+	mobj_t *actor = thing;
 	INT32 i, numplayers = 0;
 
 	actor = NULL;
@@ -4600,8 +4560,9 @@ void A_RecyclePowers(mobj_t *actor)
 // var1 = unused
 // var2 = unused
 //
-void A_Boss1Chase(mobj_t *actor)
+void A_Boss1Chase(void *thing)
 {
+	mobj_t *actor = thing;
 	INT32 delta;
 
 	if (actor->reactiontime)
@@ -4674,8 +4635,9 @@ nomissile:
 // var1 = unused
 // var2 = unused
 //
-void A_Boss2Chase(mobj_t *actor)
+void A_Boss2Chase(void *thing)
 {
+	mobj_t *actor = thing;
 	fixed_t radius;
 	boolean reverse = false;
 	INT32 speedvar;
@@ -4772,8 +4734,9 @@ void A_Boss2Chase(mobj_t *actor)
 // var1 = unused
 // var2 = unused
 //
-void A_Boss2Pogo(mobj_t *actor)
+void A_Boss2Pogo(void *thing)
 {
+	mobj_t *actor = thing;
 	if (actor->z <= actor->floorz + 8*FRACUNIT && actor->momz <= 0)
 	{
 		P_SetMobjState(actor, actor->info->raisestate);
@@ -4820,8 +4783,9 @@ void A_Boss2Pogo(mobj_t *actor)
 // var1 = unused
 // var2 = unused
 //
-void A_Invinciblerize(mobj_t *actor)
+void A_Invinciblerize(void *thing)
 {
+	mobj_t *actor = thing;
 	A_Pain(actor);
 	actor->reactiontime = 1;
 	actor->movecount = TICRATE;
@@ -4834,8 +4798,9 @@ void A_Invinciblerize(mobj_t *actor)
 // var1 = unused
 // var2 = unused
 //
-void A_DeInvinciblerize(mobj_t *actor)
+void A_DeInvinciblerize(void *thing)
 {
+	mobj_t *actor = thing;
 	actor->movecount = actor->state->tics+TICRATE;
 }
 
@@ -4846,8 +4811,9 @@ void A_DeInvinciblerize(mobj_t *actor)
 // var1 = unused
 // var2 = unused
 //
-void A_GoopSplat(mobj_t *actor)
+void A_GoopSplat(void *thing)
 {
+	mobj_t *actor = thing;
 	P_UnsetThingPosition(actor);
 	if (sector_list)
 	{
@@ -4865,8 +4831,9 @@ void A_GoopSplat(mobj_t *actor)
 // var1 = pogo jump strength
 // var2 = horizontal pogoing speed multiple
 //
-void A_Boss2PogoSFX(mobj_t *actor)
+void A_Boss2PogoSFX(void *thing)
 {
+	mobj_t *actor = thing;
 	INT32 locvar1 = var1;
 	INT32 locvar2 = var2;
 
@@ -4904,8 +4871,9 @@ void A_Boss2PogoSFX(mobj_t *actor)
 // var1 = unused
 // var2 = unused
 //
-void A_EggmanBox(mobj_t *actor)
+void A_EggmanBox(void *thing)
 {
+	mobj_t *actor = thing;
 	if (!actor->target || !actor->target->player)
 	{
 		if (cv_debug)
@@ -4923,8 +4891,9 @@ void A_EggmanBox(mobj_t *actor)
 // var1 = object # to repeatedly fire
 // var2 = distance threshold
 //
-void A_TurretFire(mobj_t *actor)
+void A_TurretFire(void *thing)
 {
+	mobj_t *actor = thing;
 	INT32 count = 0;
 	fixed_t dist;
 	INT32 locvar1 = var1;
@@ -4959,8 +4928,9 @@ void A_TurretFire(mobj_t *actor)
 // var1 = object # to repeatedly fire
 // var2 = distance threshold
 //
-void A_SuperTurretFire(mobj_t *actor)
+void A_SuperTurretFire(void *thing)
 {
+	mobj_t *actor = thing;
 	INT32 count = 0;
 	fixed_t dist;
 	INT32 locvar1 = var1;
@@ -4996,8 +4966,9 @@ void A_SuperTurretFire(mobj_t *actor)
 // var1 = Don't play activesound?
 // var2 = unused
 //
-void A_TurretStop(mobj_t *actor)
+void A_TurretStop(void *thing)
 {
+	mobj_t *actor = thing;
 	INT32 locvar1 = var1;
 
 	actor->flags2 &= ~MF2_FIRING;
@@ -5014,8 +4985,9 @@ void A_TurretStop(mobj_t *actor)
 // var1 = unused
 // var2 = unused
 //
-void A_SparkFollow(mobj_t *actor)
+void A_SparkFollow(void *thing)
 {
+	mobj_t *actor = thing;
 	if (actor->state == &states[S_DISS])
 		return;
 
@@ -5044,8 +5016,9 @@ void A_SparkFollow(mobj_t *actor)
 // var1 = unused
 // var2 = unused
 //
-void A_BuzzFly(mobj_t *actor)
+void A_BuzzFly(void *thing)
 {
+	mobj_t *actor = thing;
 	if (actor->flags & MF_AMBUSH)
 		return;
 
@@ -5131,8 +5104,9 @@ void A_BuzzFly(mobj_t *actor)
 // var1 = unused
 // var2 = unused
 //
-void A_GuardChase(mobj_t *actor)
+void A_GuardChase(void *thing)
 {
+	mobj_t *actor = thing;
 	INT32 delta;
 
 	if (actor->reactiontime)
@@ -5246,8 +5220,9 @@ void A_GuardChase(mobj_t *actor)
 // var1 = 1 (use value in var2); 0 (use info table value)
 // var2 = if var1 = 1, then value to set
 //
-void A_SetReactionTime(mobj_t *actor)
+void A_SetReactionTime(void *thing)
 {
+	mobj_t *actor = thing;
 	if (var1)
 		actor->reactiontime = var2;
 	else
@@ -5261,8 +5236,9 @@ void A_SetReactionTime(mobj_t *actor)
 // var1 = movecount value
 // var2 = unused
 //
-void A_Boss3TakeDamage(mobj_t *actor)
+void A_Boss3TakeDamage(void *thing)
 {
+	mobj_t *actor = thing;
 	actor->movecount = var1;
 
 	if (actor->target && actor->target->spawnpoint)
@@ -5276,8 +5252,9 @@ void A_Boss3TakeDamage(mobj_t *actor)
 // var1 = tag (optional)
 // var2 = unused
 //
-void A_LinedefExecute(mobj_t *actor)
+void A_LinedefExecute(void *thing)
 {
+	mobj_t *actor = thing;
 	INT32 tagnum;
 	INT32 locvar1 = var1;
 
@@ -5299,8 +5276,9 @@ void A_LinedefExecute(mobj_t *actor)
 // var1 = unused
 // var2 = unused
 //
-void A_PlaySeeSound(mobj_t *actor)
+void A_PlaySeeSound(void *thing)
 {
+	mobj_t *actor = thing;
 	if (actor->info->seesound)
 		S_StartScreamSound(actor, actor->info->seesound);
 }
@@ -5312,8 +5290,9 @@ void A_PlaySeeSound(mobj_t *actor)
 // var1 = unused
 // var2 = unused
 //
-void A_PlayAttackSound(mobj_t *actor)
+void A_PlayAttackSound(void *thing)
 {
+	mobj_t *actor = thing;
 	if (actor->info->attacksound)
 		S_StartAttackSound(actor, actor->info->attacksound);
 }
@@ -5325,8 +5304,9 @@ void A_PlayAttackSound(mobj_t *actor)
 // var1 = unused
 // var2 = unused
 //
-void A_PlayActiveSound(mobj_t *actor)
+void A_PlayActiveSound(void *thing)
 {
+	mobj_t *actor = thing;
 	if (actor->info->activesound)
 		S_StartSound(actor, actor->info->activesound);
 }
@@ -5338,8 +5318,9 @@ void A_PlayActiveSound(mobj_t *actor)
 // var1 = object # to spawn as smoke
 // var2 = unused
 //
-void A_SmokeTrailer(mobj_t *actor)
+void A_SmokeTrailer(void *thing)
 {
+	mobj_t *actor = thing;
 	mobj_t *th;
 	INT32 locvar1 = var1;
 
@@ -5366,8 +5347,9 @@ void A_SmokeTrailer(mobj_t *actor)
 //		var2 >> 16 = z
 //		var2 & 65535 = type
 //
-void A_SpawnObjectAbsolute(mobj_t *actor)
+void A_SpawnObjectAbsolute(void *thing)
 {
+	mobj_t *actor = thing;
 	INT16 x, y, z; // Want to be sure we can use negative values
 	mobjtype_t type;
 	mobj_t *mo;
@@ -5396,8 +5378,9 @@ void A_SpawnObjectAbsolute(mobj_t *actor)
 //		var2 >> 16 = z
 //		var2 & 65535 = type
 //
-void A_SpawnObjectRelative(mobj_t *actor)
+void A_SpawnObjectRelative(void *thing)
 {
+	mobj_t *actor = thing;
 	INT16 x, y, z; // Want to be sure we can use negative values
 	mobjtype_t type;
 	mobj_t *mo;
@@ -5425,8 +5408,9 @@ void A_SpawnObjectRelative(mobj_t *actor)
 // var1 = min
 // var2 = max
 //
-void A_ChangeAngleRelative(mobj_t *actor)
+void A_ChangeAngleRelative(void *thing)
 {
+	mobj_t *actor = thing;
 	INT32 locvar1 = var1;
 	INT32 locvar2 = var2;
 	angle_t angle = (P_Random()+1)<<24;
@@ -5453,8 +5437,9 @@ void A_ChangeAngleRelative(mobj_t *actor)
 // var1 = min
 // var2 = max
 //
-void A_ChangeAngleAbsolute(mobj_t *actor)
+void A_ChangeAngleAbsolute(void *thing)
 {
+	mobj_t *actor = thing;
 	INT32 locvar1 = var1;
 	INT32 locvar2 = var2;
 	angle_t angle = (P_Random()+1)<<24;
@@ -5483,8 +5468,9 @@ void A_ChangeAngleAbsolute(mobj_t *actor)
 //		0 = Play sound without an origin
 //		1 = Play sound using calling object as origin
 //
-void A_PlaySound(mobj_t *actor)
+void A_PlaySound(void *thing)
 {
+	mobj_t *actor = thing;
 	INT32 locvar1 = var1;
 	INT32 locvar2 = var2;
 
@@ -5498,8 +5484,9 @@ void A_PlaySound(mobj_t *actor)
 // var1 = mobj type
 // var2 = if (0) nearest; else furthest;
 //
-void A_FindTarget(mobj_t *actor)
+void A_FindTarget(void *thing)
 {
+	mobj_t *actor = thing;
 	INT32 locvar1 = var1;
 	INT32 locvar2 = var2;
 	mobj_t *targetedmobj = NULL;
@@ -5513,7 +5500,7 @@ void A_FindTarget(mobj_t *actor)
 	// scan the thinkers
 	for (th = thinkercap.next; th != &thinkercap; th = th->next)
 	{
-		if (th->function.acp1 != (actionf_p1)P_MobjThinker)
+		if (th->function != (actionf_p1)P_MobjThinker)
 			continue;
 
 		mo2 = (mobj_t *)th;
@@ -5558,8 +5545,9 @@ void A_FindTarget(mobj_t *actor)
 // var1 = mobj type
 // var2 = if (0) nearest; else furthest;
 //
-void A_FindTracer(mobj_t *actor)
+void A_FindTracer(void *thing)
 {
+	mobj_t *actor = thing;
 	INT32 locvar1 = var1;
 	INT32 locvar2 = var2;
 	mobj_t *targetedmobj = NULL;
@@ -5573,7 +5561,7 @@ void A_FindTracer(mobj_t *actor)
 	// scan the thinkers
 	for (th = thinkercap.next; th != &thinkercap; th = th->next)
 	{
-		if (th->function.acp1 != (actionf_p1)P_MobjThinker)
+		if (th->function != (actionf_p1)P_MobjThinker)
 			continue;
 
 		mo2 = (mobj_t *)th;
@@ -5618,8 +5606,9 @@ void A_FindTracer(mobj_t *actor)
 // var1 = tics to set to
 // var2 = if this is set, and no var1 is supplied, the mobj's threshold value will be used.
 //
-void A_SetTics(mobj_t *actor)
+void A_SetTics(void *thing)
 {
+	mobj_t *actor = thing;
 	INT32 locvar1 = var1;
 	INT32 locvar2 = var2;
 
@@ -5636,8 +5625,9 @@ void A_SetTics(mobj_t *actor)
 // var1 = lower bound
 // var2 = upper bound
 //
-void A_SetRandomTics(mobj_t *actor)
+void A_SetRandomTics(void *thing)
 {
+	mobj_t *actor = thing;
 	INT32 locvar1 = var1;
 	INT32 locvar2 = var2;
 
@@ -5651,8 +5641,9 @@ void A_SetRandomTics(mobj_t *actor)
 // var1 = if (var1 > 0), find target and add its color value to yours
 // var2 = if (var1 = 0), color value to add
 //
-void A_ChangeColorRelative(mobj_t *actor)
+void A_ChangeColorRelative(void *thing)
 {
+	mobj_t *actor = thing;
 	INT32 locvar1 = var1;
 	INT32 locvar2 = var2;
 
@@ -5674,8 +5665,9 @@ void A_ChangeColorRelative(mobj_t *actor)
 // var1 = if (var1 > 0), set your color to your target's color
 // var2 = if (var1 = 0), color value to set to
 //
-void A_ChangeColorAbsolute(mobj_t *actor)
+void A_ChangeColorAbsolute(void *thing)
 {
+	mobj_t *actor = thing;
 	INT32 locvar1 = var1;
 	INT32 locvar2 = var2;
 
@@ -5696,8 +5688,9 @@ void A_ChangeColorAbsolute(mobj_t *actor)
 // var1 = angle
 // var2 = force
 //
-void A_MoveRelative(mobj_t *actor)
+void A_MoveRelative(void *thing)
 {
+	mobj_t *actor = thing;
 	INT32 locvar1 = var1;
 	INT32 locvar2 = var2;
 
@@ -5711,8 +5704,9 @@ void A_MoveRelative(mobj_t *actor)
 // var1 = angle
 // var2 = force
 //
-void A_MoveAbsolute(mobj_t *actor)
+void A_MoveAbsolute(void *thing)
 {
+	mobj_t *actor = thing;
 	INT32 locvar1 = var1;
 	INT32 locvar2 = var2;
 
@@ -5726,8 +5720,9 @@ void A_MoveAbsolute(mobj_t *actor)
 // var1 = amount of force
 // var2 = If 1, xy momentum is lost. If 0, xy momentum is kept
 //
-void A_Thrust(mobj_t *actor)
+void A_Thrust(void *thing)
 {
+	mobj_t *actor = thing;
 	INT32 locvar1 = var1;
 	INT32 locvar2 = var2;
 
@@ -5749,8 +5744,9 @@ void A_Thrust(mobj_t *actor)
 //		lower 16 bits = If 1, xy momentum is lost. If 0, xy momentum is kept
 //		upper 16 bits = If 1, z momentum is lost. If 0, z momentum is kept
 //
-void A_ZThrust(mobj_t *actor)
+void A_ZThrust(void *thing)
 {
+	mobj_t *actor = thing;
 	INT32 locvar1 = var1;
 	INT32 locvar2 = var2;
 
@@ -5775,8 +5771,9 @@ void A_ZThrust(mobj_t *actor)
 // var1 = unused
 // var2 = unused
 //
-void A_SetTargetsTarget(mobj_t *actor)
+void A_SetTargetsTarget(void *thing)
 {
+	mobj_t *actor = thing;
 	mobj_t *targetedmobj = NULL;
 	thinker_t *th;
 	mobj_t *mo2;
@@ -5790,7 +5787,7 @@ void A_SetTargetsTarget(mobj_t *actor)
 	// scan the thinkers
 	for (th = thinkercap.next; th != &thinkercap; th = th->next)
 	{
-		if (th->function.acp1 != (actionf_p1)P_MobjThinker)
+		if (th->function != (actionf_p1)P_MobjThinker)
 			continue;
 
 		mo2 = (mobj_t *)th;
@@ -5818,8 +5815,9 @@ void A_SetTargetsTarget(mobj_t *actor)
 //		else if var2 == 1, remove the flag from the current flags
 //		else if var2 == 0, set the flags to the exact value
 //
-void A_SetObjectFlags(mobj_t *actor)
+void A_SetObjectFlags(void *thing)
 {
+	mobj_t *actor = thing;
 	INT32 locvar1 = var1;
 	INT32 locvar2 = var2;
 
@@ -5850,8 +5848,9 @@ void A_SetObjectFlags(mobj_t *actor)
 //		else if var2 == 1, remove the flag from the current flags
 //		else if var2 == 0, set the flags to the exact value
 //
-void A_SetObjectFlags2(mobj_t *actor)
+void A_SetObjectFlags2(void *thing)
 {
+	mobj_t *actor = thing;
 	INT32 locvar1 = var1;
 	INT32 locvar2 = var2;
 
@@ -5872,8 +5871,9 @@ void A_SetObjectFlags2(mobj_t *actor)
 //		1 - Boss 3's propeller
 // var2 = unused
 //
-void A_BossJetFume(mobj_t *actor)
+void A_BossJetFume(void *thing)
 {
+	mobj_t *actor = thing;
 	mobj_t *filler;
 	INT32 locvar1 = var1;
 
@@ -5920,8 +5920,9 @@ void A_BossJetFume(mobj_t *actor)
 // var1 = state number 1
 // var2 = state number 2
 //
-void A_RandomState(mobj_t *actor)
+void A_RandomState(void *thing)
 {
+	mobj_t *actor = thing;
 	INT32 locvar1 = var1;
 	INT32 locvar2 = var2;
 
@@ -5935,8 +5936,9 @@ void A_RandomState(mobj_t *actor)
 // var1 = Minimum state number to choose.
 // var2 = Maximum state number to use.
 //
-void A_RandomStateRange(mobj_t *actor)
+void A_RandomStateRange(void *thing)
 {
+	mobj_t *actor = thing;
 	INT32 locvar1 = var1;
 	INT32 locvar2 = var2;
 	INT32 statenum;
@@ -5955,8 +5957,9 @@ void A_RandomStateRange(mobj_t *actor)
 // var1 = state # to use 1st action from
 // var2 = state # to use 2nd action from
 //
-void A_DualAction(mobj_t *actor)
+void A_DualAction(void *thing)
 {
+	mobj_t *actor = thing;
 	INT32 locvar1 = var1;
 	INT32 locvar2 = var2;
 
@@ -5968,14 +5971,14 @@ void A_DualAction(mobj_t *actor)
 
 	if (cv_debug)
 		CONS_Printf("A_DualAction: Calling First Action (state %d)...\n", locvar1);
-	states[locvar1].action.acp1(actor);
+	states[locvar1].action(actor);
 
 	var1 = states[locvar2].var1;
 	var2 = states[locvar2].var2;
 
 	if (cv_debug)
 		CONS_Printf("A_DualAction: Calling Second Action (state %d)...\n", locvar2);
-	states[locvar2].action.acp1(actor);
+	states[locvar2].action(actor);
 }
 
 // Function: A_RemoteAction
@@ -5985,8 +5988,9 @@ void A_DualAction(mobj_t *actor)
 // var1 = remote object (-2 uses tracer, -1 uses target)
 // var2 = state reference for calling an action
 //
-void A_RemoteAction(mobj_t *actor)
+void A_RemoteAction(void *thing)
 {
+	mobj_t *actor = thing;
 	INT32 locvar1 = var1;
 	INT32 locvar2 = var2;
 	mobj_t *originaltarget = actor->target; // Hold on to the target for later.
@@ -6003,7 +6007,7 @@ void A_RemoteAction(mobj_t *actor)
 		// scan the thinkers
 		for (th = thinkercap.next; th != &thinkercap; th = th->next)
 		{
-			if (th->function.acp1 != (actionf_p1)P_MobjThinker)
+			if (th->function != (actionf_p1)P_MobjThinker)
 				continue;
 
 			mo2 = (mobj_t *)th;
@@ -6057,7 +6061,7 @@ void A_RemoteAction(mobj_t *actor)
 		CONS_Printf("A_RemoteAction: Calling action on %p\n", actor->target);
 		CONS_Printf("var1 is %d\nvar2 is %d\n", var1, var2);
 	}
-	states[locvar2].action.acp1(actor->target);
+	states[locvar2].action(actor->target);
 
 	P_SetTarget(&actor->target, originaltarget); // Restore the original target.
 }
@@ -6069,8 +6073,9 @@ void A_RemoteAction(mobj_t *actor)
 // var1 = unused
 // var2 = unused
 //
-void A_ToggleFlameJet(mobj_t* actor)
+void A_ToggleFlameJet(void* thing)
 {
+	mobj_t *actor = thing;
 	// threshold - off delay
 	// movecount - on timer
 

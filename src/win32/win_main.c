@@ -735,7 +735,7 @@ static int WINAPI HandledWinMain(HINSTANCE hInstance)
 		CONS_Printf("myargv[%d] : '%s'\n", i, myargv[i]);
 
 	// open a dummy window, both OpenGL and DirectX need one.
-	if ((hWndMain = OpenMainWindow(hInstance, va("SRB2"VERSIONSTRING))) == INVALID_HANDLE_VALUE)
+	if ((hWndMain = OpenMainWindow(hInstance, va("SRB2 Retro"VERSIONSTRING))) == INVALID_HANDLE_VALUE)
 	{
 		tlErrorMessage(TEXT("Couldn't open window"));
 		return FALSE;

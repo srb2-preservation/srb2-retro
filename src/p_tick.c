@@ -97,7 +97,7 @@ void Command_Numthinkers_f(void)
 
 	for (think = thinkercap.next; think != &thinkercap; think = think->next)
 	{
-		if (think->function.acp1 != action)
+		if (think->function != action)
 			continue;
 
 		count++;
@@ -134,7 +134,7 @@ void Command_CountMobjs_f(void)
 
 			for (th = thinkercap.next; th != &thinkercap; th = th->next)
 			{
-				if (th->function.acp1 != (actionf_p1)P_MobjThinker)
+				if (th->function != (actionf_p1)P_MobjThinker)
 					continue;
 
 				if (((mobj_t *)th)->type == i)
@@ -154,7 +154,7 @@ void Command_CountMobjs_f(void)
 
 		for (th = thinkercap.next; th != &thinkercap; th = th->next)
 		{
-			if (th->function.acp1 != (actionf_p1)P_MobjThinker)
+			if (th->function != (actionf_p1)P_MobjThinker)
 				continue;
 
 			if (((mobj_t *)th)->type == i)
@@ -238,7 +238,7 @@ void P_RemoveThinkerDelayed(void *pthinker)
 //
 void P_RemoveThinker(thinker_t *thinker)
 {
-	thinker->function.acp1 = P_RemoveThinkerDelayed;
+	thinker->function = P_RemoveThinkerDelayed;
 }
 
 /*
@@ -288,8 +288,8 @@ static inline void P_RunThinkers(void)
 {
 	for (currentthinker = thinkercap.next; currentthinker != &thinkercap; currentthinker = currentthinker->next)
 	{
-		if (currentthinker->function.acp1)
-			currentthinker->function.acp1(currentthinker);
+		if (currentthinker->function)
+			currentthinker->function(currentthinker);
 	}
 }
 
