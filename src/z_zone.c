@@ -144,7 +144,11 @@ void Z_Init(void)
 
 	head.next = head.prev = &head;
 
+#ifdef SDL2
 	memfree = I_GetFreeMem(&total)>>20;
+#else
+	memfree = I_GetFreeMem((UINT32 *)&total)>>20;
+#endif
 	CONS_Printf("System memory: %sMB - Free: %sMB\n", sizeu1(total>>20), sizeu2(memfree));
 
 	// Note: This allocates memory. Watch out.
@@ -628,7 +632,11 @@ void Command_Memfree_f(void)
 #endif
 
 	CONS_Printf("\2System Memory Info\n");
+#if SDL2
 	freebytes = I_GetFreeMem(&totalbytes);
+#else 
+    freebytes = I_GetFreeMem((UINT32*)&totalbytes);
+#endif
 	CONS_Printf("    Total physical memory: %s KB\n",sizeu1( totalbytes>>10));
 	CONS_Printf("Available physical memory: %s KB\n", sizeu1(freebytes>>10));
 }

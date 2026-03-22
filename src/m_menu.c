@@ -495,7 +495,7 @@ static void M_DrawAddons(void)
 	}
 }
 
-static void M_HandleAddons();
+static void M_HandleAddons(INT32 choice);
 
 static menuitem_t MISC_AddonsMenu[] =
 {

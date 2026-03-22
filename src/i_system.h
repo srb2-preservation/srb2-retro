@@ -46,8 +46,11 @@ extern UINT8 keyboard_started;
 
 	\return	free memory in the system
 */
+#ifdef SDL2
 size_t I_GetFreeMem(size_t *total);
-
+#else 
+UINT32 I_GetFreeMem(UINT32 *total);
+#endif
 /**	\brief  Called by D_SRB2Loop, returns current time in tics.
 */
 tic_t I_GetTime(void);
