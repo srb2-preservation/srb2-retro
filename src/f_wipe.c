@@ -245,7 +245,6 @@ void F_RunWipe(tic_t duration, boolean drawMenu)
 		if (drawMenu)
 			M_Drawer(); // menu is drawn even on top of wipes
 
-		if (rendermode == render_soft)
-			I_FinishUpdate(); // page flip or blit buffer
+		I_FinishUpdate(); // page flip or blit buffer
 	} while (!done && I_GetTime() < y);
 }

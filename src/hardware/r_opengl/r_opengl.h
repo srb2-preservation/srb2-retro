@@ -20,8 +20,7 @@
 #ifndef _R_OPENGL_H_
 #define _R_OPENGL_H_
 
-#ifdef HAVE_SDL
-#define _MATH_DEFINES_DEFINED
+#ifdef SDL
 
 #ifdef _MSC_VER
 #pragma warning(disable : 4214 4244)
@@ -36,13 +35,6 @@
 #else
 #include <GL/gl.h>
 #include <GL/glu.h>
-
-#ifndef MINI_GL_COMPATIBILITY
-#ifdef STATIC_OPENGL // Because of the 1.3 functions, you'll need GLext to compile it if static
-#define GL_GLEXT_PROTOTYPES
-#include <GL/glext.h>
-#endif
-#endif
 #endif
 
 #define  _CREATE_DLL_  // necessary for Unix AND Windows
@@ -58,18 +50,8 @@
 
 #undef DEBUG_TO_FILE            // maybe defined in previous *.h
 #define DEBUG_TO_FILE           // output debugging msgs to ogllog.txt
-
-// todo: find some way of getting SDL to log to ogllog.txt, without
-// interfering with r_opengl.dll
-#ifdef HAVE_SDL
+#if defined ( SDL ) && !defined ( LOGMESSAGES )
 #undef DEBUG_TO_FILE
-#endif
-//#if defined(HAVE_SDL) && !defined(_DEBUG)
-//#undef DEBUG_TO_FILE
-//#endif
-
-#ifdef DEBUG_TO_FILE
-extern FILE             *gllogstream;
 #endif
 
 #ifndef DRIVER_STRING
@@ -84,10 +66,9 @@ extern FILE             *gllogstream;
 boolean LoadGL(void);
 void *GetGLFunc(const char *proc);
 boolean SetupGLfunc(void);
-boolean SetupGLFunc13(void);
 void Flush(void);
 INT32 isExtAvailable(const char *extension, const GLubyte *start);
-int SetupPixelFormat(INT32 WantColorBits, INT32 WantStencilBits, INT32 WantDepthBits);
+boolean SetupPixelFormat(INT32 WantColorBits, INT32 WantStencilBits, INT32 WantDepthBits);
 void SetModelView(GLint w, GLint h);
 void SetStates(void);
 FUNCMATH float byteasfloat(UINT8 fbyte);
@@ -128,6 +109,9 @@ extern PFNglGetString pglGetString;
 
 extern const GLubyte    *gl_extensions;
 extern RGBA_t           myPaletteData[];
+#ifndef SDL
+extern FILE             *logstream;
+#endif
 extern GLint            screen_width;
 extern GLint            screen_height;
 extern GLbyte           screen_depth;
