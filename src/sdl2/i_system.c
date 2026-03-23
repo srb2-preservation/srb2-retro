@@ -383,7 +383,7 @@ void I_GetEvent(void){
 						case SDLK_F12:
 							e_w.data1 = KEY_F12;
 							break;
-						// Let Snipping Tool/Snip 'n Sketch/Greenshot do whatever! 
+						// Let Snipping Tool/Snip 'n Sketch/Greenshot do whatever!
 						case SDLK_PRINTSCREEN:
 							return;
 						// those keys to the right of the regular QWERTY layout but to the left of the numpad idk what to call them
@@ -949,9 +949,10 @@ static const char *locateWad(void)
 	const char *envstr;
 	const char *WadPath;
 
-	I_OutputMsg("SRB2WADDIR");
-	// does SRB2WADDIR exist?
-	if (((envstr = I_GetEnv("SRB220WADDIR")) != NULL) && isWadPathOk(envstr))
+	// SRB2WADDIR environment variable has been renamed to SRB2RETROWADDIR to prevent conflicts with 2.1+.
+	I_OutputMsg("SRB2RETROWADDIR");
+	// does SRB2RETROWADDIR exist?
+	if (((envstr = I_GetEnv("SRB2RETROWADDIR")) != NULL) && isWadPathOk(envstr))
 		return envstr;
 
 #ifdef _WIN32_WCE
