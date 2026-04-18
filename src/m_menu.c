@@ -5366,7 +5366,7 @@ menu_t VideoOptionsDef =
 {
 	"M_OPTTTL",
 	"OPTIONS",
-	3,
+	sizeof (VideoOptionsMenu)/sizeof (menuitem_t),
 	&OptionsDef,
 	VideoOptionsMenu,
 	M_DrawGenericMenu,
