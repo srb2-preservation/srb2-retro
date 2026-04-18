@@ -247,4 +247,6 @@ extern const char *compdate, *comptime, *comprevision;
 #define HARDWAREFIX //"New" hardware lighting, colormapping and fog. Ported from SRB2JTE.
 #endif
 
+#define M_GetText(x) (x)
+
 #endif // __DOOMDEF__

@@ -43,14 +43,14 @@
 			/>
 			<Tool
 				Name="VCMIDLTool"
-				TypeLibraryName=".\..\..\bin\VC\Debug\SDL/Srb2SDL-vc9.tlb"
+				TypeLibraryName=".\..\..\bin\VC9\$(Platform)\$(Configuration)\SDL\Srb2SDL-vc9.tlb"
 				HeaderFileName=""
 			/>
 			<Tool
 				Name="VCCLCompilerTool"
 				Optimization="0"
-				AdditionalIncludeDirectories="&quot;$(ProjectDir)..\..\tools\libpng-src&quot;;&quot;$(ProjectDir)..\..\tools\zlib&quot;"
-				PreprocessorDefinitions="_DEBUG;USE_WGL_SWAP;DIRECTFULLSCREEN;SDL;HWRENDER;HW3SOUND;HAVE_FILTER;HAVE_MIXER;USEASM;HAVE_PNG;_CRT_SECURE_NO_WARNINGS;_CRT_NONSTDC_NO_DEPRECATE"
+				AdditionalIncludeDirectories="&quot;$(ProjectDir)..\..\libs\libpng-src&quot;;&quot;$(ProjectDir)..\..\libs\zlib&quot;"
+				PreprocessorDefinitions="_DEBUG;USE_WGL_SWAP;DIRECTFULLSCREEN;SDL;HWRENDER;HW3SOUND;HAVE_FILTER;HAVE_MIXER;USEASM;HAVE_PNG;HAVE_BLUA;_CRT_SECURE_NO_WARNINGS;_CRT_NONSTDC_NO_DEPRECATE"
 				MinimalRebuild="true"
 				BasicRuntimeChecks="3"
 				RuntimeLibrary="1"
@@ -77,7 +77,7 @@
 			/>
 			<Tool
 				Name="VCLinkerTool"
-				AdditionalDependencies="SDL.lib SDL_mixer.lib wsock32.lib"
+				AdditionalDependencies="SDL.lib SDL_mixer.lib ws2_32.lib"
 				OutputFile="$(OutDir)\srb2sdl.exe"
 				LinkIncremental="2"
 				SuppressStartupBanner="true"
@@ -138,14 +138,14 @@
 			<Tool
 				Name="VCMIDLTool"
 				TargetEnvironment="3"
-				TypeLibraryName=".\..\..\bin\VC\Debug\SDL/Srb2SDL-vc9.tlb"
+				TypeLibraryName=".\..\..\bin\VC9\$(Platform)\$(Configuration)\SDL\Srb2SDL-vc9.tlb"
 				HeaderFileName=""
 			/>
 			<Tool
 				Name="VCCLCompilerTool"
 				Optimization="0"
-				AdditionalIncludeDirectories="&quot;$(ProjectDir)..\..\tools\libpng-src&quot;;&quot;$(ProjectDir)..\..\tools\zlib&quot;"
-				PreprocessorDefinitions="_DEBUG;USE_WGL_SWAP;DIRECTFULLSCREEN;SDL;HWRENDER;HW3SOUND;HAVE_FILTER;HAVE_MIXER;HAVE_PNG;_CRT_SECURE_NO_WARNINGS;_CRT_NONSTDC_NO_DEPRECATE"
+				AdditionalIncludeDirectories="&quot;$(ProjectDir)..\..\libs\libpng-src&quot;;&quot;$(ProjectDir)..\..\libs\zlib&quot;"
+				PreprocessorDefinitions="_DEBUG;USE_WGL_SWAP;DIRECTFULLSCREEN;SDL;HWRENDER;HW3SOUND;HAVE_FILTER;HAVE_MIXER;HAVE_PNG;HAVE_BLUA;_CRT_SECURE_NO_WARNINGS;_CRT_NONSTDC_NO_DEPRECATE"
 				MinimalRebuild="true"
 				BasicRuntimeChecks="3"
 				RuntimeLibrary="1"
@@ -172,7 +172,7 @@
 			/>
 			<Tool
 				Name="VCLinkerTool"
-				AdditionalDependencies="SDL.lib SDL_mixer.lib wsock32.lib"
+				AdditionalDependencies="SDL.lib SDL_mixer.lib ws2_32.lib"
 				OutputFile="$(OutDir)\srb2sdl.exe"
 				LinkIncremental="2"
 				SuppressStartupBanner="true"
@@ -236,7 +236,7 @@
 				MkTypLibCompatible="true"
 				SuppressStartupBanner="true"
 				TargetEnvironment="1"
-				TypeLibraryName=".\..\..\bin\VC\Release\SDL/Srb2SDL-vc9.tlb"
+				TypeLibraryName=".\..\..\bin\VC9\$(Platform)\$(Configuration)\SDL\Srb2SDL-vc9.tlb"
 				HeaderFileName=""
 			/>
 			<Tool
@@ -247,11 +247,11 @@
 				EnableIntrinsicFunctions="true"
 				FavorSizeOrSpeed="1"
 				OmitFramePointers="true"
-				AdditionalIncludeDirectories="&quot;$(ProjectDir)..\..\tools\libpng-src&quot;;&quot;$(ProjectDir)..\..\tools\zlib&quot;"
-				PreprocessorDefinitions="NDEBUG;SDLMAIN;NO_STDIO_REDIRECT;USE_WGL_SWAP;DIRECTFULLSCREEN;SDL;HWRENDER;HW3SOUND;HAVE_FILTER;HAVE_MIXER;USEASM;HAVE_PNG;_CRT_SECURE_NO_WARNINGS;_CRT_NONSTDC_NO_DEPRECATE"
+				AdditionalIncludeDirectories="&quot;$(ProjectDir)..\..\libs\libpng-src&quot;;&quot;$(ProjectDir)..\..\libs\zlib&quot;"
+				PreprocessorDefinitions="NDEBUG;SDLMAIN;NO_STDIO_REDIRECT;USE_WGL_SWAP;DIRECTFULLSCREEN;SDL;HWRENDER;HW3SOUND;HAVE_FILTER;HAVE_MIXER;USEASM;HAVE_PNG;HAVE_BLUA;_CRT_SECURE_NO_WARNINGS;_CRT_NONSTDC_NO_DEPRECATE"
 				StringPooling="true"
 				RuntimeLibrary="0"
-				PrecompiledHeaderFile=".\..\..\objs\VC\Release\SDL/Srb2SDL-vc9.pch"
+				PrecompiledHeaderFile=".\..\..\objs\VC9\$(Platform)\$(Configuration)\SDL\Srb2SDL-vc9.pch"
 				AssemblerListingLocation="$(IntDir)\"
 				ProgramDataBaseFileName="$(IntDir)\Srb2SDL.pdb"
 				BrowseInformation="1"
@@ -274,7 +274,7 @@
 			/>
 			<Tool
 				Name="VCLinkerTool"
-				AdditionalDependencies="SDL.lib SDL_mixer.lib wsock32.lib"
+				AdditionalDependencies="SDL.lib SDL_mixer.lib ws2_32.lib"
 				OutputFile="$(OutDir)\srb2sdl.exe"
 				LinkIncremental="1"
 				SuppressStartupBanner="true"
@@ -338,7 +338,7 @@
 				MkTypLibCompatible="true"
 				SuppressStartupBanner="true"
 				TargetEnvironment="3"
-				TypeLibraryName=".\..\..\bin\VC\Release\SDL/Srb2SDL-vc9.tlb"
+				TypeLibraryName=".\..\..\bin\VC9\$(Platform)\$(Configuration)\SDL\Srb2SDL-vc9.tlb"
 				HeaderFileName=""
 			/>
 			<Tool
@@ -349,11 +349,11 @@
 				EnableIntrinsicFunctions="true"
 				FavorSizeOrSpeed="1"
 				OmitFramePointers="true"
-				AdditionalIncludeDirectories="&quot;$(ProjectDir)..\..\tools\libpng-src&quot;;&quot;$(ProjectDir)..\..\tools\zlib&quot;"
-				PreprocessorDefinitions="NDEBUG;SDLMAIN;NO_STDIO_REDIRECT;USE_WGL_SWAP;DIRECTFULLSCREEN;SDL;HWRENDER;HW3SOUND;HAVE_FILTER;HAVE_MIXER;HAVE_PNG;_CRT_SECURE_NO_WARNINGS;_CRT_NONSTDC_NO_DEPRECATE"
+				AdditionalIncludeDirectories="&quot;$(ProjectDir)..\..\libs\libpng-src&quot;;&quot;$(ProjectDir)..\..\libs\zlib&quot;"
+				PreprocessorDefinitions="NDEBUG;SDLMAIN;NO_STDIO_REDIRECT;USE_WGL_SWAP;DIRECTFULLSCREEN;SDL;HWRENDER;HW3SOUND;HAVE_FILTER;HAVE_MIXER;HAVE_PNG;HAVE_BLUA;_CRT_SECURE_NO_WARNINGS;_CRT_NONSTDC_NO_DEPRECATE"
 				StringPooling="true"
 				RuntimeLibrary="0"
-				PrecompiledHeaderFile=".\..\..\objs\VC\Release\SDL/Srb2SDL-vc9.pch"
+				PrecompiledHeaderFile=".\..\..\objs\VC9\$(Platform)\$(Configuration)\SDL\Srb2SDL-vc9.pch"
 				AssemblerListingLocation="$(IntDir)\"
 				ProgramDataBaseFileName="$(IntDir)\Srb2SDL.pdb"
 				BrowseInformation="1"
@@ -376,7 +376,7 @@
 			/>
 			<Tool
 				Name="VCLinkerTool"
-				AdditionalDependencies="SDL.lib SDL_mixer.lib wsock32.lib"
+				AdditionalDependencies="SDL.lib SDL_mixer.lib ws2_32.lib"
 				OutputFile="$(OutDir)\srb2sdl.exe"
 				LinkIncremental="1"
 				SuppressStartupBanner="true"
@@ -1257,7 +1257,7 @@
 					<Tool
 						Name="VCCustomBuildTool"
 						Description="Compiling $(InputName).nas with NASM..."
-						CommandLine="nasm -o $(IntDir)/$(InputName).obj -f win32 $(InputPath)&#x0D;&#x0A;"
+						CommandLine="nasm -g -o $(IntDir)/$(InputName).obj -f win32 &quot;$(InputPath)&quot;&#x0D;&#x0A;"
 						Outputs="$(IntDir)/$(InputName).obj"
 					/>
 				</FileConfiguration>
@@ -1268,7 +1268,7 @@
 					<Tool
 						Name="VCCustomBuildTool"
 						Description="Compiling $(InputName).nas with NASM..."
-						CommandLine="nasm -o $(IntDir)/$(InputName).obj -f win32 $(InputPath)&#x0D;&#x0A;"
+						CommandLine="nasm -g -o $(IntDir)/$(InputName).obj -f win32 &quot;$(InputPath)&quot;&#x0D;&#x0A;"
 						Outputs="$(IntDir)/$(InputName).obj"
 					/>
 				</FileConfiguration>
@@ -1278,7 +1278,7 @@
 					<Tool
 						Name="VCCustomBuildTool"
 						Description="Compiling $(InputName).nas with NASM..."
-						CommandLine="nasm -o $(IntDir)/$(InputName).obj -f win32 $(InputPath)&#x0D;&#x0A;"
+						CommandLine="nasm -g -o $(IntDir)/$(InputName).obj -f win32 &quot;$(InputPath)&quot;&#x0D;&#x0A;"
 						Outputs="$(IntDir)/$(InputName).obj"
 					/>
 				</FileConfiguration>
@@ -1289,7 +1289,7 @@
 					<Tool
 						Name="VCCustomBuildTool"
 						Description="Compiling $(InputName).nas with NASM..."
-						CommandLine="nasm -o $(IntDir)/$(InputName).obj -f win32 $(InputPath)&#x0D;&#x0A;"
+						CommandLine="nasm -g -o $(IntDir)/$(InputName).obj -f win32 &quot;$(InputPath)&quot;&#x0D;&#x0A;"
 						Outputs="$(IntDir)/$(InputName).obj"
 					/>
 				</FileConfiguration>
@@ -1303,7 +1303,7 @@
 					<Tool
 						Name="VCCustomBuildTool"
 						Description="Compiling $(InputName).nas with NASM..."
-						CommandLine="nasm -o $(IntDir)/$(InputName).obj -f win32 $(InputPath)&#x0D;&#x0A;"
+						CommandLine="nasm -g -o $(IntDir)/$(InputName).obj -f win32 &quot;$(InputPath)&quot;&#x0D;&#x0A;"
 						Outputs="$(IntDir)/$(InputName).obj"
 					/>
 				</FileConfiguration>
@@ -1314,7 +1314,7 @@
 					<Tool
 						Name="VCCustomBuildTool"
 						Description="Compiling $(InputName).nas with NASM..."
-						CommandLine="nasm -o $(IntDir)/$(InputName).obj -f win32 $(InputPath)&#x0D;&#x0A;"
+						CommandLine="nasm -g -o $(IntDir)/$(InputName).obj -f win32 &quot;$(InputPath)&quot;&#x0D;&#x0A;"
 						Outputs="$(IntDir)/$(InputName).obj"
 					/>
 				</FileConfiguration>
@@ -1324,7 +1324,7 @@
 					<Tool
 						Name="VCCustomBuildTool"
 						Description="Compiling $(InputName).nas with NASM..."
-						CommandLine="nasm -o $(IntDir)/$(InputName).obj -f win32 $(InputPath)&#x0D;&#x0A;"
+						CommandLine="nasm -g -o $(IntDir)/$(InputName).obj -f win32 &quot;$(InputPath)&quot;&#x0D;&#x0A;"
 						Outputs="$(IntDir)/$(InputName).obj"
 					/>
 				</FileConfiguration>
@@ -1335,7 +1335,7 @@
 					<Tool
 						Name="VCCustomBuildTool"
 						Description="Compiling $(InputName).nas with NASM..."
-						CommandLine="nasm -o $(IntDir)/$(InputName).obj -f win32 $(InputPath)&#x0D;&#x0A;"
+						CommandLine="nasm -g -o $(IntDir)/$(InputName).obj -f win32 &quot;$(InputPath)&quot;&#x0D;&#x0A;"
 						Outputs="$(IntDir)/$(InputName).obj"
 					/>
 				</FileConfiguration>
@@ -1349,7 +1349,7 @@
 					<Tool
 						Name="VCCustomBuildTool"
 						Description="Compiling $(InputName).nas with NASM..."
-						CommandLine="nasm -o $(IntDir)/$(InputName).obj -f win32 $(InputPath)&#x0D;&#x0A;"
+						CommandLine="nasm -g -o $(IntDir)/$(InputName).obj -f win32 &quot;$(InputPath)&quot;&#x0D;&#x0A;"
 						Outputs="$(IntDir)/$(InputName).obj"
 					/>
 				</FileConfiguration>
@@ -1360,7 +1360,7 @@
 					<Tool
 						Name="VCCustomBuildTool"
 						Description="Compiling $(InputName).nas with NASM..."
-						CommandLine="nasm -o $(IntDir)/$(InputName).obj -f win32 $(InputPath)&#x0D;&#x0A;"
+						CommandLine="nasm -g -o $(IntDir)/$(InputName).obj -f win32 &quot;$(InputPath)&quot;&#x0D;&#x0A;"
 						Outputs="$(IntDir)/$(InputName).obj"
 					/>
 				</FileConfiguration>
@@ -1370,7 +1370,7 @@
 					<Tool
 						Name="VCCustomBuildTool"
 						Description="Compiling $(InputName).nas with NASM..."
-						CommandLine="nasm -o $(IntDir)/$(InputName).obj -f win32 $(InputPath)&#x0D;&#x0A;"
+						CommandLine="nasm -g -o $(IntDir)/$(InputName).obj -f win32 &quot;$(InputPath)&quot;&#x0D;&#x0A;"
 						Outputs="$(IntDir)/$(InputName).obj"
 					/>
 				</FileConfiguration>
@@ -1381,7 +1381,7 @@
 					<Tool
 						Name="VCCustomBuildTool"
 						Description="Compiling $(InputName).nas with NASM..."
-						CommandLine="nasm -o $(IntDir)/$(InputName).obj -f win32 $(InputPath)&#x0D;&#x0A;"
+						CommandLine="nasm -g -o $(IntDir)/$(InputName).obj -f win32 &quot;$(InputPath)&quot;&#x0D;&#x0A;"
 						Outputs="$(IntDir)/$(InputName).obj"
 					/>
 				</FileConfiguration>
@@ -1724,50 +1724,6 @@
 			</File>
 			<File
 				RelativePath="..\doomtype.h"
-				>
-			</File>
-			<File
-				RelativePath="..\dstrings.c"
-				>
-				<FileConfiguration
-					Name="Debug|Win32"
-					>
-					<Tool
-						Name="VCCLCompilerTool"
-						AdditionalIncludeDirectories=""
-						PreprocessorDefinitions=""
-					/>
-				</FileConfiguration>
-				<FileConfiguration
-					Name="Debug|x64"
-					>
-					<Tool
-						Name="VCCLCompilerTool"
-						AdditionalIncludeDirectories=""
-						PreprocessorDefinitions=""
-					/>
-				</FileConfiguration>
-				<FileConfiguration
-					Name="Release|Win32"
-					>
-					<Tool
-						Name="VCCLCompilerTool"
-						AdditionalIncludeDirectories=""
-						PreprocessorDefinitions=""
-					/>
-				</FileConfiguration>
-				<FileConfiguration
-					Name="Release|x64"
-					>
-					<Tool
-						Name="VCCLCompilerTool"
-						AdditionalIncludeDirectories=""
-						PreprocessorDefinitions=""
-					/>
-				</FileConfiguration>
-			</File>
-			<File
-				RelativePath="..\dstrings.h"
 				>
 			</File>
 			<File
@@ -2647,6 +2603,78 @@
 				>
 			</File>
 			<File
+				RelativePath="..\i_addrinfo.c"
+				>
+				<FileConfiguration
+					Name="Debug|Win32"
+					ExcludedFromBuild="true"
+					>
+					<Tool
+						Name="VCCLCompilerTool"
+					/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Debug|x64"
+					ExcludedFromBuild="true"
+					>
+					<Tool
+						Name="VCCLCompilerTool"
+					/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Release|Win32"
+					ExcludedFromBuild="true"
+					>
+					<Tool
+						Name="VCCLCompilerTool"
+					/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Release|x64"
+					ExcludedFromBuild="true"
+					>
+					<Tool
+						Name="VCCLCompilerTool"
+					/>
+				</FileConfiguration>
+			</File>
+			<File
+				RelativePath="..\i_addrinfo.h"
+				>
+				<FileConfiguration
+					Name="Debug|Win32"
+					ExcludedFromBuild="true"
+					>
+					<Tool
+						Name="VCCustomBuildTool"
+					/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Debug|x64"
+					ExcludedFromBuild="true"
+					>
+					<Tool
+						Name="VCCustomBuildTool"
+					/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Release|Win32"
+					ExcludedFromBuild="true"
+					>
+					<Tool
+						Name="VCCustomBuildTool"
+					/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Release|x64"
+					ExcludedFromBuild="true"
+					>
+					<Tool
+						Name="VCCustomBuildTool"
+					/>
+				</FileConfiguration>
+			</File>
+			<File
 				RelativePath="..\i_joy.h"
 				>
 			</File>
@@ -2892,6 +2920,14 @@
 			</File>
 			<File
 				RelativePath="..\m_cheat.h"
+				>
+			</File>
+			<File
+				RelativePath="..\m_cond.c"
+				>
+			</File>
+			<File
+				RelativePath="..\m_cond.h"
 				>
 			</File>
 			<File
@@ -4805,6 +4841,998 @@
 			<File
 				RelativePath="..\..\doc\source.txt"
 				>
+			</File>
+		</Filter>
+		<Filter
+			Name="B_Bot"
+			>
+			<File
+				RelativePath="..\b_bot.c"
+				>
+			</File>
+			<File
+				RelativePath="..\b_bot.h"
+				>
+			</File>
+		</Filter>
+		<Filter
+			Name="LUA"
+			>
+			<File
+				RelativePath="..\fastcmp.h"
+				>
+				<FileConfiguration
+					Name="Debug|Win32"
+					>
+					<Tool
+						Name="VCCustomBuildTool"
+					/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Debug|x64"
+					>
+					<Tool
+						Name="VCCustomBuildTool"
+					/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Release|Win32"
+					>
+					<Tool
+						Name="VCCustomBuildTool"
+					/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Release|x64"
+					>
+					<Tool
+						Name="VCCustomBuildTool"
+					/>
+				</FileConfiguration>
+			</File>
+			<File
+				RelativePath="..\lua_baselib.c"
+				>
+			</File>
+			<File
+				RelativePath="..\lua_consolelib.c"
+				>
+			</File>
+			<File
+				RelativePath="..\lua_hook.h"
+				>
+			</File>
+			<File
+				RelativePath="..\lua_hooklib.c"
+				>
+			</File>
+			<File
+				RelativePath="..\lua_infolib.c"
+				>
+			</File>
+			<File
+				RelativePath="..\lua_libs.h"
+				>
+				<FileConfiguration
+					Name="Debug|Win32"
+					>
+					<Tool
+						Name="VCCustomBuildTool"
+					/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Debug|x64"
+					>
+					<Tool
+						Name="VCCustomBuildTool"
+					/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Release|Win32"
+					>
+					<Tool
+						Name="VCCustomBuildTool"
+					/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Release|x64"
+					>
+					<Tool
+						Name="VCCustomBuildTool"
+					/>
+				</FileConfiguration>
+			</File>
+			<File
+				RelativePath="..\lua_maplib.c"
+				>
+			</File>
+			<File
+				RelativePath="..\lua_mathlib.c"
+				>
+			</File>
+			<File
+				RelativePath="..\lua_mobjlib.c"
+				>
+			</File>
+			<File
+				RelativePath="..\lua_playerlib.c"
+				>
+			</File>
+			<File
+				RelativePath="..\lua_script.c"
+				>
+			</File>
+			<File
+				RelativePath="..\lua_script.h"
+				>
+				<FileConfiguration
+					Name="Debug|Win32"
+					>
+					<Tool
+						Name="VCCustomBuildTool"
+					/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Debug|x64"
+					>
+					<Tool
+						Name="VCCustomBuildTool"
+					/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Release|Win32"
+					>
+					<Tool
+						Name="VCCustomBuildTool"
+					/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Release|x64"
+					>
+					<Tool
+						Name="VCCustomBuildTool"
+					/>
+				</FileConfiguration>
+			</File>
+			<File
+				RelativePath="..\lua_thinkerlib.c"
+				>
+			</File>
+		</Filter>
+		<Filter
+			Name="BLUA"
+			>
+			<File
+				RelativePath="..\blua\lapi.c"
+				>
+			</File>
+			<File
+				RelativePath="..\blua\lapi.h"
+				>
+				<FileConfiguration
+					Name="Debug|Win32"
+					>
+					<Tool
+						Name="VCCustomBuildTool"
+					/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Debug|x64"
+					>
+					<Tool
+						Name="VCCustomBuildTool"
+					/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Release|Win32"
+					>
+					<Tool
+						Name="VCCustomBuildTool"
+					/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Release|x64"
+					>
+					<Tool
+						Name="VCCustomBuildTool"
+					/>
+				</FileConfiguration>
+			</File>
+			<File
+				RelativePath="..\blua\lauxlib.c"
+				>
+			</File>
+			<File
+				RelativePath="..\blua\lauxlib.h"
+				>
+				<FileConfiguration
+					Name="Debug|Win32"
+					>
+					<Tool
+						Name="VCCustomBuildTool"
+					/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Debug|x64"
+					>
+					<Tool
+						Name="VCCustomBuildTool"
+					/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Release|Win32"
+					>
+					<Tool
+						Name="VCCustomBuildTool"
+					/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Release|x64"
+					>
+					<Tool
+						Name="VCCustomBuildTool"
+					/>
+				</FileConfiguration>
+			</File>
+			<File
+				RelativePath="..\blua\lbaselib.c"
+				>
+			</File>
+			<File
+				RelativePath="..\blua\lcode.c"
+				>
+			</File>
+			<File
+				RelativePath="..\blua\lcode.h"
+				>
+				<FileConfiguration
+					Name="Debug|Win32"
+					>
+					<Tool
+						Name="VCCustomBuildTool"
+					/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Debug|x64"
+					>
+					<Tool
+						Name="VCCustomBuildTool"
+					/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Release|Win32"
+					>
+					<Tool
+						Name="VCCustomBuildTool"
+					/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Release|x64"
+					>
+					<Tool
+						Name="VCCustomBuildTool"
+					/>
+				</FileConfiguration>
+			</File>
+			<File
+				RelativePath="..\blua\ldebug.c"
+				>
+			</File>
+			<File
+				RelativePath="..\blua\ldebug.h"
+				>
+				<FileConfiguration
+					Name="Debug|Win32"
+					>
+					<Tool
+						Name="VCCustomBuildTool"
+					/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Debug|x64"
+					>
+					<Tool
+						Name="VCCustomBuildTool"
+					/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Release|Win32"
+					>
+					<Tool
+						Name="VCCustomBuildTool"
+					/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Release|x64"
+					>
+					<Tool
+						Name="VCCustomBuildTool"
+					/>
+				</FileConfiguration>
+			</File>
+			<File
+				RelativePath="..\blua\ldo.c"
+				>
+			</File>
+			<File
+				RelativePath="..\blua\ldo.h"
+				>
+				<FileConfiguration
+					Name="Debug|Win32"
+					>
+					<Tool
+						Name="VCCustomBuildTool"
+					/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Debug|x64"
+					>
+					<Tool
+						Name="VCCustomBuildTool"
+					/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Release|Win32"
+					>
+					<Tool
+						Name="VCCustomBuildTool"
+					/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Release|x64"
+					>
+					<Tool
+						Name="VCCustomBuildTool"
+					/>
+				</FileConfiguration>
+			</File>
+			<File
+				RelativePath="..\blua\ldump.c"
+				>
+			</File>
+			<File
+				RelativePath="..\blua\lfunc.c"
+				>
+			</File>
+			<File
+				RelativePath="..\blua\lfunc.h"
+				>
+				<FileConfiguration
+					Name="Debug|Win32"
+					>
+					<Tool
+						Name="VCCustomBuildTool"
+					/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Debug|x64"
+					>
+					<Tool
+						Name="VCCustomBuildTool"
+					/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Release|Win32"
+					>
+					<Tool
+						Name="VCCustomBuildTool"
+					/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Release|x64"
+					>
+					<Tool
+						Name="VCCustomBuildTool"
+					/>
+				</FileConfiguration>
+			</File>
+			<File
+				RelativePath="..\blua\lgc.c"
+				>
+			</File>
+			<File
+				RelativePath="..\blua\lgc.h"
+				>
+				<FileConfiguration
+					Name="Debug|Win32"
+					>
+					<Tool
+						Name="VCCustomBuildTool"
+					/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Debug|x64"
+					>
+					<Tool
+						Name="VCCustomBuildTool"
+					/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Release|Win32"
+					>
+					<Tool
+						Name="VCCustomBuildTool"
+					/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Release|x64"
+					>
+					<Tool
+						Name="VCCustomBuildTool"
+					/>
+				</FileConfiguration>
+			</File>
+			<File
+				RelativePath="..\blua\linit.c"
+				>
+			</File>
+			<File
+				RelativePath="..\blua\llex.c"
+				>
+			</File>
+			<File
+				RelativePath="..\blua\llex.h"
+				>
+				<FileConfiguration
+					Name="Debug|Win32"
+					>
+					<Tool
+						Name="VCCustomBuildTool"
+					/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Debug|x64"
+					>
+					<Tool
+						Name="VCCustomBuildTool"
+					/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Release|Win32"
+					>
+					<Tool
+						Name="VCCustomBuildTool"
+					/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Release|x64"
+					>
+					<Tool
+						Name="VCCustomBuildTool"
+					/>
+				</FileConfiguration>
+			</File>
+			<File
+				RelativePath="..\blua\llimits.h"
+				>
+				<FileConfiguration
+					Name="Debug|Win32"
+					>
+					<Tool
+						Name="VCCustomBuildTool"
+					/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Debug|x64"
+					>
+					<Tool
+						Name="VCCustomBuildTool"
+					/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Release|Win32"
+					>
+					<Tool
+						Name="VCCustomBuildTool"
+					/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Release|x64"
+					>
+					<Tool
+						Name="VCCustomBuildTool"
+					/>
+				</FileConfiguration>
+			</File>
+			<File
+				RelativePath="..\blua\lmem.c"
+				>
+			</File>
+			<File
+				RelativePath="..\blua\lmem.h"
+				>
+				<FileConfiguration
+					Name="Debug|Win32"
+					>
+					<Tool
+						Name="VCCustomBuildTool"
+					/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Debug|x64"
+					>
+					<Tool
+						Name="VCCustomBuildTool"
+					/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Release|Win32"
+					>
+					<Tool
+						Name="VCCustomBuildTool"
+					/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Release|x64"
+					>
+					<Tool
+						Name="VCCustomBuildTool"
+					/>
+				</FileConfiguration>
+			</File>
+			<File
+				RelativePath="..\blua\lobject.c"
+				>
+			</File>
+			<File
+				RelativePath="..\blua\lobject.h"
+				>
+				<FileConfiguration
+					Name="Debug|Win32"
+					>
+					<Tool
+						Name="VCCustomBuildTool"
+					/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Debug|x64"
+					>
+					<Tool
+						Name="VCCustomBuildTool"
+					/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Release|Win32"
+					>
+					<Tool
+						Name="VCCustomBuildTool"
+					/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Release|x64"
+					>
+					<Tool
+						Name="VCCustomBuildTool"
+					/>
+				</FileConfiguration>
+			</File>
+			<File
+				RelativePath="..\blua\lopcodes.c"
+				>
+			</File>
+			<File
+				RelativePath="..\blua\lopcodes.h"
+				>
+				<FileConfiguration
+					Name="Debug|Win32"
+					>
+					<Tool
+						Name="VCCustomBuildTool"
+					/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Debug|x64"
+					>
+					<Tool
+						Name="VCCustomBuildTool"
+					/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Release|Win32"
+					>
+					<Tool
+						Name="VCCustomBuildTool"
+					/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Release|x64"
+					>
+					<Tool
+						Name="VCCustomBuildTool"
+					/>
+				</FileConfiguration>
+			</File>
+			<File
+				RelativePath="..\blua\lparser.c"
+				>
+			</File>
+			<File
+				RelativePath="..\blua\lparser.h"
+				>
+				<FileConfiguration
+					Name="Debug|Win32"
+					>
+					<Tool
+						Name="VCCustomBuildTool"
+					/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Debug|x64"
+					>
+					<Tool
+						Name="VCCustomBuildTool"
+					/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Release|Win32"
+					>
+					<Tool
+						Name="VCCustomBuildTool"
+					/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Release|x64"
+					>
+					<Tool
+						Name="VCCustomBuildTool"
+					/>
+				</FileConfiguration>
+			</File>
+			<File
+				RelativePath="..\blua\lstate.c"
+				>
+			</File>
+			<File
+				RelativePath="..\blua\lstate.h"
+				>
+				<FileConfiguration
+					Name="Debug|Win32"
+					>
+					<Tool
+						Name="VCCustomBuildTool"
+					/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Debug|x64"
+					>
+					<Tool
+						Name="VCCustomBuildTool"
+					/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Release|Win32"
+					>
+					<Tool
+						Name="VCCustomBuildTool"
+					/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Release|x64"
+					>
+					<Tool
+						Name="VCCustomBuildTool"
+					/>
+				</FileConfiguration>
+			</File>
+			<File
+				RelativePath="..\blua\lstring.c"
+				>
+			</File>
+			<File
+				RelativePath="..\blua\lstring.h"
+				>
+				<FileConfiguration
+					Name="Debug|Win32"
+					>
+					<Tool
+						Name="VCCustomBuildTool"
+					/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Debug|x64"
+					>
+					<Tool
+						Name="VCCustomBuildTool"
+					/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Release|Win32"
+					>
+					<Tool
+						Name="VCCustomBuildTool"
+					/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Release|x64"
+					>
+					<Tool
+						Name="VCCustomBuildTool"
+					/>
+				</FileConfiguration>
+			</File>
+			<File
+				RelativePath="..\blua\lstrlib.c"
+				>
+			</File>
+			<File
+				RelativePath="..\blua\ltable.c"
+				>
+			</File>
+			<File
+				RelativePath="..\blua\ltable.h"
+				>
+				<FileConfiguration
+					Name="Debug|Win32"
+					>
+					<Tool
+						Name="VCCustomBuildTool"
+					/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Debug|x64"
+					>
+					<Tool
+						Name="VCCustomBuildTool"
+					/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Release|Win32"
+					>
+					<Tool
+						Name="VCCustomBuildTool"
+					/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Release|x64"
+					>
+					<Tool
+						Name="VCCustomBuildTool"
+					/>
+				</FileConfiguration>
+			</File>
+			<File
+				RelativePath="..\blua\ltablib.c"
+				>
+			</File>
+			<File
+				RelativePath="..\blua\ltm.c"
+				>
+			</File>
+			<File
+				RelativePath="..\blua\ltm.h"
+				>
+				<FileConfiguration
+					Name="Debug|Win32"
+					>
+					<Tool
+						Name="VCCustomBuildTool"
+					/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Debug|x64"
+					>
+					<Tool
+						Name="VCCustomBuildTool"
+					/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Release|Win32"
+					>
+					<Tool
+						Name="VCCustomBuildTool"
+					/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Release|x64"
+					>
+					<Tool
+						Name="VCCustomBuildTool"
+					/>
+				</FileConfiguration>
+			</File>
+			<File
+				RelativePath="..\blua\lua.h"
+				>
+				<FileConfiguration
+					Name="Debug|Win32"
+					>
+					<Tool
+						Name="VCCustomBuildTool"
+					/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Debug|x64"
+					>
+					<Tool
+						Name="VCCustomBuildTool"
+					/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Release|Win32"
+					>
+					<Tool
+						Name="VCCustomBuildTool"
+					/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Release|x64"
+					>
+					<Tool
+						Name="VCCustomBuildTool"
+					/>
+				</FileConfiguration>
+			</File>
+			<File
+				RelativePath="..\blua\luaconf.h"
+				>
+				<FileConfiguration
+					Name="Debug|Win32"
+					>
+					<Tool
+						Name="VCCustomBuildTool"
+					/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Debug|x64"
+					>
+					<Tool
+						Name="VCCustomBuildTool"
+					/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Release|Win32"
+					>
+					<Tool
+						Name="VCCustomBuildTool"
+					/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Release|x64"
+					>
+					<Tool
+						Name="VCCustomBuildTool"
+					/>
+				</FileConfiguration>
+			</File>
+			<File
+				RelativePath="..\blua\lualib.h"
+				>
+				<FileConfiguration
+					Name="Debug|Win32"
+					>
+					<Tool
+						Name="VCCustomBuildTool"
+					/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Debug|x64"
+					>
+					<Tool
+						Name="VCCustomBuildTool"
+					/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Release|Win32"
+					>
+					<Tool
+						Name="VCCustomBuildTool"
+					/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Release|x64"
+					>
+					<Tool
+						Name="VCCustomBuildTool"
+					/>
+				</FileConfiguration>
+			</File>
+			<File
+				RelativePath="..\blua\lundump.c"
+				>
+			</File>
+			<File
+				RelativePath="..\blua\lundump.h"
+				>
+				<FileConfiguration
+					Name="Debug|Win32"
+					>
+					<Tool
+						Name="VCCustomBuildTool"
+					/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Debug|x64"
+					>
+					<Tool
+						Name="VCCustomBuildTool"
+					/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Release|Win32"
+					>
+					<Tool
+						Name="VCCustomBuildTool"
+					/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Release|x64"
+					>
+					<Tool
+						Name="VCCustomBuildTool"
+					/>
+				</FileConfiguration>
+			</File>
+			<File
+				RelativePath="..\blua\lvm.c"
+				>
+			</File>
+			<File
+				RelativePath="..\blua\lvm.h"
+				>
+				<FileConfiguration
+					Name="Debug|Win32"
+					>
+					<Tool
+						Name="VCCustomBuildTool"
+					/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Debug|x64"
+					>
+					<Tool
+						Name="VCCustomBuildTool"
+					/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Release|Win32"
+					>
+					<Tool
+						Name="VCCustomBuildTool"
+					/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Release|x64"
+					>
+					<Tool
+						Name="VCCustomBuildTool"
+					/>
+				</FileConfiguration>
+			</File>
+			<File
+				RelativePath="..\blua\lzio.c"
+				>
+			</File>
+			<File
+				RelativePath="..\blua\lzio.h"
+				>
+				<FileConfiguration
+					Name="Debug|Win32"
+					>
+					<Tool
+						Name="VCCustomBuildTool"
+					/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Debug|x64"
+					>
+					<Tool
+						Name="VCCustomBuildTool"
+					/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Release|Win32"
+					>
+					<Tool
+						Name="VCCustomBuildTool"
+					/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Release|x64"
+					>
+					<Tool
+						Name="VCCustomBuildTool"
+					/>
+				</FileConfiguration>
 			</File>
 		</Filter>
 		<File

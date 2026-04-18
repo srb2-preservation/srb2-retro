@@ -126,11 +126,11 @@ static void NET_Get(void)
 			return;
 		}
 		else
-			CONS_Printf("SDL_Net: %s",SDLNet_GetError());
+			I_OutputMsg("SDL_Net: %s",SDLNet_GetError());
 	}
 	else if (mystatus == -1)
 	{
-		CONS_Printf("SDL_Net: %s",SDLNet_GetError());
+		I_OutputMsg("SDL_Net: %s",SDLNet_GetError());
 	}
 
 	DEBFILE("New node detected: No more free slots\n");
@@ -151,7 +151,7 @@ static void NET_Send(void)
 	mypacket.len = doomcom->datalength;
 	if (SDLNet_UDP_Send(mysocket,doomcom->remotenode-1,&mypacket) == 0)
 	{
-		CONS_Printf("SDL_Net: %s",SDLNet_GetError());
+		I_OutputMsg("SDL_Net: %s",SDLNet_GetError());
 	}
 }
 
@@ -189,12 +189,12 @@ static UDPsocket NET_Socket(void)
 	temp = SDLNet_UDP_Open(portnum);
 	if (!temp)
 	{
-			CONS_Printf("SDL_Net: %s",SDLNet_GetError());
+			I_OutputMsg("SDL_Net: %s",SDLNet_GetError());
 		return NULL;
 	}
 	if (SDLNet_UDP_Bind(temp,BROADCASTADDR-1,&tempip) == -1)
 	{
-		CONS_Printf("SDL_Net: %s",SDLNet_GetError());
+		I_OutputMsg("SDL_Net: %s",SDLNet_GetError());
 		SDLNet_UDP_Close(temp);
 		return NULL;
 	}
@@ -220,7 +220,7 @@ static void I_InitSDLNetDriver(void)
 		I_ShutdownSDLNetDriver();
 	if (SDLNet_Init() == -1)
 	{
-		CONS_Printf("SDL_Net: %s",SDLNet_GetError());
+		I_OutputMsg("SDL_Net: %s",SDLNet_GetError());
 		return; // No good!
 	}
 	D_SetDoomcom();
@@ -235,32 +235,25 @@ static void NET_CloseSocket(void)
 	mysocket = NULL;
 }
 
-static SINT8 NET_NetMakeNode(const char *hostname)
+static SINT8 NET_NetMakeNodewPort(const char *hostname, const char *port)
 {
 	INT32 newnode;
-	char *portchar;
 	UINT16 portnum = sock_port;
 	IPaddress hostnameIP;
 
 	// retrieve portnum from address!
-	{
-		char *localhostname = strdup(hostname);
-		strtok(localhostname, ":");
-		portchar = strtok(NULL, ":");
-		if (portchar)
-			portnum = atoi(portchar);
-		free(localhostname);
-	}
+	if (port && !port[0])
+		portnum = atoi(port);
 
 	if (SDLNet_ResolveHost(&hostnameIP,hostname,portnum) == -1)
 	{
-		CONS_Printf("SDL_Net: %s",SDLNet_GetError());
+		I_OutputMsg("SDL_Net: %s",SDLNet_GetError());
 		return -1;
 	}
 	newnode = SDLNet_UDP_Bind(mysocket,-1,&hostnameIP);
 	if (newnode == -1)
 	{
-		CONS_Printf("SDL_Net: %s",SDLNet_GetError());
+		I_OutputMsg("SDL_Net: %s",SDLNet_GetError());
 		return newnode;
 	}
 	newnode++;
@@ -273,13 +266,13 @@ static boolean NET_OpenSocket(void)
 {
 	memset(clientaddress, 0, sizeof (clientaddress));
 
-	//CONS_Printf("SDL_Net Code starting up\n");
+	//I_OutputMsg("SDL_Net Code starting up\n");
 
 	I_NetSend = NET_Send;
 	I_NetGet = NET_Get;
 	I_NetCloseSocket = NET_CloseSocket;
 	I_NetFreeNodenum = NET_FreeNodenum;
-	I_NetMakeNode = NET_NetMakeNode;
+	I_NetMakeNodewPort = NET_NetMakeNodewPort;
 
 	//I_NetCanSend = NET_CanSend;
 
@@ -294,12 +287,12 @@ static boolean NET_OpenSocket(void)
 	myset = SDLNet_AllocSocketSet(1);
 	if (!myset)
 	{
-		CONS_Printf("SDL_Net: %s",SDLNet_GetError());
+		I_OutputMsg("SDL_Net: %s",SDLNet_GetError());
 		return false;
 	}
 	if (SDLNet_UDP_AddSocket(myset,mysocket) == -1)
 	{
-		CONS_Printf("SDL_Net: %s",SDLNet_GetError());
+		I_OutputMsg("SDL_Net: %s",SDLNet_GetError());
 		return false;
 	}
 	return true;
@@ -346,9 +339,9 @@ boolean I_InitNetwork(void)
 	SDL_version SDLcompiled;
 	const SDL_version *SDLlinked = SDLNet_Linked_Version();
 	SDL_NET_VERSION(&SDLcompiled)
-	CONS_Printf("Compiled for SDL_Net version: %d.%d.%d\n",
+	I_OutputMsg("Compiled for SDL_Net version: %d.%d.%d\n",
                         SDLcompiled.major, SDLcompiled.minor, SDLcompiled.patch);
-	CONS_Printf("Linked with SDL_Net version: %d.%d.%d\n",
+	I_OutputMsg("Linked with SDL_Net version: %d.%d.%d\n",
                         SDLlinked->major, SDLlinked->minor, SDLlinked->patch);
 	//if (!M_CheckParm ("-sdlnet"))
 	//	return false;

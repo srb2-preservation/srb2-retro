@@ -56,10 +56,6 @@ typedef BOOL (WINAPI *p_SetProcessAffinityMask) (HANDLE, DWORD_PTR);
 #include <fcntl.h>
 #endif
 
-#ifndef M_PIl
-#define M_PIl 3.1415926535897932384626433832795029L
-#endif
-
 #ifdef _arch_dreamcast
 #include <arch/gdb.h>
 #include <arch/timer.h>
@@ -81,6 +77,10 @@ void __set_fpscr(long); // in libgcc / kernel's startup.s?
 
 #include "SDL.h"
 
+#ifdef HAVE_TTF
+#include "i_ttf.h"
+#endif
+
 #ifdef _MSC_VER
 #pragma warning(default : 4214 4244)
 #endif
@@ -91,9 +91,9 @@ void __set_fpscr(long); // in libgcc / kernel's startup.s?
 #endif
 
 #ifdef _PSP
-#include <pspiofilemgr.h>
-#else
-#if defined (__unix__) || defined(__APPLE__) || (defined (UNIXCOMMON) && !defined (_arch_dreamcast) && !defined(__HAIKU__))
+//#include <pspiofilemgr.h>
+#elif !defined(_PS3)
+#if defined (__unix__) || defined(__APPLE__) || (defined (UNIXCOMMON) && !defined (_arch_dreamcast) && !defined (__HAIKU__) && !defined (_WII))
 #if defined (__linux__)
 #include <sys/vfs.h>
 #else
@@ -110,20 +110,32 @@ void __set_fpscr(long); // in libgcc / kernel's startup.s?
 #endif
 #endif
 
-#if defined (__linux__) || (defined (UNIXCOMMON) && !defined (_arch_dreamcast) && !defined (_PSP) && !defined (__HAIKU__))
+#ifndef _PS3
+#if defined (__linux__) || (defined (UNIXCOMMON) && !defined (_arch_dreamcast) && !defined (_PSP) && !defined (__HAIKU__) && !defined (_WII))
 #ifndef NOTERMIOS
 #include <termios.h>
 #include <sys/ioctl.h> // ioctl
 #define HAVE_TERMIOS
 #endif
 #endif
+#endif
 
-#if defined (__linux__) // need -lrt
+#ifndef NOMUMBLE
+#if defined (__linux__) && !defined(_PS3) // need -lrt
 #include <sys/mman.h>
 #ifdef MAP_FAILED
-#define HAVE_SHM
+//#define HAVE_SHM
 #endif
+#include <wchar.h>
 #endif
+
+#if defined (_WIN32) && !defined (_WIN32_WCE) && !defined (_XBOX)
+#define HAVE_MUMBLE
+#define WINMUMBLE
+#elif defined (HAVE_SHM)
+//#define HAVE_MUMBLE
+#endif
+#endif // NOMUMBLE
 
 #ifdef _WIN32_WCE
 #include "SRB2CE/cehelp.h"
@@ -148,12 +160,35 @@ void __set_fpscr(long); // in libgcc / kernel's startup.s?
 #define DEFAULTWADLOCATION4 "/tmp/mnt/sd/SRB2"
 #define DEFAULTSEARCHPATH1 "/mnt/sd"
 #define DEFAULTSEARCHPATH2 "/tmp/mnt/sd"
+#elif defined (_WII)
+#define NOCWD
+#define NOHOME
+#define NEED_SDL_GETENV
+#define DEFAULTWADLOCATION1 "sd:/srb2wii"
+#define DEFAULTWADLOCATION2 "usb:/srb2wii"
+#define DEFAULTSEARCHPATH1 "sd:/srb2wii"
+#define DEFAULTSEARCHPATH2 "usb:/srb2wii"
+// PS3: TODO: this will need modification most likely
+#elif defined (_PS3)
+#define NOCWD
+#define NOHOME
+#define DEFAULTWADLOCATION1 "/dev_hdd0/game/SRB2-PS3_/USRDIR/etc"
+#define DEFAULTWADLOCATION2 "/dev_usb/SRB2PS3"
+#define DEFAULTSEARCHPATH1 "/dev_hdd0/game/SRB2-PS3_/USRDIR/etc"
+#define DEFAULTSEARCHPATH2 "/dev_usb/SRB2PS3"
+#elif defined (_PSP)
+#define NOCWD
+#define NOHOME
+#define DEFAULTWADLOCATION1 "host0:/bin/Resources"
+#define DEFAULTWADLOCATION2 "ms0:/PSP/GAME/SRB2PSP"
+#define DEFAULTSEARCHPATH1 "host0:/"
+#define DEFAULTSEARCHPATH2 "ms0:/PSP/GAME/SRB2PSP"
 #elif defined (__unix__) || defined(__APPLE__) || defined (UNIXCOMMON)
-#define DEFAULTWADLOCATION1 "/usr/local/share/games/srb2"
-#define DEFAULTWADLOCATION2 "/usr/local/games/srb2"
-#define DEFAULTWADLOCATION3 "/usr/share/games/srb2"
-#define DEFAULTWADLOCATION4 "/usr/games/srb2"
-#define DEFAULTSEARCHPATH1 "/usr/local/games/"
+#define DEFAULTWADLOCATION1 "/usr/local/share/games/SRB2"
+#define DEFAULTWADLOCATION2 "/usr/local/games/SRB2"
+#define DEFAULTWADLOCATION3 "/usr/share/games/SRB2"
+#define DEFAULTWADLOCATION4 "/usr/games/SRB2"
+#define DEFAULTSEARCHPATH1 "/usr/local/games"
 #define DEFAULTSEARCHPATH2 "/usr/games"
 #define DEFAULTSEARCHPATH3 "/usr/local"
 #elif defined (_XBOX)
@@ -211,6 +246,12 @@ static char returnWadPath[256];
 #endif
 
 #include "../d_main.h"
+
+#if !defined(NOMUMBLE) && defined(HAVE_MUMBLE)
+// Mumble context string
+#include "../d_clisrv.h"
+#include "../byteptr.h"
+#endif
 
 /**	\brief	The JoyReset function
 
@@ -342,7 +383,7 @@ static struct termios tty_tc;
 //   so we provide tty_Clear and tty_Show to be called before and after a stdout or stderr output
 // =============================================================
 
-// flush stdin, I suspect some terminals are sending a LOT of shit
+// flush stdin, I suspect some terminals are sending a LOT of garbage
 // FIXME TTimo relevant?
 #if 0
 static inline void tty_FlushIn(void)
@@ -366,6 +407,7 @@ static void tty_Back(void)
 	d = write(STDOUT_FILENO, &key, 1);
 	key = '\b';
 	d = write(STDOUT_FILENO, &key, 1);
+	(void)d;
 }
 
 static void tty_Clear(void)
@@ -411,6 +453,7 @@ static inline void tty_Show(void)
 			d = write(STDOUT_FILENO, tty_con.buffer+i, 1);
 		}
 	}
+	(void)d;
 }
 
 // never exit without calling this, or your terminal will be left in a pretty bad state
@@ -521,7 +564,7 @@ void I_GetConsoleEvents(void)
 	}
 	if (ev.data1) D_PostEvent(&ev);
 	//tty_FlushIn();
-
+	(void)d;
 }
 
 #elif defined (_WIN32) && !(defined (_XBOX) || defined (_WIN32_WCE))
@@ -626,7 +669,11 @@ static void I_StartupConsole(void)
 		FreeConsole();
 		gotConsole = AllocConsole();
 	}
+#ifdef _DEBUG
 	else if (M_CheckParm("-noconsole") && !ded)
+#else
+	else if (!M_CheckParm("-console") && !ded)
+#endif
 	{
 		FreeConsole();
 		gotConsole = FALSE;
@@ -671,7 +718,11 @@ static inline void I_StartupConsole(void)
 	conio_putstr(title);
 	//printf("\nHello world!\n\n");
 #endif
+#ifdef _DEBUG
 	consolevent = !M_CheckParm("-noconsole");
+#else
+	consolevent = M_CheckParm("-console");
+#endif
 
 	framebuffer = M_CheckParm("-framebuffer");
 
@@ -714,10 +765,7 @@ void I_StartupKeyboard (void)
 void I_OutputMsg(const char *fmt, ...)
 {
 	size_t len;
-#ifdef LOGMESSAGES
-	size_t d;
-#endif
-	XBOXSTATIC char txt[128];
+	XBOXSTATIC char txt[8192];
 	va_list  argptr;
 
 #ifdef _arch_dreamcast
@@ -728,7 +776,12 @@ void I_OutputMsg(const char *fmt, ...)
 	vsprintf(txt, fmt, argptr);
 	va_end(argptr);
 
-#if defined (_WIN32) && !defined (_XBOX)
+#ifdef HAVE_TTF
+	if (TTF_WasInit()) I_TTFDrawText(currentfont, solid, DEFAULTFONTFGR, DEFAULTFONTFGG, DEFAULTFONTFGB,  DEFAULTFONTFGA,
+	DEFAULTFONTBGR, DEFAULTFONTBGG, DEFAULTFONTBGB, DEFAULTFONTBGA, txt);
+#endif
+
+#if defined (_WIN32) && !defined (_XBOX) && defined (_MSC_VER)
 	OutputDebugStringA(txt);
 #endif
 
@@ -737,8 +790,9 @@ void I_OutputMsg(const char *fmt, ...)
 #ifdef LOGMESSAGES
 	if (logstream)
 	{
-		d = fwrite(txt, len, 1, logstream);
+		size_t d = fwrite(txt, len, 1, logstream);
 		fflush(logstream);
+		(void)d;
 	}
 #endif
 
@@ -928,7 +982,10 @@ static void I_ShutdownJoystick(void)
 	if (!joystick_started && !joystick2_started && SDL_WasInit(SDL_INIT_JOYSTICK) == SDL_INIT_JOYSTICK)
 	{
 		SDL_QuitSubSystem(SDL_INIT_JOYSTICK);
-		if (cv_usejoystick.value==0) CONS_Printf("I_Joystick: SDL's Joystick system has been shutdown\n");
+		if (cv_usejoystick.value == 0)
+		{
+			I_OutputMsg("I_Joystick: SDL's Joystick system has been shutdown\n");
+		}
 	}
 }
 
@@ -939,8 +996,8 @@ void I_GetJoystickEvents(void)
 	UINT64 joyhats = 0;
 #if 0
 	UINT64 joybuttons = 0;
-	Sint16 axisx, axisy;
 #endif
+	Sint16 axisx, axisy;
 
 	if (!joystick_started) return;
 
@@ -1013,7 +1070,6 @@ void I_GetJoystickEvents(void)
 		}
 	}
 
-#if 0
 	// send joystick axis positions
 	event.type = ev_joystick;
 
@@ -1066,7 +1122,6 @@ void I_GetJoystickEvents(void)
 		}
 		D_PostEvent(&event);
 	}
-#endif
 }
 
 /**	\brief	Open joystick handle
@@ -1087,7 +1142,7 @@ static int joy_open(const char *fname)
 	{
 		if (SDL_InitSubSystem(SDL_INIT_JOYSTICK) == -1)
 		{
-			CONS_Printf("Couldn't initialize SDL Joystick: %s\n", SDL_GetError());
+			CONS_Printf(M_GetText("Couldn't initialize joystick: %s\n"), SDL_GetError());
 			return -1;
 		}
 		else
@@ -1097,9 +1152,9 @@ static int joy_open(const char *fname)
 
 		if (num_joy < joyindex)
 		{
-			CONS_Printf("Unable to use that joystick #%d/(%s), it doesn't exist\n",joyindex,fname);
+			CONS_Printf(M_GetText("Cannot use joystick #%d/(%s), it doesn't exist\n"),joyindex,fname);
 			for (i = 0; i < num_joy; i++)
-				CONS_Printf("#: %d, Name: %s\n", i+1, SDL_JoystickName(i));
+				CONS_Printf("#%d/(%s)\n", i+1, SDL_JoystickNameForIndex(i));
 			I_ShutdownJoystick();
 			return -1;
 		}
@@ -1115,35 +1170,35 @@ static int joy_open(const char *fname)
 
 	if (joyindex <= 0 || num_joy == 0 || JoyInfo.oldjoy == joyindex)
 	{
-//		CONS_Printf("Unable to use that joystick #(%s), non-number\n",fname);
+//		I_OutputMsg("Unable to use that joystick #(%s), non-number\n",fname);
 		if (num_joy != 0)
 		{
-			CONS_Printf("Hmmm, I was able to find %d joysticks on this system\n", num_joy);
+			CONS_Printf(M_GetText("Found %d joysticks on this system\n"), num_joy);
 			for (i = 0; i < num_joy; i++)
-				CONS_Printf("#: %d, Name: %s\n", i+1, SDL_JoystickName(i));
+				CONS_Printf("#%d/(%s)\n", i+1, SDL_JoystickNameForIndex(i));
 		}
 		else
-			CONS_Printf("Hmm, I was unable to found any joysticks on this system\n");
+			CONS_Printf("%s", M_GetText("Found no joysticks on this system\n"));
 		if (joyindex <= 0 || num_joy == 0) return 0;
 	}
 
 	JoyInfo.dev = SDL_JoystickOpen(joyindex-1);
-	CONS_Printf("Joystick: %s\n",SDL_JoystickName(joyindex-1));
 
 	if (JoyInfo.dev == NULL)
 	{
-		CONS_Printf("Couldn't open joystick: %s\n", SDL_GetError());
+		CONS_Printf(M_GetText("Couldn't open joystick: %s\n"), SDL_GetError());
 		I_ShutdownJoystick();
 		return -1;
 	}
 	else
 	{
+		CONS_Printf(M_GetText("Joystick: %s\n"), SDL_JoystickName(JoyInfo.dev));
 		JoyInfo.axises = SDL_JoystickNumAxes(JoyInfo.dev);
 		if (JoyInfo.axises > JOYAXISSET*2)
 			JoyInfo.axises = JOYAXISSET*2;
 /*		if (joyaxes<2)
 		{
-			CONS_Printf("Not enought axes?\n");
+			I_OutputMsg("Not enought axes?\n");
 			I_ShutdownJoystick();
 			return 0;
 		}*/
@@ -1162,7 +1217,7 @@ static int joy_open(const char *fname)
 		JoyInfo.balls = SDL_JoystickNumBalls(JoyInfo.dev);
 #endif
 
-		//Joystick.bGamepadStyle = !stricmp(SDL_JoystickName(SDL_JoystickIndex(JoyInfo.dev)), "pad");
+		//Joystick.bGamepadStyle = !stricmp(SDL_JoystickName(JoyInfo.dev), "pad");
 
 		return JoyInfo.axises;
 	}
@@ -1219,7 +1274,10 @@ static void I_ShutdownJoystick2(void)
 	if (!joystick_started && !joystick2_started && SDL_WasInit(SDL_INIT_JOYSTICK) == SDL_INIT_JOYSTICK)
 	{
 		SDL_QuitSubSystem(SDL_INIT_JOYSTICK);
-		if (cv_usejoystick2.value == 0) CONS_Printf("I_Joystick2: SDL's Joystick system has been shutdown\n");
+		if (cv_usejoystick2.value == 0)
+		{
+			DEBFILE("I_Joystick2: SDL's Joystick system has been shutdown\n");
+		}
 	}
 }
 
@@ -1230,8 +1288,8 @@ void I_GetJoystick2Events(void)
 	UINT64 joyhats = 0;
 #if 0
 	INT64 joybuttons = 0;
-	INT32 axisx, axisy;
 #endif
+	INT32 axisx, axisy;
 
 	if (!joystick2_started)
 		return;
@@ -1301,7 +1359,6 @@ void I_GetJoystick2Events(void)
 		}
 	}
 
-#if 0
 	// send joystick axis positions
 	event.type = ev_joystick2;
 
@@ -1356,7 +1413,6 @@ void I_GetJoystick2Events(void)
 		}
 		D_PostEvent(&event);
 	}
-#endif
 
 }
 
@@ -1378,7 +1434,7 @@ static int joy_open2(const char *fname)
 	{
 		if (SDL_InitSubSystem(SDL_INIT_JOYSTICK) == -1)
 		{
-			CONS_Printf("Couldn't initialize SDL Joystick: %s\n", SDL_GetError());
+			CONS_Printf(M_GetText("Couldn't initialize joystick: %s\n"), SDL_GetError());
 			return -1;
 		}
 		else
@@ -1386,9 +1442,9 @@ static int joy_open2(const char *fname)
 
 		if (num_joy < joyindex)
 		{
-			CONS_Printf("Unable to use that joystick #%d/(%s), it doesn't exist\n",joyindex,fname);
+			CONS_Printf(M_GetText("Cannot use joystick #%d/(%s), it doesn't exist\n"),joyindex,fname);
 			for (i = 0; i < num_joy; i++)
-				CONS_Printf("#: %d, Name: %s\n", i+1, SDL_JoystickName(i));
+				CONS_Printf("#%d/(%s)\n", i+1, SDL_JoystickNameForIndex(i));
 			I_ShutdownJoystick2();
 			return -1;
 		}
@@ -1404,35 +1460,35 @@ static int joy_open2(const char *fname)
 
 	if (joyindex <= 0 || num_joy == 0 || JoyInfo2.oldjoy == joyindex)
 	{
-//		CONS_Printf("Unable to use that joystick #(%s), non-number\n",fname);
+//		I_OutputMsg("Unable to use that joystick #(%s), non-number\n",fname);
 		if (num_joy != 0)
 		{
-			CONS_Printf("Hmmm, I was able to find %d joysticks on this system\n", num_joy);
+			CONS_Printf(M_GetText("Found %d joysticks on this system\n"), num_joy);
 			for (i = 0; i < num_joy; i++)
-				CONS_Printf("#: %d, Name: %s\n", i+1, SDL_JoystickName(i));
+				CONS_Printf("#%d/(%s)\n", i+1, SDL_JoystickNameForIndex(i));
 		}
 		else
-			CONS_Printf("Hmm, I was unable to found any joysticks on this system\n");
+			CONS_Printf("%s", M_GetText("Found no joysticks on this system\n"));
 		if (joyindex <= 0 || num_joy == 0) return 0;
 	}
 
 	JoyInfo2.dev = SDL_JoystickOpen(joyindex-1);
-	CONS_Printf("Joystick2: %s\n", SDL_JoystickName(joyindex-1));
 
 	if (!JoyInfo2.dev)
 	{
-		CONS_Printf("Couldn't open joystick2: %s\n", SDL_GetError());
+		CONS_Printf(M_GetText("Couldn't open joystick2: %s\n"), SDL_GetError());
 		I_ShutdownJoystick2();
 		return -1;
 	}
 	else
 	{
+		CONS_Printf(M_GetText("Joystick2: %s\n"), SDL_JoystickName(JoyInfo2.dev));
 		JoyInfo2.axises = SDL_JoystickNumAxes(JoyInfo2.dev);
 		if (JoyInfo2.axises > JOYAXISSET*2)
 			JoyInfo2.axises = JOYAXISSET*2;
 /*		if (joyaxes < 2)
 		{
-			CONS_Printf("Not enought axes?\n");
+			I_OutputMsg("Not enought axes?\n");
 			I_ShutdownJoystick2();
 			return 0;
 		}*/
@@ -1451,7 +1507,7 @@ static int joy_open2(const char *fname)
 		JoyInfo2.balls = SDL_JoystickNumBalls(JoyInfo2.dev);
 #endif
 
-		//Joystick.bGamepadStyle = !stricmp(SDL_JoystickName(SDL_JoystickIndex(JoyInfo2.dev)), "pad");
+		//Joystick.bGamepadStyle = !stricmp(SDL_JoystickName(JoyInfo2.dev), "pad");
 
 		return JoyInfo2.axises;
 	}
@@ -1522,100 +1578,140 @@ const char *I_GetJoyName(INT32 joyindex)
 	if (SDL_WasInit(SDL_INIT_JOYSTICK) == 0)
 	{
 		if (SDL_InitSubSystem(SDL_INIT_JOYSTICK) != -1)
-			joyname = SDL_JoystickName(joyindex);
+			joyname = SDL_JoystickNameForIndex(joyindex);
 		SDL_QuitSubSystem(SDL_INIT_JOYSTICK);
 	}
 	else
-		joyname = SDL_JoystickName(joyindex);
+		joyname = SDL_JoystickNameForIndex(joyindex);
 	return joyname;
 }
 
-typedef struct LinkedMem_s {
-#if (defined (_WIN32) && !defined (_WIN32_WCE)) && !defined (_XBOX)
-	UINT32   uiVersion;
-	DWORD    uiTick;
+#ifndef NOMUMBLE
+#ifdef HAVE_MUMBLE
+// Best Mumble positional audio settings:
+// Minimum distance 3.0 m
+// Bloom 175%
+// Maximum distance 80.0 m
+// Minimum volume 50%
+#define DEG2RAD (0.017453292519943295769236907684883l) // TAU/360 or PI/180
+#define MUMBLEUNIT (64.0f) // FRACUNITS in a Meter
+
+static struct {
+#ifdef WINMUMBLE
+	UINT32 uiVersion;
+	DWORD uiTick;
 #else
 	Uint32 uiVersion;
 	Uint32 uiTick;
 #endif
-	float    fPosition[3];
-	float    fFront[3];
-	float    fTop[3];
-	wchar_t  name[256];
-} LinkedMem_t, *LinkedMem_p;
-
-static LinkedMem_p lm = NULL;
-#if (defined (_WIN32) && !defined (_WIN32_WCE)) && !defined (_XBOX)
-static HANDLE hMapObject = NULL;
-
-#elif defined(HAVE_SHM)
-static int shmfd = -1;
+	float fAvatarPosition[3];
+	float fAvatarFront[3];
+	float fAvatarTop[3]; // defaults to Y-is-up (only used for leaning)
+	wchar_t name[256]; // game name
+	float fCameraPosition[3];
+	float fCameraFront[3];
+	float fCameraTop[3]; // defaults to Y-is-up (only used for leaning)
+	wchar_t identity[256]; // player id
+#ifdef WINMUMBLE
+	UINT32 context_len;
+#else
+	Uint32 context_len;
 #endif
-
+	unsigned char context[256]; // server/team
+	wchar_t description[2048]; // game description
+} *mumble = NULL;
+#endif // HAVE_MUMBLE
 
 void I_SetupMumble(void)
 {
-#if (defined (_WIN32) && !defined (_WIN32_WCE)) && !defined (_XBOX)
-	const wchar_t GameW[] = {'S','R','B','2',0};
-	HMODULE h = GetModuleHandleA("kernel32.dll");
-	p_OpenFileMappingA pfnshm_open = (p_OpenFileMappingA)GetProcAddress(h, "OpenFileMappingA");
-	p_MapViewOfFile pfnmmap = (p_MapViewOfFile)GetProcAddress(h, "MapViewOfFile");
-	if (!pfnshm_open || !pfnmmap)
-		return;
-	hMapObject = pfnshm_open(FILE_MAP_ALL_ACCESS, FALSE, "MumbleLink");
-	if (hMapObject == NULL) // Alam: odd, NULL check on a HANDLE
+#ifdef WINMUMBLE
+	HANDLE hMap = OpenFileMappingW(FILE_MAP_ALL_ACCESS, FALSE, L"MumbleLink");
+	if (!hMap)
 		return;
 
-	lm = (LinkedMem_p) pfnmmap(hMapObject, FILE_MAP_ALL_ACCESS, 0, 0, sizeof(LinkedMem_t));
-	if (lm == NULL) {
-		CloseHandle(hMapObject);
-		hMapObject = NULL;
-		return;
-	}
-	CopyMemory(lm->name, GameW, sizeof(GameW));
-#elif defined(HAVE_SHM)
-	const wchar_t GameW[] = {'S','R','B','2',0};
+	mumble = MapViewOfFile(hMap, FILE_MAP_ALL_ACCESS, 0, 0, sizeof(*mumble));
+	if (!mumble)
+		CloseHandle(hMap);
+#elif defined (HAVE_SHM)
+	int shmfd;
 	char memname[256];
-	snprintf(memname, 256, "/MumbleLink.%d", getuid());
 
+	snprintf(memname, 256, "/MumbleLink.%d", getuid());
 	shmfd = shm_open(memname, O_RDWR, S_IRUSR | S_IWUSR);
 
 	if(shmfd < 0)
 		return;
 
-	lm = (LinkedMem_p) (mmap(NULL, sizeof(LinkedMem_t), PROT_READ | PROT_WRITE, MAP_SHARED, shmfd,0));
-
-	if (lm == MAP_FAILED)
-		lm = NULL;
-	M_Memcpy(lm->name, GameW, sizeof(GameW));
+	mumble = mmap(NULL, sizeof(*mumble), PROT_READ | PROT_WRITE, MAP_SHARED, shmfd, 0);
+	if (mumble == MAP_FAILED)
+		mumble = NULL;
 #endif
 }
 
 void I_UpdateMumble(const MumblePos_t *MPos)
 {
-	double f_angle = 0.0l;
-	if (!lm || !MPos)
+#ifdef HAVE_MUMBLE
+	double angle;
+	fixed_t anglef;
+
+	if (!mumble)
 		return;
 
-	lm->fPosition[0] = FIXED_TO_FLOAT(MPos->fPosition[0]);
-	lm->fPosition[1] = FIXED_TO_FLOAT(MPos->fPosition[1]);
-	lm->fPosition[2] = FIXED_TO_FLOAT(MPos->fPosition[2]);
-	if (MPos->fFront != 0.0l)
-		f_angle = (double)((MPos->fFront) / (180.0l * M_PIl));
-	lm->fFront[0] = (float)cos(f_angle);
-	lm->fFront[1] = 0.0f;
-	lm->fFront[2] = (float)sin(f_angle);
-	lm->fTop[0] = 0.0f;
-	lm->fTop[1] = 1.0f;
-	lm->fTop[2] = 0.0f;
+	if(mumble->uiVersion != 2) {
+		wcsncpy(mumble->name, L"SRB2 "VERSIONSTRING, 256);
+		wcsncpy(mumble->description, L"Sonic Robo Blast 2 with integrated Mumble Link support.", 2048);
+		mumble->uiVersion = 2;
+	}
+	mumble->uiTick++;
 
-	lm->uiVersion = 1;
-#if (defined (_WIN32) && !defined (_WIN32_WCE)) && !defined (_XBOX)
-	lm->uiTick = GetTickCount();
+	if (!netgame || gamestate != GS_LEVEL) { // Zero out, but never delink.
+		mumble->fAvatarPosition[0] = mumble->fAvatarPosition[1] = mumble->fAvatarPosition[2] = 0.0f;
+		mumble->fAvatarFront[0] = 1.0f;
+		mumble->fAvatarFront[1] = mumble->fAvatarFront[2] = 0.0f;
+		mumble->fCameraPosition[0] = mumble->fCameraPosition[1] = mumble->fCameraPosition[2] = 0.0f;
+		mumble->fCameraFront[0] = 1.0f;
+		mumble->fCameraFront[1] = mumble->fCameraFront[2] = 0.0f;
+		return;
+	}
+
+	{
+		UINT8 *p = mumble->context;
+		WRITEMEM(p, server_context, 8);
+		WRITEINT16(p, gamemap);
+		mumble->context_len = p - mumble->context;
+	}
+
+	if (mobj) {
+		mumble->fAvatarPosition[0] = FIXED_TO_FLOAT(mobj->x) / MUMBLEUNIT;
+		mumble->fAvatarPosition[1] = FIXED_TO_FLOAT(mobj->z) / MUMBLEUNIT;
+		mumble->fAvatarPosition[2] = FIXED_TO_FLOAT(mobj->y) / MUMBLEUNIT;
+
+		anglef = AngleFixed(mobj->angle);
+		angle = FIXED_TO_FLOAT(anglef)*DEG2RAD;
+		mumble->fAvatarFront[0] = (float)cos(angle);
+		mumble->fAvatarFront[1] = 0.0f;
+		mumble->fAvatarFront[2] = (float)sin(angle);
+	} else {
+		mumble->fAvatarPosition[0] = mumble->fAvatarPosition[1] = mumble->fAvatarPosition[2] = 0.0f;
+		mumble->fAvatarFront[0] = 1.0f;
+		mumble->fAvatarFront[1] = mumble->fAvatarFront[2] = 0.0f;
+	}
+
+	mumble->fCameraPosition[0] = FIXED_TO_FLOAT(listener.x) / MUMBLEUNIT;
+	mumble->fCameraPosition[1] = FIXED_TO_FLOAT(listener.z) / MUMBLEUNIT;
+	mumble->fCameraPosition[2] = FIXED_TO_FLOAT(listener.y) / MUMBLEUNIT;
+
+	anglef = AngleFixed(listener.angle);
+	angle = FIXED_TO_FLOAT(anglef)*DEG2RAD;
+	mumble->fCameraFront[0] = (float)cos(angle);
+	mumble->fCameraFront[1] = 0.0f;
+	mumble->fCameraFront[2] = (float)sin(angle);
 #else
-	lm->uiTick = SDL_GetTicks();
-#endif
+	(void)MPos;
+#endif // HAVE_MUMBLE
 }
+#undef WINMUMBLE
+#endif // NOMUMBLE
 
 #ifdef HAVE_TERMIOS
 
@@ -1746,7 +1842,7 @@ static void I_PoolMouse2(void)
 
 	if (!ReadFile(mouse2filehandle, buffer, dwLength, &dwLength, NULL))
 	{
-		CONS_Printf("\2Read Error on secondary mouse port\n");
+		CONS_Alert(CONS_WARNING, "%s", M_GetText("Read Error on secondary mouse port\n"));
 		return;
 	}
 
@@ -1842,7 +1938,7 @@ void I_StartupMouse2(void)
 	if (cv_usemouse2.value == 0) return;
 	if ((fdmouse2 = open(cv_mouse2port.string, O_RDONLY|O_NONBLOCK|O_NOCTTY)) == -1)
 	{
-		CONS_Printf("Error opening %s!\n", cv_mouse2port.string);
+		CONS_Printf(M_GetText("Error opening %s!\n"), cv_mouse2port.string);
 		return;
 	}
 	tcflush(fdmouse2, TCIOFLUSH);
@@ -1910,10 +2006,9 @@ void I_StartupMouse2(void)
 		{
 			INT32 e = GetLastError();
 			if (e == 5)
-				CONS_Printf("\2Can't open %s: Access denied\n"
-				            "The port is probably already used by one other device (mouse, modem,...)\n", cv_mouse2port.string);
+				CONS_Printf(M_GetText("Can't open %s: Access denied\n"), cv_mouse2port.string);
 			else
-				CONS_Printf("\2Can't open %s: error %d\n", cv_mouse2port.string, e);
+				CONS_Printf(M_GetText("Can't open %s: error %d\n"), cv_mouse2port.string, e);
 			return;
 		}
 	}
@@ -2018,7 +2113,7 @@ tic_t I_GetTime(void)
 
 		if (frequency.LowPart && QueryPerformanceCounter(&currtime))
 		{
-			newtics = (INT32)((currtime.QuadPart - basetime.QuadPart) * TICRATE
+			newtics = (INT32)((currtime.QuadPart - basetime.QuadPart) * NEWTICRATE
 				/ frequency.QuadPart);
 		}
 		else if (pfntimeGetTime)
@@ -2026,11 +2121,11 @@ tic_t I_GetTime(void)
 			currtime.LowPart = pfntimeGetTime();
 			if (!basetime.LowPart)
 				basetime.LowPart = currtime.LowPart;
-			newtics = ((currtime.LowPart - basetime.LowPart)/(1000/TICRATE));
+			newtics = ((currtime.LowPart - basetime.LowPart)/(1000/NEWTICRATE));
 		}
 	}
 	else
-		newtics = (GetTickCount() - starttickcount)/(1000/TICRATE);
+		newtics = (GetTickCount() - starttickcount)/(1000/NEWTICRATE);
 
 	return newtics;
 }
@@ -2089,7 +2184,7 @@ void I_StartupTimer(void)
 	if (M_CheckParm("-gettickcount"))
 	{
 		starttickcount = GetTickCount();
-		CONS_Printf("Using GetTickCount()\n");
+		CONS_Printf("%s", M_GetText("Using GetTickCount()\n"));
 	}
 	winmm = LoadLibraryA("winmm.dll");
 	if (winmm)
@@ -2119,7 +2214,7 @@ void I_Sleep(void)
 INT32 I_StartupSystem(void)
 {
 	SDL_version SDLcompiled;
-	const SDL_version *SDLlinked;
+	SDL_version SDLlinked;
 #ifdef _XBOX
 #ifdef __GNUC__
 	char DP[] ="      Sonic Robo Blast 2!\n";
@@ -2140,19 +2235,21 @@ INT32 I_StartupSystem(void)
 #endif
 #endif
 	SDL_VERSION(&SDLcompiled)
-	SDLlinked = SDL_Linked_Version();
+	SDL_GetVersion(&SDLlinked);
 	I_StartupConsole();
-	CONS_Printf("Compiled for SDL version: %d.%d.%d\n",
+	I_OutputMsg("Compiled for SDL version: %d.%d.%d\n",
 	 SDLcompiled.major, SDLcompiled.minor, SDLcompiled.patch);
-	CONS_Printf("Linked with SDL version: %d.%d.%d\n",
-	 SDLlinked->major, SDLlinked->minor, SDLlinked->patch);
+	I_OutputMsg("Linked with SDL version: %d.%d.%d\n",
+	 SDLlinked.major, SDLlinked.minor, SDLlinked.patch);
 #if 0 //#ifdef GP2X //start up everything
 	if (SDL_Init(SDL_INIT_NOPARACHUTE|SDL_INIT_EVERYTHING) < 0)
 #else
 	if (SDL_Init(SDL_INIT_NOPARACHUTE) < 0)
 #endif
 		I_Error("SRB2: SDL System Error: %s", SDL_GetError()); //Alam: Oh no....
+#ifndef NOMUMBLE
 	I_SetupMumble();
+#endif
 	return 0;
 }
 
@@ -2176,8 +2273,10 @@ void I_Quit(void)
 	G_SaveGameData(); // Tails 12-08-2002
 	//added:16-02-98: when recording a demo, should exit using 'q' key,
 	//        but sometimes we forget and use 'F10'.. so save here too.
+
 	if (demorecording)
 		G_CheckDemoStatus();
+
 	D_QuitNetGame();
 	I_ShutdownMusic();
 	I_ShutdownSound();
@@ -2422,7 +2521,10 @@ void I_ShutdownSystem(void)
 			(*quit_funcs[c])();
 #ifdef  LOGMESSAGES
 	if (logstream)
+	{
 		fclose(logstream);
+		logstream = NULL;
+	}
 #endif
 
 }
@@ -2432,7 +2534,7 @@ void I_GetDiskFreeSpace(INT64 *freespace)
 #if defined (_arch_dreamcast) || defined (_PSP)
 	*freespace = 0;
 #elif defined (__unix__) || defined(__APPLE__) || defined (UNIXCOMMON)
-#if defined (SOLARIS) || defined (__HAIKU__)
+#if defined (SOLARIS) || defined (__HAIKU__) || defined (_WII) || defined (_PS3)
 	*freespace = INT32_MAX;
 	return;
 #else // Both Linux and BSD have this, apparently.
@@ -2523,7 +2625,7 @@ INT32 I_mkdir(const char *dirname, INT32 unixright)
 #if defined (__unix__) || defined(__APPLE__) || defined (UNIXCOMMON) || defined (__CYGWIN__) || defined (__OS2__)
 	return mkdir(dirname, unixright);
 #elif (defined (_WIN32) || (defined (_WIN32_WCE) && !defined (__GNUC__))) && !defined (_XBOX)
-	unixright = 0; /// \todo should implement ntright under nt...
+	UNREFERENCED_PARAMETER(unixright); /// \todo should implement ntright under nt...
 	return CreateDirectoryA(dirname, NULL);
 #else
 	(void)dirname;
@@ -2643,13 +2745,12 @@ static const char *locateWad(void)
 	const char *envstr;
 	const char *WadPath;
 
-	// SRB2WADDIR environment variable has been renamed to SRB2RETROWADDIR to prevent conflicts with 2.1+.
-	I_OutputMsg("SRB2RETROWADDIR");
-	// does SRB2RETROWADDIR exist?
-	if (((envstr = I_GetEnv("SRB2RETROWADDIR")) != NULL) && isWadPathOk(envstr))
+	I_OutputMsg("SRB2WADDIR");
+	// does SRB2WADDIR exist?
+	if (((envstr = I_GetEnv("SRB2WADDIR")) != NULL) && isWadPathOk(envstr))
 		return envstr;
 
-#ifdef _WIN32_WCE
+#if defined(_WIN32_WCE) || defined(_PS3) || defined(_PSP)
 	// examine argv[0]
 	strcpy(returnWadPath, myargv[0]);
 	pathonly(returnWadPath);
@@ -2711,15 +2812,10 @@ static const char *locateWad(void)
 #endif
 #ifndef NOHOME
 	// find in $HOME
-	I_OutputMsg(",HOME/" DEFAULTDIR);
+	I_OutputMsg(",HOME");
 	if ((envstr = I_GetEnv("HOME")) != NULL)
 	{
-		char *tmp = malloc(strlen(envstr) + 1 + sizeof(DEFAULTDIR));
-		strcpy(tmp, envstr);
-		strcat(tmp, "/");
-		strcat(tmp, DEFAULTDIR);
-		WadPath = searchWad(tmp);
-		free(tmp);
+		WadPath = searchWad(envstr);
 		if (WadPath)
 			return WadPath;
 	}
@@ -2762,15 +2858,15 @@ const char *I_LocateWad(void)
 		// change to the directory where we found srb2.srb
 #if (defined (_WIN32) && !defined (_WIN32_WCE)) && !defined (_XBOX)
 		SetCurrentDirectoryA(waddir);
-#elif !defined (_WIN32_WCE)
+#elif !defined (_WIN32_WCE) && !defined (_PS3)
 		if (chdir(waddir) == -1)
-			CONS_Printf("Couldn't change working directory\n");
+			I_OutputMsg("Couldn't change working directory\n");
 #endif
 	}
 	return waddir;
 }
 
-#ifdef LINUX
+#if defined(LINUX) || defined(LINUX64)
 #define MEMINFO_FILE "/proc/meminfo"
 #define MEMTOTAL "MemTotal:"
 #define MEMFREE "MemFree:"
@@ -2826,7 +2922,25 @@ UINT32 I_GetFreeMem(UINT32 *total)
 	if (total)
 		*total = 32 << 20;
 	return 32 << 20;
-#elif defined (LINUX)
+#elif (defined (_WIN32) || (defined (_WIN32_WCE) && !defined (__GNUC__))) && !defined (_XBOX)
+	MEMORYSTATUS info;
+
+	info.dwLength = sizeof (MEMORYSTATUS);
+	GlobalMemoryStatus( &info );
+	if (total)
+		*total = (UINT32)info.dwTotalPhys;
+	return (UINT32)info.dwAvailPhys;
+#elif defined (__OS2__)
+	UINT32 pr_arena;
+
+	if (total)
+		DosQuerySysInfo( QSV_TOTPHYSMEM, QSV_TOTPHYSMEM,
+							(PVOID) total, sizeof (UINT32));
+	DosQuerySysInfo( QSV_MAXPRMEM, QSV_MAXPRMEM,
+				(PVOID) &pr_arena, sizeof (UINT32));
+
+	return pr_arena;
+#elif defined (LINUX) || defined (LINUX64)
 	/* Linux */
 	char buf[1024];
 	char *memTag;
@@ -2870,24 +2984,6 @@ UINT32 I_GetFreeMem(UINT32 *total)
 	if (total)
 		*total = totalKBytes << 10;
 	return freeKBytes << 10;
-#elif (defined (_WIN32) || (defined (_WIN32_WCE) && !defined (__GNUC__))) && !defined (_XBOX)
-	MEMORYSTATUS info;
-
-	info.dwLength = sizeof (MEMORYSTATUS);
-	GlobalMemoryStatus( &info );
-	if (total)
-		*total = (UINT32)info.dwTotalPhys;
-	return (UINT32)info.dwAvailPhys;
-#elif defined (__OS2__)
-	UINT32 pr_arena;
-
-	if (total)
-		DosQuerySysInfo( QSV_TOTPHYSMEM, QSV_TOTPHYSMEM,
-							(PVOID) total, sizeof (UINT32));
-	DosQuerySysInfo( QSV_MAXPRMEM, QSV_MAXPRMEM,
-				(PVOID) &pr_arena, sizeof (UINT32));
-
-	return pr_arena;
 #else
 	// Guess 48 MB.
 	if (total)
@@ -2934,8 +3030,8 @@ const CPUInfoFlags *I_CPUInfo(void)
 		WIN_CPUInfo.SSE2        = SDL_HasSSE2();
 		WIN_CPUInfo.AltiVec     = SDL_HasAltiVec();
 	}
-	WIN_CPUInfo.MMXExt      = SDL_HasMMXExt();
-	WIN_CPUInfo.AMD3DNowExt = SDL_Has3DNowExt();
+	WIN_CPUInfo.MMXExt      = SDL_FALSE; //SDL_HasMMXExt(); No longer in SDL2
+	WIN_CPUInfo.AMD3DNowExt = SDL_FALSE; //SDL_Has3DNowExt(); No longer in SDL2
 #endif
 	GetSystemInfo(&SI);
 	WIN_CPUInfo.CPUs = SI.dwNumberOfProcessors;
@@ -2947,9 +3043,9 @@ const CPUInfoFlags *I_CPUInfo(void)
 	memset(&SDL_CPUInfo,0,sizeof (CPUInfoFlags));
 	SDL_CPUInfo.RDTSC       = SDL_HasRDTSC();
 	SDL_CPUInfo.MMX         = SDL_HasMMX();
-	SDL_CPUInfo.MMXExt      = SDL_HasMMXExt();
+	SDL_CPUInfo.MMXExt      = SDL_FALSE; //SDL_HasMMXExt(); No longer in SDL2
 	SDL_CPUInfo.AMD3DNow    = SDL_Has3DNow();
-	SDL_CPUInfo.AMD3DNowExt = SDL_Has3DNowExt();
+	SDL_CPUInfo.AMD3DNowExt = SDL_FALSE; //SDL_Has3DNowExt(); No longer in SDL2
 	SDL_CPUInfo.SSE         = SDL_HasSSE();
 	SDL_CPUInfo.SSE2        = SDL_HasSSE2();
 	SDL_CPUInfo.AltiVec     = SDL_HasAltiVec();

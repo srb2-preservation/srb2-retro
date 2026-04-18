@@ -563,8 +563,6 @@
 				84177725085A0FF2000C01D8,
 				84177726085A0FF2000C01D8,
 				84177727085A0FF2000C01D8,
-				84177728085A0FF2000C01D8,
-				84177729085A0FF2000C01D8,
 				6755C7B11017FE2500A80195,
 			);
 			isa = PBXGroup;
@@ -945,20 +943,6 @@
 			isa = PBXFileReference;
 			name = doomtype.h;
 			path = ../../doomtype.h;
-			refType = 2;
-		};
-		84177728085A0FF2000C01D8 = {
-			fileEncoding = 30;
-			isa = PBXFileReference;
-			name = dstrings.c;
-			path = ../../dstrings.c;
-			refType = 2;
-		};
-		84177729085A0FF2000C01D8 = {
-			fileEncoding = 30;
-			isa = PBXFileReference;
-			name = dstrings.h;
-			path = ../../dstrings.h;
 			refType = 2;
 		};
 		8417772A085A100E000C01D8 = {
@@ -2445,12 +2429,6 @@
 			settings = {
 			};
 		};
-		84177A3F085A18DC000C01D8 = {
-			fileRef = 84177728085A0FF2000C01D8;
-			isa = PBXBuildFile;
-			settings = {
-			};
-		};
 		84177A41085A18E0000C01D8 = {
 			fileRef = 8417772A085A100E000C01D8;
 			isa = PBXBuildFile;
@@ -2915,12 +2893,6 @@
 		};
 		84177A9D085A1A14000C01D8 = {
 			fileRef = 84177722085A0FCE000C01D8;
-			isa = PBXBuildFile;
-			settings = {
-			};
-		};
-		84177A9E085A1A16000C01D8 = {
-			fileRef = 84177728085A0FF2000C01D8;
 			isa = PBXBuildFile;
 			settings = {
 			};

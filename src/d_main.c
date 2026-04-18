@@ -78,6 +78,12 @@ int	snprintf(char *str, size_t n, const char *fmt, ...);
 #include "mserv.h" // cv_internetserver
 #include "m_misc.h" // screenshot functionality
 
+#ifdef CMAKECONFIG
+#include "config.h"
+#else
+#include "config.h.in"
+#endif
+
 #ifdef _XBOX
 #include "sdl/SRB2XBOX/xboxhelp.h"
 #endif
@@ -1131,14 +1137,14 @@ void D_SRB2Main(void)
 	D_CleanFile();
 
 	// Check MD5s of autoloaded files
-	W_VerifyFileMD5(0, "1f698dd35bcedb04631568a84a97d72b"); // srb2.srb
-	W_VerifyFileMD5(1, "86ae3f9179c64358d1c88060e41bd415"); // zones.dta
-	W_VerifyFileMD5(2, "f699d4702b9b505db621e5ad5af4f352"); // sonic.plr
-	W_VerifyFileMD5(3, "dfbbc38080485c70a84a57bb734ceee9"); // tails.plr
-	W_VerifyFileMD5(4, "1ea958e2aee87b6995226a120ba3eaac"); // knux.plr
-	W_VerifyFileMD5(5, "8f702416c15060cd3c53c71b91116914"); // rings.wpn
-	W_VerifyFileMD5(6, "6b1cf9b41e41a46ac58606dc6e7c9e05"); // drill.dta
-	W_VerifyFileMD5(7, "8d080c050ecf03691562aa7b60156fec"); // soar.dta
+	W_VerifyFileMD5(0, ASSET_HASH_SRB2_SRB); // srb2.srb
+	W_VerifyFileMD5(1, ASSET_HASH_ZONES_DTA); // zones.dta
+	W_VerifyFileMD5(2, ASSET_HASH_SONIC_PLR); // sonic.plr
+	W_VerifyFileMD5(3, ASSET_HASH_TAILS_PLR); // tails.plr
+	W_VerifyFileMD5(4, ASSET_HASH_KNUX_PLR); // knux.plr
+	W_VerifyFileMD5(5, ASSET_HASH_RINGS_WPN); // rings.wpn
+	W_VerifyFileMD5(6, ASSET_HASH_DRILL_DTA); // drill.dta
+	W_VerifyFileMD5(7, ASSET_HASH_SOAR_DTA); // soar.dta
 
 	// don't check music.dta because people like to modify it, and it doesn't matter if they do
 	// ...except it does if they slip maps in there, and that's what W_VerifyNMUSlumps is for.

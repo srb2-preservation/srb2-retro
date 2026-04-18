@@ -96,7 +96,7 @@
     <ClCompile>
       <Optimization>Disabled</Optimization>
       <AdditionalIncludeDirectories>$(ProjectDir)..\..\libs\libpng-src;$(ProjectDir)..\..\libs\zlib;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
-      <PreprocessorDefinitions>_DEBUG;USE_WGL_SWAP;DIRECTFULLSCREEN;SDL;HWRENDER;HW3SOUND;HAVE_FILTER;HAVE_MIXER;USEASM;HAVE_PNG;_CRT_SECURE_NO_WARNINGS;_CRT_NONSTDC_NO_DEPRECATE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <PreprocessorDefinitions>_DEBUG;USE_WGL_SWAP;DIRECTFULLSCREEN;SDL;HWRENDER;HW3SOUND;HAVE_FILTER;HAVE_MIXER;USEASM;HAVE_PNG;COMPVERSION;HAVE_BLUA;_CRT_SECURE_NO_WARNINGS;_CRT_NONSTDC_NO_DEPRECATE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <MinimalRebuild>true</MinimalRebuild>
       <BasicRuntimeChecks>EnableFastChecks</BasicRuntimeChecks>
       <RuntimeLibrary>MultiThreadedDebug</RuntimeLibrary>
@@ -145,7 +145,7 @@
     <ClCompile>
       <Optimization>Disabled</Optimization>
       <AdditionalIncludeDirectories>$(ProjectDir)..\..\libs\libpng-src;$(ProjectDir)..\..\libs\zlib;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
-      <PreprocessorDefinitions>_DEBUG;USE_WGL_SWAP;DIRECTFULLSCREEN;SDL;HWRENDER;HW3SOUND;HAVE_FILTER;HAVE_MIXER;HAVE_PNG;_CRT_SECURE_NO_WARNINGS;_CRT_NONSTDC_NO_DEPRECATE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <PreprocessorDefinitions>_DEBUG;USE_WGL_SWAP;DIRECTFULLSCREEN;SDL;HWRENDER;HW3SOUND;HAVE_FILTER;HAVE_MIXER;HAVE_PNG;COMPVERSION;HAVE_BLUA;_CRT_SECURE_NO_WARNINGS;_CRT_NONSTDC_NO_DEPRECATE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <MinimalRebuild>true</MinimalRebuild>
       <BasicRuntimeChecks>EnableFastChecks</BasicRuntimeChecks>
       <RuntimeLibrary>MultiThreadedDebug</RuntimeLibrary>
@@ -202,7 +202,7 @@
       <FavorSizeOrSpeed>Speed</FavorSizeOrSpeed>
       <OmitFramePointers>true</OmitFramePointers>
       <AdditionalIncludeDirectories>$(ProjectDir)..\..\libs\libpng-src;$(ProjectDir)..\..\libs\zlib;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
-      <PreprocessorDefinitions>NDEBUG;SDLMAIN;NO_STDIO_REDIRECT;USE_WGL_SWAP;DIRECTFULLSCREEN;SDL;HWRENDER;HW3SOUND;HAVE_FILTER;HAVE_MIXER;USEASM;HAVE_PNG;_CRT_SECURE_NO_WARNINGS;_CRT_NONSTDC_NO_DEPRECATE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <PreprocessorDefinitions>NDEBUG;SDLMAIN;NO_STDIO_REDIRECT;USE_WGL_SWAP;DIRECTFULLSCREEN;SDL;HWRENDER;HW3SOUND;HAVE_FILTER;HAVE_MIXER;USEASM;HAVE_PNG;COMPVERSION;HAVE_BLUA;_CRT_SECURE_NO_WARNINGS;_CRT_NONSTDC_NO_DEPRECATE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <StringPooling>true</StringPooling>
       <RuntimeLibrary>MultiThreaded</RuntimeLibrary>
       <PrecompiledHeaderOutputFile>.\..\..\objs\VC10\$(Platform)\$(Configuration)\SDL\Srb2SDL-vc9.pch</PrecompiledHeaderOutputFile>
@@ -258,7 +258,7 @@
       <FavorSizeOrSpeed>Speed</FavorSizeOrSpeed>
       <OmitFramePointers>true</OmitFramePointers>
       <AdditionalIncludeDirectories>$(ProjectDir)..\..\libs\libpng-src;$(ProjectDir)..\..\libs\zlib;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
-      <PreprocessorDefinitions>NDEBUG;SDLMAIN;NO_STDIO_REDIRECT;USE_WGL_SWAP;DIRECTFULLSCREEN;SDL;HWRENDER;HW3SOUND;HAVE_FILTER;HAVE_MIXER;HAVE_PNG;_CRT_SECURE_NO_WARNINGS;_CRT_NONSTDC_NO_DEPRECATE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <PreprocessorDefinitions>NDEBUG;SDLMAIN;NO_STDIO_REDIRECT;USE_WGL_SWAP;DIRECTFULLSCREEN;SDL;HWRENDER;HW3SOUND;HAVE_FILTER;HAVE_MIXER;HAVE_PNG;COMPVERSION;HAVE_BLUA;_CRT_SECURE_NO_WARNINGS;_CRT_NONSTDC_NO_DEPRECATE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <StringPooling>true</StringPooling>
       <RuntimeLibrary>MultiThreaded</RuntimeLibrary>
       <PrecompiledHeaderOutputFile>.\..\..\objs\VC10\$(Platform)\$(Configuration)\SDL\Srb2SDL-vc9.pch</PrecompiledHeaderOutputFile>
@@ -293,6 +293,32 @@
     </Bscmake>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="..\blua\lapi.c" />
+    <ClCompile Include="..\blua\lauxlib.c" />
+    <ClCompile Include="..\blua\lbaselib.c" />
+    <ClCompile Include="..\blua\lcode.c" />
+    <ClCompile Include="..\blua\ldebug.c" />
+    <ClCompile Include="..\blua\ldo.c" />
+    <ClCompile Include="..\blua\ldump.c" />
+    <ClCompile Include="..\blua\lfunc.c" />
+    <ClCompile Include="..\blua\lgc.c" />
+    <ClCompile Include="..\blua\linit.c" />
+    <ClCompile Include="..\blua\llex.c" />
+    <ClCompile Include="..\blua\lmem.c" />
+    <ClCompile Include="..\blua\lobject.c" />
+    <ClCompile Include="..\blua\lopcodes.c" />
+    <ClCompile Include="..\blua\lparser.c" />
+    <ClCompile Include="..\blua\lstate.c" />
+    <ClCompile Include="..\blua\lstring.c" />
+    <ClCompile Include="..\blua\lstrlib.c" />
+    <ClCompile Include="..\blua\ltable.c" />
+    <ClCompile Include="..\blua\ltablib.c" />
+    <ClCompile Include="..\blua\ltm.c" />
+    <ClCompile Include="..\blua\lundump.c" />
+    <ClCompile Include="..\blua\lvm.c" />
+    <ClCompile Include="..\blua\lzio.c" />
+    <ClCompile Include="..\b_bot.c" />
+    <ClCompile Include="..\m_cond.c" />
     <ClCompile Include="dosstr.c">
       <AdditionalIncludeDirectories Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <PreprocessorDefinitions Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">%(PreprocessorDefinitions)</PreprocessorDefinitions>
@@ -540,16 +566,6 @@
       <PreprocessorDefinitions Condition="'$(Configuration)|$(Platform)'=='Release|x64'">%(PreprocessorDefinitions)</PreprocessorDefinitions>
     </ClCompile>
     <ClCompile Include="..\dehacked.c">
-      <AdditionalIncludeDirectories Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
-      <PreprocessorDefinitions Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">%(PreprocessorDefinitions)</PreprocessorDefinitions>
-      <AdditionalIncludeDirectories Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
-      <PreprocessorDefinitions Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">%(PreprocessorDefinitions)</PreprocessorDefinitions>
-      <AdditionalIncludeDirectories Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
-      <PreprocessorDefinitions Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">%(PreprocessorDefinitions)</PreprocessorDefinitions>
-      <AdditionalIncludeDirectories Condition="'$(Configuration)|$(Platform)'=='Release|x64'">%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
-      <PreprocessorDefinitions Condition="'$(Configuration)|$(Platform)'=='Release|x64'">%(PreprocessorDefinitions)</PreprocessorDefinitions>
-    </ClCompile>
-    <ClCompile Include="..\dstrings.c">
       <AdditionalIncludeDirectories Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <PreprocessorDefinitions Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <AdditionalIncludeDirectories Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
@@ -1239,6 +1255,31 @@
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="..\blua\lapi.h" />
+    <ClInclude Include="..\blua\lauxlib.h" />
+    <ClInclude Include="..\blua\lcode.h" />
+    <ClInclude Include="..\blua\ldebug.h" />
+    <ClInclude Include="..\blua\ldo.h" />
+    <ClInclude Include="..\blua\lfunc.h" />
+    <ClInclude Include="..\blua\lgc.h" />
+    <ClInclude Include="..\blua\llex.h" />
+    <ClInclude Include="..\blua\llimits.h" />
+    <ClInclude Include="..\blua\lmem.h" />
+    <ClInclude Include="..\blua\lobject.h" />
+    <ClInclude Include="..\blua\lopcodes.h" />
+    <ClInclude Include="..\blua\lparser.h" />
+    <ClInclude Include="..\blua\lstate.h" />
+    <ClInclude Include="..\blua\lstring.h" />
+    <ClInclude Include="..\blua\ltable.h" />
+    <ClInclude Include="..\blua\ltm.h" />
+    <ClInclude Include="..\blua\lua.h" />
+    <ClInclude Include="..\blua\luaconf.h" />
+    <ClInclude Include="..\blua\lualib.h" />
+    <ClInclude Include="..\blua\lundump.h" />
+    <ClInclude Include="..\blua\lvm.h" />
+    <ClInclude Include="..\blua\lzio.h" />
+    <ClInclude Include="..\b_bot.h" />
+    <ClInclude Include="..\m_cond.h" />
     <ClInclude Include="endtxt.h" />
     <ClInclude Include="..\filesrch.h" />
     <ClInclude Include="hwsym_sdl.h" />
@@ -1266,7 +1307,6 @@
     <ClInclude Include="..\doomdef.h" />
     <ClInclude Include="..\doomstat.h" />
     <ClInclude Include="..\doomtype.h" />
-    <ClInclude Include="..\dstrings.h" />
     <ClInclude Include="..\z_zone.h" />
     <ClInclude Include="..\f_finale.h" />
     <ClInclude Include="..\g_game.h" />
