@@ -1674,7 +1674,7 @@ INT32 VID_SetMode(INT32 modeNum)
 		}
 		vid.modenum = -1;
 	}
-	Impl_SetWindowName("SRB2 "VERSIONSTRING);
+	Impl_SetWindowName("SRB2 Retro"VERSIONSTRING);
 
 	SDLSetMode(windowedModes[modeNum][0], windowedModes[modeNum][1], USE_FULLSCREEN);
 
@@ -1752,7 +1752,7 @@ static SDL_bool Impl_CreateWindow(SDL_bool fullscreen)
 
 static void Impl_SetWindowName(const char *title)
 {
-	if (window != NULL)
+	if (window == NULL)
 	{
 		return;
 	}

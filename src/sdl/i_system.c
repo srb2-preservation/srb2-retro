@@ -2745,9 +2745,9 @@ static const char *locateWad(void)
 	const char *envstr;
 	const char *WadPath;
 
-	I_OutputMsg("SRB2WADDIR");
-	// does SRB2WADDIR exist?
-	if (((envstr = I_GetEnv("SRB2WADDIR")) != NULL) && isWadPathOk(envstr))
+	I_OutputMsg("SRB2RETROWADDIR");
+	// does SRB2RETROWADDIR exist?
+	if (((envstr = I_GetEnv("SRB2RETROWADDIR")) != NULL) && isWadPathOk(envstr))
 		return envstr;
 
 #if defined(_WIN32_WCE) || defined(_PS3) || defined(_PSP)
