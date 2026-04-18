@@ -909,7 +909,7 @@ void HWR_InitMD2(void)
 	f = fopen("md2.dat", "rt");
 	if (!f)
 	{
-		CONS_Printf("Error while loading md2.dat\n");
+		//CONS_Printf("Error while loading md2.dat\n");
 		return;
 	}
 
@@ -977,7 +977,7 @@ void HWR_AddPlayerMD2(int skin) // For MD2's that were added after startup
 	f = fopen("md2.dat", "rt");
 	if (!f)
 	{
-		CONS_Printf("Error while loading md2.dat\n");
+		//CONS_Printf("Error while loading md2.dat\n");
 		return;
 	}
 
@@ -1018,7 +1018,7 @@ void HWR_AddSpriteMD2(int spritenum) // For MD2s that were added after startup
 
 	if (!f)
 	{
-		CONS_Printf("Error while loading md2.dat\n");
+		//CONS_Printf("Error while loading md2.dat\n");
 		return;
 	}
 
