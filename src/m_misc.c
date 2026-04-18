@@ -103,7 +103,7 @@ static CV_PossibleValue_t screenshot_cons_t[] = {{0, "Default"}, {1, "HOME"}, {2
 consvar_t cv_screenshot_option = {"screenshot_option", "Default", CV_SAVE, screenshot_cons_t, NULL, 0, NULL, NULL, 0, 0, NULL};
 consvar_t cv_screenshot_folder = {"screenshot_folder", "", CV_SAVE, NULL, NULL, 0, NULL, NULL, 0, 0, NULL};
 
-static CV_PossibleValue_t moviemode_cons_t[] = {{MM_GIF, "GIF"}, {MM_APNG, "aPNG"}, {MM_SCREENSHOT, "Screenshots"}, {0, NULL}};
+static CV_PossibleValue_t moviemode_cons_t[] = {{MM_GIF, "GIF"}, {MM_SCREENSHOT, "Screenshots"}, {0, NULL}};
 consvar_t cv_moviemode = {"moviemode_mode", "GIF", CV_SAVE|CV_CALL, moviemode_cons_t, Moviemode_mode_Onchange};
 consvar_t cv_movie_option = {"movie_option", "Default", CV_SAVE|CV_CALL, screenshot_cons_t};
 consvar_t cv_movie_folder = {"movie_folder", "", CV_SAVE, NULL, NULL, 0, NULL, NULL, 0, 0, NULL};
@@ -1242,47 +1242,6 @@ failure:
 // ==========================================================================
 
 #if NUMSCREENS > 2
-static inline moviemode_t M_StartMovieAPNG(const char *pathname)
-{
-#ifdef USE_APNG
-	UINT8 *palette = NULL;
-	const char *freename = NULL;
-	boolean ret = false;
-
-	if (!M_PNGLib())
-	{
-		CONS_Printf("Couldn't create aPNG: libpng not found\n");
-		return MM_OFF;
-	}
-
-	if (!(freename = Newsnapshotfile(pathname,"png")))
-	{
-		CONS_Printf("Couldn't create aPNG: no slots open in %s\n", pathname);
-		return MM_OFF;
-	}
-
-	if (rendermode == render_soft)
-	{
-		M_CreateScreenShotPalette();
-		palette = screenshot_palette;
-	}
-
-	ret = M_SetupaPNG(va(pandf,pathname,freename), palette);
-
-	if (!ret)
-	{
-		CONS_Printf("Couldn't create aPNG: error creating %s in %s\n", freename, pathname);
-		return MM_OFF;
-	}
-	return MM_APNG;
-#else
-	// no APNG support exists
-	(void)pathname;
-	CONS_Printf("Couldn't create aPNG: this build lacks aPNG support\n");
-	return MM_OFF;
-#endif
-}
-
 static inline moviemode_t M_StartMovieGIF(const char *pathname)
 {
 #ifdef HAVE_ANIGIF
@@ -1339,9 +1298,6 @@ void M_StartMovie(void)
 		case MM_GIF:
 			moviemode = M_StartMovieGIF(pathname);
 			break;
-		case MM_APNG:
-			moviemode = M_StartMovieAPNG(pathname);
-			break;
 		case MM_SCREENSHOT:
 			moviemode = MM_SCREENSHOT;
 			break;
@@ -1349,9 +1305,7 @@ void M_StartMovie(void)
 			return;
 	}
 
-	if (moviemode == MM_APNG)
-		CONS_Printf("Movie mode enabled (%s).\n", "aPNG");
-	else if (moviemode == MM_GIF)
+	if (moviemode == MM_GIF)
 		CONS_Printf("Movie mode enabled (%s).\n", "GIF");
 	else if (moviemode == MM_SCREENSHOT)
 		CONS_Printf("Movie mode enabled (%s).\n", "screenshots");
@@ -1379,42 +1333,6 @@ void M_SaveFrame(void)
 		case MM_GIF:
 			GIF_frame();
 			return;
-		case MM_APNG:
-#ifdef USE_APNG
-			{
-				UINT8 *linear = NULL;
-				if (!apng_FILE) // should not happen!!
-				{
-					moviemode = MM_OFF;
-					return;
-				}
-
-				if (rendermode == render_soft)
-				{
-					// munge planar buffer to linear
-					linear = screens[2];
-					I_ReadScreen(linear);
-				}
-#ifdef HWRENDER
-				else
-					linear = HWR_GetScreenshot();
-#endif
-				M_PNGFrame(apng_ptr, apng_info_ptr, (png_bytep)linear);
-#ifdef HWRENDER
-				if (rendermode != render_soft && linear)
-					free(linear);
-#endif
-
-				if (apng_frames == PNG_UINT_31_MAX)
-				{
-					CONS_Printf("Max movie size reached\n");
-					M_StopMovie();
-				}
-			}
-#else
-			moviemode = MM_OFF;
-#endif
-			return;
 		default:
 			return;
 	}
@@ -1430,27 +1348,6 @@ void M_StopMovie(void)
 			if (!GIF_close())
 				return;
 			break;
-		case MM_APNG:
-#ifdef USE_APNG
-			if (!apng_FILE)
-				return;
-
-			if (apng_frames)
-			{
-				M_PNGfix_acTL(apng_ptr, apng_info_ptr, apng_ainfo_ptr);
-				apng_write_end(apng_ptr, apng_info_ptr, apng_ainfo_ptr);
-			}
-
-			png_destroy_write_struct(&apng_ptr, &apng_info_ptr);
-
-			fclose(apng_FILE);
-			apng_FILE = NULL;
-			CONS_Printf("aPNG closed; wrote %u frames\n", (UINT32)apng_frames);
-			apng_frames = 0;
-			break;
-#else
-			return;
-#endif
 		case MM_SCREENSHOT:
 			break;
 		default:
