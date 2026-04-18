@@ -273,8 +273,10 @@ void SCR_Recalc(void)
 	// calculated once and for all, used by routines in v_video.c
 	vid.dupx = vid.width / BASEVIDWIDTH;
 	vid.dupy = vid.height / BASEVIDHEIGHT;
+	vid.dupx = vid.dupy = (vid.dupx < vid.dupy ? vid.dupx : vid.dupy);
 	vid.fdupx = (float)vid.width / BASEVIDWIDTH;
 	vid.fdupy = (float)vid.height / BASEVIDHEIGHT;
+	vid.fdupx = vid.fdupy = (vid.fdupx < vid.fdupy ? vid.fdupx : vid.fdupy);
 	vid.baseratio = FixedDiv(vid.height << FRACBITS, BASEVIDHEIGHT << FRACBITS);
 
 	// patch the asm code depending on vid buffer rowbytes
