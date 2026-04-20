@@ -4552,7 +4552,7 @@ static menuitem_t OptionsMenu[] =
 	{IT_SUBMENU | IT_STRING, NULL, "Server Options...",     &ServerOptionsDef, 50},
 	{IT_SUBMENU | IT_STRING, NULL, "Sound Options...",      &SoundDef,         70},
 	{IT_SUBMENU | IT_STRING, NULL, "Video Options...",      &VideoOptionsDef,  80},
-	{IT_SUBMENU | IT_STRING, NULL, "Retro Otions...", 		&RetroDef,	 	  100} // fits here ig
+	{IT_SUBMENU | IT_STRING, NULL, "Retro Options...", 	&RetroDef,	  100} // fits here ig
 };
 
 menu_t OptionsDef =
@@ -8438,4 +8438,3 @@ void M_CheatActivationResponder(INT32 ch)
 
 	CV_SetValue(&cv_cheats, 1);
 }
-

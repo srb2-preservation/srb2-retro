@@ -621,7 +621,7 @@ void I_FreeSfx(sfxinfo_t * sfx)
 // Pitching (that is, increased speed of playback)
 //  is set, but currently not used by mixing.
 //
-INT32 I_StartSound(sfxenum_t id, INT32 vol, INT32 sep, INT32 pitch, INT32 priority);
+INT32 I_StartSound(sfxenum_t id, INT32 vol, INT32 sep, INT32 pitch, INT32 priority)
 {
 	(void)priority;
 	(void)pitch;
@@ -1078,7 +1078,7 @@ static void SDLCALL I_UpdateStream(void *userdata, Uint8 *stream, int len)
 	}
 }
 
-void I_UpdateSoundParams(INT32 handle, INT32 vol, INT32 sep, INT32 pitch);
+void I_UpdateSoundParams(INT32 handle, INT32 vol, INT32 sep, INT32 pitch)
 {
 	// Would be using the handle to identify
 	//  on which channel the sound might be active,
@@ -1799,7 +1799,7 @@ static boolean I_StartGMESong(const char *musicname, boolean looping)
 	return false;
 }
 
-boolean I_StartDigSong(const char *musicname, INT32 looping);
+boolean I_StartDigSong(const char *musicname, INT32 looping)
 {
 #ifdef HAVE_MIXER
 	XBOXSTATIC char filename[9];
