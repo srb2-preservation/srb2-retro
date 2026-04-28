@@ -120,7 +120,9 @@ void __set_fpscr(long); // in libgcc / kernel's startup.s?
 #endif
 #endif
 
-#ifndef NOMUMBLE
+#define NOMUMBLE // no more mumble, sorry to all 3 of you mumble users
+
+/*#ifndef NOMUMBLE
 #if defined (__linux__) && !defined(_PS3) // need -lrt
 #include <sys/mman.h>
 #ifdef MAP_FAILED
@@ -135,7 +137,7 @@ void __set_fpscr(long); // in libgcc / kernel's startup.s?
 #elif defined (HAVE_SHM)
 //#define HAVE_MUMBLE
 #endif
-#endif // NOMUMBLE
+#endif*/ // NOMUMBLE
 
 #ifdef _WIN32_WCE
 #include "SRB2CE/cehelp.h"
@@ -1711,6 +1713,8 @@ void I_UpdateMumble(const MumblePos_t *MPos)
 #endif // HAVE_MUMBLE
 }
 #undef WINMUMBLE
+#else
+void I_UpdateMumble(const MumblePos_t *MPos){}
 #endif // NOMUMBLE
 
 #ifdef HAVE_TERMIOS
@@ -1842,7 +1846,7 @@ static void I_PoolMouse2(void)
 
 	if (!ReadFile(mouse2filehandle, buffer, dwLength, &dwLength, NULL))
 	{
-		CONS_Alert(CONS_WARNING, "%s", M_GetText("Read Error on secondary mouse port\n"));
+		CONS_Printf("%s", M_GetText("Read Error on secondary mouse port\n"));
 		return;
 	}
 
@@ -2113,7 +2117,7 @@ tic_t I_GetTime(void)
 
 		if (frequency.LowPart && QueryPerformanceCounter(&currtime))
 		{
-			newtics = (INT32)((currtime.QuadPart - basetime.QuadPart) * NEWTICRATE
+			newtics = (INT32)((currtime.QuadPart - basetime.QuadPart) * TICRATE
 				/ frequency.QuadPart);
 		}
 		else if (pfntimeGetTime)
@@ -2121,11 +2125,11 @@ tic_t I_GetTime(void)
 			currtime.LowPart = pfntimeGetTime();
 			if (!basetime.LowPart)
 				basetime.LowPart = currtime.LowPart;
-			newtics = ((currtime.LowPart - basetime.LowPart)/(1000/NEWTICRATE));
+			newtics = ((currtime.LowPart - basetime.LowPart)/(1000/TICRATE));
 		}
 	}
 	else
-		newtics = (GetTickCount() - starttickcount)/(1000/NEWTICRATE);
+		newtics = (GetTickCount() - starttickcount)/(1000/TICRATE);
 
 	return newtics;
 }
