@@ -2331,9 +2331,7 @@ static boolean shutdowning = false;
 void I_Error(const char *error, ...)
 {
 	va_list argptr;
-#if (defined (MAC_ALERT) || defined (_WIN32) || (defined (_WIN32_WCE) && !defined (__GNUC__))) && !defined (_XBOX)
 	char buffer[8192];
-#endif
 
 	// recursive error detecting
 	if (shutdowning)
@@ -2365,62 +2363,31 @@ void I_Error(const char *error, ...)
 		}
 		if (errorcount > 20)
 		{
-#ifdef MAC_ALERT
 			va_start(argptr, error);
-			vsprintf(buffer, error, argptr);
+			vsnprintf(buffer, 8192, error, argptr);
 			va_end(argptr);
-			// 2004-03-03 AJR Since the Mac user is most likely double clicking to run the game, give them a panel.
-			MacShowAlert("Recursive Error", buffer, "Quit", NULL, NULL);
-#elif (defined (_WIN32) || (defined (_WIN32_WCE)) && !defined (__GNUC__)) && !defined (_XBOX)
-			va_start(argptr,error);
-			vsprintf(buffer, error, argptr);
-			va_end(argptr);
-#ifndef _WIN32_WCE
-			{
-				HANDLE co = GetStdHandle(STD_OUTPUT_HANDLE);
-				DWORD bytesWritten;
-				if (co != INVALID_HANDLE_VALUE)
-				{
-					if (GetFileType(co) == FILE_TYPE_CHAR && GetConsoleMode(co, &bytesWritten))
-						WriteConsoleA(co, buffer, (DWORD)strlen(buffer), NULL, NULL);
-					else
-						WriteFile(co, buffer, (DWORD)strlen(buffer), &bytesWritten, NULL);
-				}
-			}
-#endif
-			OutputDebugStringA(buffer);
-			MessageBoxA(vid.WndParent, buffer, "SRB2 Recursive Error", MB_OK|MB_ICONERROR);
-#else
-			// Don't print garbage
-			va_start(argptr, error);
-			if (!framebuffer)
-				vfprintf (stderr, error, argptr);
-			va_end(argptr);
-#endif
+			// Implement message box with SDL_ShowSimpleMessageBox,
+			// which should fail gracefully if it can't put a message box up
+			// on the target system
+			if (!M_CheckParm("-dedicated"))
+				SDL_ShowSimpleMessageBox(SDL_MESSAGEBOX_ERROR,
+					"SRB2 "VERSIONSTRING" Recursive Error",
+					buffer, NULL);
+
 			W_Shutdown();
-#ifdef GP2X
-			chdir("/usr/gp2x");
-			execl("/usr/gp2x/gp2xmenu", "/usr/gp2x/gp2xmenu", NULL);
-#endif
 			exit(-1); // recursive errors detected
 		}
 	}
-	shutdowning = true;
-	I_ShutdownConsole();
-#ifndef MAC_ALERT
-	// Message first.
-	va_start(argptr,error);
-	if (!framebuffer)
-	{
-		fprintf(stderr, "Error: ");
-		vfprintf(stderr,error,argptr);
-		fprintf(stderr, "\n");
-	}
-	va_end(argptr);
 
-	if (!framebuffer)
-		fflush(stderr);
-#endif
+	shutdowning = true;
+
+	// Display error message in the console before we start shutting it down
+	va_start(argptr, error);
+	vsnprintf(buffer, 8192, error, argptr);
+	va_end(argptr);
+	I_OutputMsg("\nI_Error(): %s\n", buffer);
+	// ---
+
 	M_SaveConfig(NULL); // save game config, cvars..
 #ifndef NONET
 	D_SaveBan(); // save the ban list
@@ -2434,29 +2401,31 @@ void I_Error(const char *error, ...)
 	D_QuitNetGame();
 	I_ShutdownMusic();
 	I_ShutdownSound();
-	I_ShutdownCD();
 	// use this for 1.28 19990220 by Kin
 	I_ShutdownGraphics();
 	I_ShutdownInput();
 	I_ShutdownSystem();
-#ifndef _arch_dreamcast
 	SDL_Quit();
-#endif
-#ifdef MAC_ALERT
-	va_start(argptr, error);
-	vsprintf(buffer, error, argptr);
-	va_end(argptr);
-	// 2004-03-03 AJR Since the Mac user is most likely double clicking to run the game, give them a panel.
-	MacShowAlert("Critical Error", buffer, "Quit", NULL, NULL);
-#endif
+
+	// Implement message box with SDL_ShowSimpleMessageBox,
+	// which should fail gracefully if it can't put a message box up
+	// on the target system
+	if (!M_CheckParm("-dedicated"))
+		SDL_ShowSimpleMessageBox(SDL_MESSAGEBOX_ERROR,
+			"SRB2 "VERSIONSTRING" Error",
+			buffer, NULL);
+	// Note that SDL_ShowSimpleMessageBox does *not* require SDL to be
+	// initialized at the time, so calling it after SDL_Quit() is
+	// perfectly okay! In addition, we do this on purpose so the
+	// fullscreen window is closed before displaying the error message
+	// in case the fullscreen window blocks it for some absurd reason.
+
 	W_Shutdown();
+
 #if defined (PARANOIA) && defined (__CYGWIN__)
-		*(INT32 *)2 = 4; //Alam: Debug!
+	*(INT32 *)2 = 4; //Alam: Debug!
 #endif
-#ifdef GP2X
-	chdir("/usr/gp2x");
-	execl("/usr/gp2x/gp2xmenu", "/usr/gp2x/gp2xmenu", NULL);
-#endif
+
 	exit(-1);
 }
 
