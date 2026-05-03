@@ -13,3 +13,5 @@ Win32_LIB_ASM_Release
 *.dgb
 *.debug
 *.debug.txt
+bin/
+objs/

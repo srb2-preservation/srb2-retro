@@ -156,9 +156,8 @@ void D_ParseFileneeded(INT32 fileneedednum_parm, UINT8 *fileneededstr)
 	p = (UINT8 *)fileneededstr;
 	for (i = 0; i < fileneedednum; i++)
 	{
-		fileneeded[i].status = FS_NOTFOUND;
-		filestatus = READUINT8(p);
-		fileneeded[i].important = (UINT8)(filestatus & 3);
+		fileneeded[i].status = FS_NOTFOUND; // We haven't even started looking for the file yet
+		filestatus = READUINT8(p); // The first byte is the file status
 		fileneeded[i].willsend = (UINT8)(filestatus >> 4);
 		fileneeded[i].totalsize = READUINT32(p);
 		fileneeded[i].phandle = NULL;
@@ -177,7 +176,73 @@ void CL_PrepareDownloadSaveGame(const char *tmpsave)
 	strcpy(fileneeded[0].filename, tmpsave);
 }
 
-/** Send requests for files in the ::fileneeded table with a status of
+/** Checks the server to see if we CAN download all the files,
+  * before starting to create them and requesting.
+  *
+  * \return True if we can download all the files
+  *
+  */
+boolean CL_CheckDownloadable(void)
+{
+	UINT8 i,dlstatus = 0;
+
+	for (i = 0; i < fileneedednum; i++)
+		if (fileneeded[i].status != FS_FOUND && fileneeded[i].status != FS_OPEN)
+		{
+			if (fileneeded[i].willsend == 1)
+				continue;
+
+			if (fileneeded[i].willsend == 0)
+				dlstatus = 1;
+			else //if (fileneeded[i].willsend == 2)
+				dlstatus = 2;
+		}
+
+	// Downloading locally disabled
+	if (!dlstatus && M_CheckParm("-nodownload"))
+		dlstatus = 3;
+
+	if (!dlstatus)
+		return true;
+
+	// not downloadable, put reason in console
+	CONS_Printf(M_GetText("You need additional files to connect to this server:\n"));
+	for (i = 0; i < fileneedednum; i++)
+		if (fileneeded[i].status != FS_FOUND && fileneeded[i].status != FS_OPEN)
+		{
+			CONS_Printf(" * \"%s\" (%dK)", fileneeded[i].filename, fileneeded[i].totalsize >> 10);
+
+				if (fileneeded[i].status == FS_NOTFOUND)
+					CONS_Printf(M_GetText(" not found, md5: "));
+				else if (fileneeded[i].status == FS_MD5SUMBAD)
+					CONS_Printf(M_GetText(" wrong version, md5: "));
+
+			{
+				INT32 j;
+				char md5tmp[33];
+				for (j = 0; j < 16; j++)
+					sprintf(&md5tmp[j*2], "%02x", fileneeded[i].md5sum[j]);
+				CONS_Printf("%s", md5tmp);
+			}
+			CONS_Printf("\n");
+		}
+
+	switch (dlstatus)
+	{
+		case 1:
+			CONS_Printf(M_GetText("Some files are larger than the server is willing to send.\n"));
+			break;
+		case 2:
+			CONS_Printf(M_GetText("The server is not allowing download requests.\n"));
+			break;
+		case 3:
+			CONS_Printf(M_GetText("All files downloadable, but you have chosen to disable downloading locally.\n"));
+			break;
+	}
+	return false;
+}
+
+/** Sends requests for files in the ::fileneeded table with a status of
   * ::FS_NOTFOUND.
   *
   * \todo Global function, needs a different name.
@@ -200,59 +265,17 @@ boolean SendRequestFile(void)
 				candownloadfiles = false;
 			}
 
-	if (!candownloadfiles)
-	{
-		boolean coulddownload = true;
-		char s[(MAX_WADPATH+100)*MAX_WADFILES] = ""; // more space than needed but safe
-
-		for (i = 0; i < fileneedednum; i++)
-			if (fileneeded[i].status != FS_FOUND && fileneeded[i].status != FS_OPEN
-				&& fileneeded[i].important)
-			{
-				size_t strl;
-
-				strl = strlen(s);
-				sprintf(&s[strl], "  \"%s\" (%dKB)", fileneeded[i].filename,
-					fileneeded[i].totalsize / 1024);
-
-				if (fileneeded[i].status == FS_NOTFOUND)
-					strcat(s, " not found");
-				else if (fileneeded[i].status == FS_MD5SUMBAD)
-				{
-					INT32 j;
-
-					strcat(s, " has wrong md5sum, needs: ");
-					strl = strlen(s);
-
-					for (j = 0; j < 16; j++)
-						sprintf(&s[strl+2*j], "%02x", fileneeded[i].md5sum[j]);
-					s[strl+32]='\0';
-				}
-				if (fileneeded[i].willsend != 1)
-				{
-					coulddownload = false;
-
-					if (fileneeded[i].willsend == 2)
-						strcat(s, " (server has downloading disabled)");
-					else
-						strcat(s, " (too big to download from server)");
-				}
-				strcat(s, "\n");
-			}
-
-		if (coulddownload)
-			I_Error("To play on this server you should have these files:\n%s\n"
-				"Remove -nodownload if you want to download the files!\n", s);
-
-		I_Error("To play on this server you need these files:\n%s\n"
-			"Make sure you get them somewhere, or you won't be able to join!\n", s);
-	}
+	for (i = 0; i < fileneedednum; i++)
+		if (fileneeded[i].status != FS_FOUND && fileneeded[i].status != FS_OPEN
+			&& (fileneeded[i].willsend == 0 || fileneeded[i].willsend == 2))
+		{
+			I_Error("Attempted to download files that were not sendable");
+		}
 
 	netbuffer->packettype = PT_REQUESTFILE;
 	p = (char *)netbuffer->u.textcmd;
 	for (i = 0; i < fileneedednum; i++)
-		if ((fileneeded[i].status == FS_NOTFOUND || fileneeded[i].status == FS_MD5SUMBAD)
-			&& fileneeded[i].important)
+		if ((fileneeded[i].status == FS_NOTFOUND || fileneeded[i].status == FS_MD5SUMBAD))
 		{
 			totalfreespaceneeded += fileneeded[i].totalsize;
 			nameonly(fileneeded[i].filename);
@@ -296,13 +319,51 @@ INT32 CL_CheckFiles(void)
 	INT32 i, j;
 	char wadfilename[MAX_WADPATH];
 	INT32 ret = 1;
+	size_t packetsize = 0;
+	size_t filestoget = 0;
 
-	if (M_CheckParm("-nofiles"))
-		return 1;
+//	if (M_CheckParm("-nofiles"))
+//		return 1;
 
 	// the first is the iwad (the main wad file)
 	// we don't care if it's called srb2.srb or srb2.wad.
 	fileneeded[0].status = FS_OPEN;
+
+	// Modified game handling -- check for an identical file list
+	// must be identical in files loaded AND in order
+	// Return 2 on failure -- disconnect from server
+	if (modifiedgame)
+	{
+		//CONS_Debug(DBG_NETPLAY, "game is modified; only doing basic checks\n");
+		for (i = 1, j = 1; i < fileneedednum || j < numwadfiles;)
+		{
+			if (j < numwadfiles && !wadfiles[j]->important)
+			{
+				// Unimportant on our side. still don't care.
+				++j;
+				continue;
+			}
+
+			// If this test is true, we've reached the end of one file list
+			// and the other still has a file that's important
+			if (i >= fileneedednum || j >= numwadfiles)
+				return 2;
+
+			// For the sake of speed, only bother with a md5 check
+			if (memcmp(wadfiles[j]->md5sum, fileneeded[i].md5sum, 16))
+				return 2;
+
+			// It's accounted for! let's keep going.
+			//CONS_Debug(DBG_NETPLAY, "'%s' accounted for\n", fileneeded[i].filename);
+			fileneeded[i].status = FS_OPEN;
+			++i;
+			++j;
+		}
+		return 1;
+	}
+
+	// See W_LoadWadFile in w_wad.c
+	packetsize = packetsizetally;
 
 	for (i = 1; i < fileneedednum; i++)
 	{
@@ -322,8 +383,16 @@ INT32 CL_CheckFiles(void)
 				break;
 			}
 		}
-		if (fileneeded[i].status != FS_NOTFOUND || !fileneeded[i].important)
+		if (fileneeded[i].status != FS_NOTFOUND)
 			continue;
+
+		packetsize += nameonlylength(fileneeded[i].filename) + 22;
+
+		if ((numwadfiles+filestoget >= MAX_WADFILES)
+		|| (packetsize > MAXFILENEEDED*sizeof(UINT8)))
+			return 3;
+
+		filestoget++;
 
 		fileneeded[i].status = findfile(fileneeded[i].filename, fileneeded[i].md5sum, true);
 		if (devparm)
@@ -353,28 +422,28 @@ void CL_LoadServerFiles(void)
 			fileneeded[i].status = FS_OPEN;
 		}
 		else if (fileneeded[i].status == FS_MD5SUMBAD)
+			I_Error("Wrong version of file %s", fileneeded[i].filename);
+		else
 		{
-			// If the file is marked important, don't even bother proceeding.
-			if (fileneeded[i].important)
-				I_Error("Wrong version of important file %s", fileneeded[i].filename);
-
-			// If it isn't, no need to worry the user with a console message,
-			// although it can't hurt to put something in the debug file.
-
-			// ...but wait a second. What if the local version is "important"?
-			if (!W_VerifyNMUSlumps(fileneeded[i].filename))
-				I_Error("File %s should only contain music and sound effects!",
-					fileneeded[i].filename);
-
-			// Okay, NOW we know it's safe. Whew.
-			P_AddWadFile(fileneeded[i].filename, NULL);
-			modifiedgame = true;
-			fileneeded[i].status = FS_OPEN;
-			DEBFILE(va("File %s found but with different md5sum\n", fileneeded[i].filename));
+			const char *s;
+			switch(fileneeded[i].status)
+			{
+			case FS_NOTFOUND:
+				s = "FS_NOTFOUND";
+				break;
+			case FS_REQUESTED:
+				s = "FS_REQUESTED";
+				break;
+			case FS_DOWNLOADING:
+				s = "FS_DOWNLOADING";
+				break;
+			default:
+				s = "unknown";
+				break;
+			}
+			I_Error("Try to load file \"%s\" with status of %d (%s)\n", fileneeded[i].filename,
+				fileneeded[i].status, s);
 		}
-		else if (fileneeded[i].important)
-			I_Error("Try to load file %s with status of %d\n", fileneeded[i].filename,
-				fileneeded[i].status);
 	}
 }
 
@@ -709,10 +778,11 @@ void nameonly(char *s)
 		{
 			ns = &(s[j+1]);
 			len = strlen(ns);
-			if (false)
+#if 0
 				M_Memcpy(s, ns, len+1);
-			else
+#else
 				memmove(s, ns, len+1);
+#endif
 			return;
 		}
 }

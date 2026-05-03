@@ -34,8 +34,11 @@
 
 #include "doomdef.h"
 #include "doomtype.h"
+#include "console.h"
 #include "w_wad.h"
 #include "z_zone.h"
+
+#include "filesrch.h"
 
 #include "i_video.h" // rendermode
 #include "d_netfil.h"
@@ -210,9 +213,23 @@ UINT16 W_LoadWadFile(const char *filename)
 	INT32 compressed = 0;
 	size_t packetsize = 0;
 	serverinfo_pak *dummycheck = NULL;
+	boolean important;
 
 	// Shut the compiler up.
 	(void)dummycheck;
+
+	if (!(refreshdirmenu & REFRESHDIR_ADDFILE))
+		refreshdirmenu = REFRESHDIR_NORMAL|REFRESHDIR_ADDFILE; // clean out cons_alerts that happened earlier
+
+	if (refreshdirname)
+		Z_Free(refreshdirname);
+	if (dirmenu)
+	{
+		refreshdirname = Z_StrDup(filename);
+		nameonly(refreshdirname);
+	}
+	else
+		refreshdirname = NULL;
 
 	//CONS_Printf("Loading %s\n", filename);
 	//
@@ -220,7 +237,8 @@ UINT16 W_LoadWadFile(const char *filename)
 	//
 	if (numwadfiles >= MAX_WADFILES)
 	{
-		CONS_Printf("Maximum wad files reached\n");
+		CONS_Error(M_GetText("Maximum wad files reached\n"));
+		refreshdirmenu |= REFRESHDIR_MAX;
 		return INT16_MAX;
 	}
 
@@ -266,6 +284,7 @@ UINT16 W_LoadWadFile(const char *filename)
 	if (packetsize > sizeof(dummycheck->fileneeded))
 	{
 		CONS_Printf("Maximum wad files reached\n");
+		refreshdirmenu |= REFRESHDIR_MAX;
 		if (handle)
 			fclose(handle);
 		return INT16_MAX;
@@ -371,6 +390,7 @@ UINT16 W_LoadWadFile(const char *filename)
 	wadfile->handle = handle;
 	wadfile->numlumps = (UINT16)numlumps;
 	wadfile->lumpinfo = lumpinfo;
+	wadfile->important = important;
 	fseek(handle, 0, SEEK_END);
 	wadfile->filesize = (unsigned)ftell(handle);
 

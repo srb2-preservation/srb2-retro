@@ -77,6 +77,9 @@ int	snprintf(char *str, size_t n, const char *fmt, ...);
 #include "p_local.h" // chasecam
 #include "mserv.h" // cv_internetserver
 #include "m_misc.h" // screenshot functionality
+#include "dehacked.h" // Dehacked list test
+#include "keys.h"
+#include "filesrch.h" // refreshdirmenu, mainwadstally
 
 #ifdef _XBOX
 #include "sdl/SRB2XBOX/xboxhelp.h"
@@ -165,6 +168,11 @@ void D_PostEvent(const event_t *ev)
 #ifndef DOXYGEN
 void D_PostEvent_end(void) {};
 #endif
+
+// modifier keys
+UINT8 shiftdown = 0; // 0x1 left, 0x2 right
+UINT8 ctrldown = 0; // 0x1 left, 0x2 right
+UINT8 altdown = 0; // 0x1 left, 0x2 right
 
 //
 // D_ProcessEvents
@@ -550,6 +558,8 @@ void D_SRB2Loop(void)
 		entertic = I_GetTime();
 		realtics = entertic - oldentertics;
 		oldentertics = entertic;
+
+		refreshdirmenu = 0; // not sure where to put this, here as good as any?
 
 #ifdef DEBUGFILE
 		if (!realtics)
@@ -1142,6 +1152,8 @@ void D_SRB2Main(void)
 
 
 	mainwads = 7; // there 7 wads not to unload
+
+	mainwadstally = packetsizetally;
 
 	// Check and print which version is executed.
 	CONS_Printf("%s",text[COMERCIAL]);

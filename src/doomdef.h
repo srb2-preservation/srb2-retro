@@ -91,6 +91,8 @@
 #define LOGMESSAGES // write message in log.txt
 #endif
 
+#define M_GetText(x) (x)
+
 #if defined (LOGMESSAGES) && !defined (_WINDOWS)
 extern FILE *logstream;
 #endif
@@ -197,6 +199,9 @@ extern boolean devparm; // development mode (-debug)
 // =======================
 // Misc stuff for later...
 // =======================
+
+// Modifier key variables, accessible anywhere
+extern UINT8 shiftdown, ctrldown, altdown;
 
 // if we ever make our alloc stuff...
 #define ZZ_Alloc(x) Z_Malloc(x, PU_STATIC, NULL)
