@@ -2463,9 +2463,6 @@ static void M_Addons(INT32 choice)
 	addonsp[EXT_TXT] = W_CachePatchName("M_FTXT", PU_STATIC);
 	addonsp[EXT_CFG] = W_CachePatchName("M_FCFG", PU_STATIC);
 	addonsp[EXT_WAD] = W_CachePatchName("M_FWAD", PU_STATIC);
-#ifdef USE_KART
-	addonsp[EXT_KART] = W_CachePatchName("M_FKART", PU_STATIC);
-#endif
 	addonsp[EXT_SOC] = W_CachePatchName("M_FSOC", PU_STATIC);
 	addonsp[NUM_EXT] = W_CachePatchName("M_FUNKN", PU_STATIC);
 	addonsp[NUM_EXT+1] = W_CachePatchName("M_FSEL", PU_STATIC);
@@ -2894,9 +2891,6 @@ static void M_HandleAddons(INT32 choice)
 						// else intentional fallthrough
 						case EXT_SOC:
 						case EXT_WAD:
-#ifdef USE_KART
-						case EXT_KART:
-#endif
 							COM_BufAddText(va("addfile \"%s%s\"", menupath, dirmenu[dir_on[menudepthleft]]+DIR_STRING));
 							break;
 						default:
