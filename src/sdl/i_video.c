@@ -945,8 +945,13 @@ void I_OsPolling(void)
 	shiftdown = ctrldown = altdown = 0;
 	if (mod & KMOD_LSHIFT) shiftdown |= 1;
 	if (mod & KMOD_RSHIFT) shiftdown |= 2;
+#ifdef __APPLE__
+	if (mod & KMOD_LGUI)    ctrldown |= 1;
+	if (mod & KMOD_RGUI)    ctrldown |= 2;
+#else
 	if (mod & KMOD_LCTRL)   ctrldown |= 1;
 	if (mod & KMOD_RCTRL)   ctrldown |= 2;
+#endif
 	if (mod & KMOD_LALT)     altdown |= 1;
 	if (mod & KMOD_RALT)     altdown |= 2;
 }
