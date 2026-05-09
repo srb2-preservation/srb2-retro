@@ -202,7 +202,7 @@ static void ServerName_OnChange(void);
 
 #define DEF_PORT "28900"
 consvar_t cv_internetserver = {"internetserver", "No", CV_CALL, CV_YesNo, InternetServer_OnChange, 0, NULL, NULL, 0, 0, NULL};
-consvar_t cv_masterserver = {"masterserver", "ms.srb2.org:"DEF_PORT, CV_SAVE, NULL, MasterServer_OnChange, 0, NULL, NULL, 0, 0, NULL};
+consvar_t cv_masterserver = {"masterserver", "ms.srb2classic.net:"DEF_PORT, CV_SAVE, NULL, MasterServer_OnChange, 0, NULL, NULL, 0, 0, NULL};
 consvar_t cv_servername = {"servername", "SRB2 server", CV_SAVE, NULL, ServerName_OnChange, 0, NULL, NULL, 0, 0, NULL};
 
 INT32 oldroomnum = 0;
@@ -789,6 +789,7 @@ const char *GetMasterServerIP(void)
 	if (strstr(cv_masterserver.string, "srb2.ssntails.org:28910")
 	 || strstr(cv_masterserver.string, "srb2.servegame.org:28910")
 	 || strstr(cv_masterserver.string, "srb2.servegame.org:28900")
+	 || strstr(cv_masterserver.string, "ms.srb2.org:28900")
 	   )
 	{
 		// replace it with the current default one
