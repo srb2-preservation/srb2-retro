@@ -65,7 +65,6 @@ void HWR_DoPostProcessor(void);
 void HWR_StartScreenWipe(void);
 void HWR_EndScreenWipe(void);
 void HWR_DoScreenWipe(void);
-void HWR_PrepFadeToBlack(void);
 void HWR_DrawIntermissionBG(void);
 #endif
 
