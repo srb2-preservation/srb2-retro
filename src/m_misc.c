@@ -1236,8 +1236,10 @@ failure:
 		else
 			CONS_Printf("Couldn't create screen shot (all 10000 slots used!) in %s\n", pathname);
 
+#ifdef HAVE_PNG
 		if (moviemode == MM_SCREENSHOT)
 			M_StopMovie();
+#endif
 	}
 #endif
 }

@@ -7691,7 +7691,9 @@ boolean M_Responder(event_t *ev)
 				return true;
 
 			case KEY_F9: // Empty
+#ifdef HAVE_PNG
 				((moviemode) ? M_StopMovie : M_StartMovie)();
+#endif
 				return true;
 
 			case KEY_F10: // Quit SRB2

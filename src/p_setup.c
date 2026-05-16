@@ -2143,7 +2143,11 @@ noscript:
 	players[consoleplayer].viewz = 1;
 
 	if (moviemode) // make sure we save frames for the white hold too
+#ifdef HAVE_PNG
 		M_SaveFrame();
+#else
+		COM_BufAddText("screenshot");
+#endif
 
 	// Make sure all sounds are stopped before Z_FreeTags.
 	S_StopSounds();

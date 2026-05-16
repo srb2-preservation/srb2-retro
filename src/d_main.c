@@ -485,7 +485,11 @@ static void D_Display(void)
 
 		// Only take screenshots after drawing.
 		if (moviemode)
+#ifdef HAVE_PNG
 			M_SaveFrame();
+#else
+			COM_BufAddText("screenshot");
+#endif
 		if (takescreenshot)
 			M_DoScreenShot();
 
