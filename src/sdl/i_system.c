@@ -52,6 +52,10 @@ typedef BOOL (WINAPI *p_SetProcessAffinityMask) (HANDLE, DWORD_PTR);
 #elif defined (_MSC_VER)
 #include <direct.h>
 #endif
+#ifdef __EMSCRIPTEN__
+#include <emscripten.h>
+#undef HAVE_TERMIOS // do not read on /dev/tty, JavaScript alert() are blocking
+#endif
 #if defined (__unix__) || defined (UNIXCOMMON)
 #include <fcntl.h>
 #endif
@@ -94,7 +98,7 @@ void __set_fpscr(long); // in libgcc / kernel's startup.s?
 //#include <pspiofilemgr.h>
 #elif !defined(_PS3)
 #if defined (__unix__) || defined(__APPLE__) || (defined (UNIXCOMMON) && !defined (_arch_dreamcast) && !defined (__HAIKU__) && !defined (_WII))
-#if defined (__linux__)
+#if defined (__linux__)  || defined(__EMSCRIPTEN__) 
 #include <sys/vfs.h>
 #else
 #include <sys/param.h>
@@ -104,8 +108,10 @@ void __set_fpscr(long); // in libgcc / kernel's startup.s?
 #ifdef FREEBSD
 #include <kvm.h>
 #endif
+#ifndef EMSCRIPTEN
 #include <nlist.h>
 #include <sys/vmmeter.h>
+#endif
 #endif
 #endif
 #endif
@@ -868,8 +874,12 @@ void I_OutputMsg(const char *fmt, ...)
 	}
 #endif
 
+#ifdef __EMSCRIPTEN__
+	fprintf(stdout, "%s", txt);
+#else
 	if (!framebuffer)
 		fprintf(stderr, "%s", txt);
+#endif
 #ifdef HAVE_TERMIOS
 	if (consolevent)
 	{
@@ -2304,6 +2314,13 @@ death:
 	chdir("/usr/gp2x");
 	execl("/usr/gp2x/gp2xmenu", "/usr/gp2x/gp2xmenu", NULL);
 #endif
+#ifdef __EMSCRIPTEN__
+	emscripten_cancel_main_loop();
+	EM_ASM({
+		noExitRuntime = false;
+		window.location.reload();
+	});
+#endif
 	exit(0);
 }
 
@@ -2509,7 +2526,7 @@ void I_GetDiskFreeSpace(INT64 *freespace)
 #if defined (_arch_dreamcast) || defined (_PSP)
 	*freespace = 0;
 #elif defined (__unix__) || defined(__APPLE__) || defined (UNIXCOMMON)
-#if defined (SOLARIS) || defined (__HAIKU__) || defined (_WII) || defined (_PS3)
+#if defined (SOLARIS) || defined (__HAIKU__) || defined (_WII) || defined (_PS3) || defined (__EMSCRIPTEN__)
 	*freespace = INT32_MAX;
 	return;
 #else // Both Linux and BSD have this, apparently.

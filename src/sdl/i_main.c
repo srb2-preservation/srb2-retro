@@ -140,16 +140,21 @@ void XBoxStartup()
 	myargc = -1;
 	myargv = NULL;
 #else
+#if defined(__EMSCRIPTEN__)
+int main_program(void)
+{ 
+#else
 #ifdef FORCESDLMAIN
 int SDL_main(int argc, char **argv)
 #else
 int main(int argc, char **argv)
 #endif
 {
-	const char *logdir = NULL;
 	myargc = argc;
 	myargv = argv; /// \todo pull out path to exe from this string
 #endif
+#endif
+	const char *logdir = NULL;
 
 #ifdef HAVE_TTF
 #ifdef _PS3
@@ -244,4 +249,16 @@ int main(int argc, char **argv)
 	return 0;
 #endif
 }
+
+#if defined (__EMSCRIPTEN__) 
+int main(int argc, char **argv)
+{
+    myargc = argc;
+	myargv = argv;
+
+    I_MountIDBFS(); // Mount IndexedDB filesystem on entry
+
+	return 0;
+}
+#endif
 #endif

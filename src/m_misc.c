@@ -218,6 +218,8 @@ boolean FIL_WriteFile(char const *name, const void *source, size_t length)
 	count = fwrite(source, 1, length, handle);
 	fclose(handle);
 
+	I_SyncIDBFS();
+
 	if (count < length)
 		return false;
 
@@ -519,6 +521,8 @@ void M_SaveConfig(const char *filename)
 	if (!dedicated) G_SaveKeySetting(f);
 
 	fclose(f);
+
+	I_SyncIDBFS();
 }
 
 
@@ -1219,6 +1223,8 @@ void M_DoScreenShot(void)
 #endif
 	}
 
+	I_SyncIDBFS();
+	
 failure:
 	if (ret)
 	{
@@ -1354,6 +1360,7 @@ void M_StopMovie(void)
 		default:
 			return;
 	}
+	I_SyncIDBFS();
 	moviemode = MM_OFF;
 	CONS_Printf("Movie mode disabled.\n");
 #endif
