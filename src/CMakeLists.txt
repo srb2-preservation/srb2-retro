@@ -164,9 +164,10 @@ set(SRB2_CONFIG_HWRENDER ON CACHE BOOL
 set(SRB2_CONFIG_STATIC_OPENGL OFF CACHE BOOL
 	"Use statically linked OpenGL. NOT RECOMMENDED.")
 
-if (CMAKE_SYSTEM_NAME STREQUAL "Emscripten") # disable zlib and png for web
+if (CMAKE_SYSTEM_NAME STREQUAL "Emscripten") # disable zlib, png and hardware rendering for web
 	set(SRB2_CONFIG_HAVE_PNG OFF)
 	set(SRB2_CONFIG_HAVE_ZLIB OFF)
+	set(SRB2_CONFIG_HWRENDER OFF)
 endif()
 
 if(${SRB2_CONFIG_HAVE_ZLIB})
