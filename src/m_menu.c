@@ -5141,7 +5141,7 @@ static menuitem_t OptionsMenu[] =
 	{IT_SUBMENU | IT_STRING, NULL, "Sound Options...",      &SoundDef,         70},
 	{IT_SUBMENU | IT_STRING, NULL, "Video Options...",      &VideoOptionsDef,  80},
 
-	{IT_STRING  | IT_CALL,   NULL, "Add-on Options...",     M_AddonsOptions,  100} // this too
+	{IT_STRING  | IT_CALL,   NULL, "Add-on Options...",     M_AddonsOptions,  100}, // this too
 	{IT_SUBMENU | IT_STRING, NULL, "Retro Options...", 	&RetroDef,	  110} // fits here ig
 };
 
