@@ -105,6 +105,8 @@ void M_QuitResponse(INT32 ch);
 #define IT_CVARMAX     (IT_CVAR   +IT_CV_NOMOD)
 #define IT_DISABLED    (IT_SPACE  +IT_GRAYPATCH)
 
+#define MAXSTRINGLENGTH 32
+
 typedef union
 {
 	struct menu_s *submenu;      // IT_SUBMENU
@@ -217,5 +219,8 @@ void Moviemode_mode_Onchange(void);
 void M_AlterRoomOptions(void);
 void M_AlterRoomInfo(void);
 #endif
+
+// Addons menu updating
+void Addons_option_Onchange(void);
 
 #endif
