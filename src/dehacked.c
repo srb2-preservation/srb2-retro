@@ -45,6 +45,10 @@ int	vsnprintf(char *str, size_t n, const char *fmt, va_list ap);
 boolean deh_loaded = false;
 boolean modcredits = false; // Whether a mod creator's name will show in the credits.
 
+static boolean gamedataadded = false;
+static boolean titlechanged = false;
+static boolean introchanged = false;
+
 typedef struct undehacked_s
 {
 	char *undata;
@@ -1811,16 +1815,19 @@ static void readmaincfg(MYFILE *f)
 			{
 				DEH_WriteUndoline(word, va("%d", introtoplay), UNDO_NONE);
 				introtoplay = (UINT8)value;
+				introchanged = true;
 			}
 			else if (!strcmp(word, "LOOPTITLE"))
 			{
 				DEH_WriteUndoline(word, va("%d", looptitle), UNDO_NONE);
 				looptitle = value;
+				titlechanged = true;
 			}
 			else if (!strcmp(word, "TITLESCROLLSPEED"))
 			{
 				DEH_WriteUndoline(word, va("%d", titlescrollspeed), UNDO_NONE);
 				titlescrollspeed = value;
+				titlechanged = true;
 			}
 			else if (!strcmp(word, "CREDITSCUTSCENE"))
 			{
@@ -1868,6 +1875,7 @@ static void readmaincfg(MYFILE *f)
 			{
 				DEH_WriteUndoline(word, "0", UNDO_TODO); /// \todo
 				P_ResetData(value);
+				titlechanged = true;
 			}
 			else if (!strcmp(word, "CUSTOMVERSION"))
 			{
@@ -1972,6 +1980,8 @@ static void DEH_LoadDehackedFile(MYFILE *f)
 		savesprnames[i] = sprnames[i];
 	for (i = 0; i < NUMSFX; i++)
 		savesfxnames[i] = S_sfx[i].name;
+
+	gamedataadded = titlechanged = introchanged = false;
 
 	// it doesn't test the version of SRB2 and version of dehacked file
 	while (!myfeof(f))
@@ -2162,6 +2172,24 @@ static void DEH_LoadDehackedFile(MYFILE *f)
 		else
 			deh_warning(text[MISSING_WORD], s);
 	} // end while
+
+	if (gamedataadded)
+		G_LoadGameData();
+
+	if (gamestate == GS_TITLESCREEN)
+	{
+			if (introchanged)
+			{
+				menuactive = false;
+				COM_BufAddText("playintro");
+			}
+			else if (titlechanged)
+			{
+				menuactive = false;
+				COM_BufAddText("exitgame"); // Command_ExitGame_f() but delayed
+			}
+	}	
+
 	if (deh_num_warning)
 	{
 		CONS_Printf(text[WARNING_IN_SOC_LUMP], deh_num_warning,
