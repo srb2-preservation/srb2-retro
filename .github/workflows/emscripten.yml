@@ -53,7 +53,7 @@ jobs:
 
       - name: Build
         run: |
-          git clone https://github.com/xdf22/SRB2Assets.git -b 2.0.7 assets/installer/
+          git clone https://github.com/srb2-preservation/srb2assets -b retro assets/installer/
 
           echo "Setting CC to $(which emcc)"
           echo "Setting CXX to $(which emcc)"
