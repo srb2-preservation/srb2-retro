@@ -110,7 +110,8 @@ UINT8 *PutFileNeeded(void)
 	UINT8 filestatus;
 	size_t bytesused = 0;
 
-	for (i = 0; i < numwadfiles; i++)
+	// hack alert
+	for (i = mainwads; i < numwadfiles; i++)
 	{
 		// if it has only music/sound lumps, mark it as unimportant
 		if (W_VerifyNMUSlumps(wadfiles[i]->filename))
