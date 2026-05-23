@@ -579,7 +579,7 @@ void R_ExecuteSetViewSize(void)
 	R_SetSkyScale();
 
 	// planes
-	aspectx = (((vid.height*centerx*BASEVIDWIDTH)/BASEVIDHEIGHT)/vid.width);
+	aspectx = centerx;
 
 	if (rendermode == render_soft)
 	{
