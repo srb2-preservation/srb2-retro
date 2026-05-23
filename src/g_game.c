@@ -445,6 +445,23 @@ char player_names[MAXPLAYERS][MAXPLAYERNAME+1] =
 	"Player 32"
 };
 
+// for consistency among messages: this modifies the game and removes savemoddata.
+void G_SetGameModified(boolean silent)
+{
+	if (modifiedgame && !savemoddata)
+		return;
+
+	modifiedgame = true;
+	savemoddata = false;
+
+	if (!silent)
+		CONS_Printf(M_GetText("Game must be restarted to record statistics.\n"));
+
+	// If in time attack recording, cancel it.
+	if (timeattacking)
+		M_StartControlPanel();
+}
+
 /** Builds an original game map name from a map number.
   * The complexity is due to MAPA0-MAPZZ.
   *
