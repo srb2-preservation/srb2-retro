@@ -445,6 +445,23 @@ char player_names[MAXPLAYERS][MAXPLAYERNAME+1] =
 	"Player 32"
 };
 
+// for consistency among messages: this modifies the game and removes savemoddata.
+void G_SetGameModified(boolean silent)
+{
+	if (modifiedgame && !savemoddata)
+		return;
+
+	modifiedgame = true;
+	savemoddata = false;
+
+	if (!silent)
+		CONS_Printf(M_GetText("Game must be restarted to record statistics.\n"));
+
+	// If in time attack recording, cancel it.
+	if (timeattacking)
+		M_StartControlPanel();
+}
+
 /** Builds an original game map name from a map number.
   * The complexity is due to MAPA0-MAPZZ.
   *
@@ -1352,25 +1369,26 @@ static void Analog_OnChange(void)
 {
 	if (!cv_cam_dist.string)
 		return;
-	if (leveltime > 1)
-		CV_SetValue(&cv_cam_dist, 128);
 
-	if (netgame || !cv_chasecam.value)
-		cv_analog.value = 0;
-	else if (cv_analog.value)
-		CV_SetValue(&cv_cam_dist, 192);
+	// cameras are not initialized at this point
+
+	if (!cv_chasecam.value && cv_analog.value) {
+		CV_SetValue(&cv_analog, 0);
+		return;
+	}
 }
 
 static void Analog2_OnChange(void)
 {
 	if (!cv_cam2_dist.string)
 		return;
-	if (leveltime > 1)
-		CV_SetValue(&cv_cam2_dist, 128);
-	if (netgame || !cv_chasecam2.value)
-		cv_analog2.value = 0;
-	else if (cv_analog2.value)
-		CV_SetValue(&cv_cam2_dist, 192);
+
+	// cameras are not initialized at this point
+
+	if (!cv_chasecam2.value && cv_analog2.value) {
+		CV_SetValue(&cv_analog2, 0);
+		return;
+	}
 }
 
 //
