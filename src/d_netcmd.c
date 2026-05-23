@@ -1965,8 +1965,13 @@ static void Command_Map_f(void)
 
 	if (!(netgame || multiplayer) && (!modifiedgame || savemoddata))
 	{
-		CONS_Printf("%s", text[NOLVLCHANGE]);
-		return;
+		if (COM_CheckParm("-force") || COM_CheckParm("-f"))
+			G_SetGameModified(false);
+		else
+		{
+			CONS_Printf("%s", text[NOLVLCHANGE]);
+			return;
+		}
 	}
 
 	newresetplayers = !COM_CheckParm("-noresetplayers");

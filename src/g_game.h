@@ -136,6 +136,8 @@ boolean G_GetExitGameFlag(void);
 void G_LoadGameData(void);
 void G_LoadGameSettings(void);
 
+void G_SetGameModified(boolean silent);
+
 void G_SetGamestate(gamestate_t newstate);
 
 FUNCMATH INT32 G_TicsToHours(tic_t tics);
