@@ -9631,7 +9631,7 @@ void P_PlayerThink(player_t *player)
 
 #ifdef PARANOIA
 	if (!player->mo)
-		I_Error("p_playerthink: players[%"PRIdS"].mo == NULL", playeri);
+		I_Error("p_playerthink: players[%s].mo == NULL", sizeu1(playeri));
 #endif
 
 	// todo: Figure out what is actually causing these problems in the first place...
@@ -9699,7 +9699,7 @@ void P_PlayerThink(player_t *player)
 
 #ifdef PARANOIA
 	if (player->playerstate == PST_REBORN)
-		I_Error("player %"PRIdS" is in PST_REBORN\n", playeri);
+		I_Error("player %s is in PST_REBORN\n", sizeu1(playeri));
 #endif
 
 	if (gametype == GT_RACE)
@@ -10130,7 +10130,7 @@ void P_PlayerAfterThink(player_t *player)
 	if (!player->mo)
 	{
 		const size_t playeri = (size_t)(player - players);
-		I_Error("P_PlayerAfterThink: players[%"PRIdS"].mo == NULL", playeri);
+		I_Error("P_PlayerAfterThink: players[%s].mo == NULL", sizeu1(playeri));
 	}
 #endif
 

@@ -559,8 +559,10 @@ void R_ExecuteSetViewSize(void)
 	centeryfrac = centery<<FRACBITS;
 
 	projection = centerxfrac;
-	//projectiony = (((vid.height*centerx*BASEVIDWIDTH)/BASEVIDHEIGHT)/vid.width)<<FRACBITS;
-	projectiony = centerxfrac;
+	if (rendermode == render_opengl)
+		projectiony = (((vid.height*centerx*BASEVIDWIDTH)/BASEVIDHEIGHT)/vid.width)<<FRACBITS;
+	else
+		projectiony = centerxfrac;
 
 	R_InitViewBuffer(scaledviewwidth, viewheight);
 
@@ -790,7 +792,7 @@ void R_SetupFrame(player_t *player)
 #ifdef PARANOIA
 		{
 			const size_t playeri = (size_t)(player - players);
-			I_Error("R_SetupFrame: viewmobj null (player %"PRIdS")", playeri);
+			I_Error("R_SetupFrame: viewmobj null (player %s)", sizeu1(playeri));
 		}
 #else
 		return;

@@ -2653,8 +2653,8 @@ static void HWR_Subsector(size_t num)
 
 #ifdef PARANOIA //no risk while developing, enough debugging nights!
 	if (num >= addsubsector)
-		I_Error("HWR_Subsector: ss %"PRIdS" with numss = %"PRIdS", addss = %"PRIdS"\n",
-			num, numsubsectors, addsubsector);
+		I_Error("HWR_Subsector: ss %s with numss = %s, addss = %s\n",
+			sizeu1(num), sizeu2(numsubsectors), sizeu3(addsubsector));
 
 	/*if (num >= numsubsectors)
 		I_Error("HWR_Subsector: ss %i with numss = %i",
