@@ -1161,7 +1161,7 @@ void D_SRB2Main(void)
 	W_VerifyFileMD5(6, ASSET_HASH_DRILL_DTA); // drill.dta
 	W_VerifyFileMD5(7, ASSET_HASH_SOAR_DTA); // soar.dta
 	if(retrowad_loaded)
-		W_VerifyFileMD5(8, "01978c6d0b135b3dcc3f1753577e4474 "); // srb2retro.wad
+		W_VerifyFileMD5(8, "01978c6d0b135b3dcc3f1753577e4474"); // srb2retro.wad
 
 	// don't check music.dta because people like to modify it, and it doesn't matter if they do
 	// ...except it does if they slip maps in there, and that's what W_VerifyNMUSlumps is for.
