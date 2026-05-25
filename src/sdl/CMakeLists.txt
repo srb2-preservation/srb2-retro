@@ -5,6 +5,7 @@ set(SRB2_CONFIG_SDL2_USEMIXER ON CACHE BOOL "Use SDL2_mixer or regular sdl sound
 if(${SRB2_CONFIG_SDL2_USEMIXER})
 	if(${CMAKE_SYSTEM} MATCHES Emscripten)
 		set(SDL2_MIXER_FOUND  ON)
+		set(SDL2_MIXER_LIBRARIES "${CMAKE_SOURCE_DIR}/emlibs/libSDL2_mixer.a")
 	else()
 		find_package(SDL2_mixer)
 	endif()

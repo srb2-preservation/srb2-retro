@@ -1,6 +1,8 @@
 file(COPY
 	${PROJECT_SOURCE_DIR}/src/web/index.html
 	${PROJECT_SOURCE_DIR}/src/web/favicon.ico
+	${PROJECT_SOURCE_DIR}/src/web/timidity.data
+	${PROJECT_SOURCE_DIR}/src/web/js/timidity.js
 	DESTINATION ${PROJECT_BINARY_DIR}/bin
 )
 
