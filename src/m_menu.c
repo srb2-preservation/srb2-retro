@@ -7372,7 +7372,7 @@ static void M_HandleVideoMode(INT32 ch)
 static void M_DrawLoad(void);
 
 static void M_LoadSelect(INT32 choice);
-static void M_PlayWithNoSave(void);
+static void M_PlayWithNoSave(INT32 choice);
 
 typedef enum
 {
@@ -7523,8 +7523,9 @@ static void M_LoadSelect(INT32 choice)
 //
 // User wants to play without saving
 //
-static void M_PlayWithNoSave(void)
+static void M_PlayWithNoSave(INT32 choice)
 {
+	(void)choice;	
 	if (Playing())
 	{
 		M_StartMessage(ALREADYPLAYING,M_ExitGameResponse,MM_YESNO);
