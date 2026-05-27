@@ -46,7 +46,7 @@
 #endif
 
 #ifdef HAVE_IMAGE
-#include "SDL_image.h"
+#include <SDL2/SDL_image.h> // changed this because it wasnt finding it
 #endif
 
 #ifdef HAVE_IMAGE
