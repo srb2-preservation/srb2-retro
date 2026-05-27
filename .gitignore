@@ -17,3 +17,4 @@ assets/installer/
 bin/
 objs/
 build/
+.vscode/settings.json
