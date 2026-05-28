@@ -190,7 +190,11 @@ void __set_fpscr(long); // in libgcc / kernel's startup.s?
 #define DEFAULTWADLOCATION2 "/usr/local/games/srb2-retro"
 #define DEFAULTWADLOCATION3 "/usr/share/games/srb2-retro"
 #define DEFAULTWADLOCATION4 "/usr/games/srb2-retro"
+<<<<<<< HEAD
 #define DEFAULTSEARCHPATH1 "/usr/local/games"
+=======
+#define DEFAULTSEARCHPATH1 "/usr/local/games/"
+>>>>>>> master
 #define DEFAULTSEARCHPATH2 "/usr/games"
 #define DEFAULTSEARCHPATH3 "/usr/local"
 #elif defined (_XBOX)
