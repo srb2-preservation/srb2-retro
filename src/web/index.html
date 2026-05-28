@@ -159,8 +159,8 @@
     });
 }
 
-      if(localStorage.getItem("argtext") != null && localStorage.getItem("argtext").trim().length > 0)
-          userargElement.value = localStorage.getItem("argtext");
+      if(localStorage.getItem("retroargtext") != null && localStorage.getItem("retroargtext").trim().length > 0)
+          userargElement.value = localStorage.getItem("retroargtext");
 
       var userArguments = [];
 
@@ -173,7 +173,7 @@
       };
 
       userargElement.addEventListener("selectionchange", () =>
-          localStorage.setItem("argtext", userargElement.value)
+          localStorage.setItem("retroargtext", userargElement.value)
       );
 
       var Module = {
