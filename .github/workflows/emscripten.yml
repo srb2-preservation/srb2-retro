@@ -54,6 +54,9 @@ jobs:
       - name: Build
         run: |
           git clone https://github.com/srb2-preservation/srb2assets -b retro assets/installer/
+          cd assets/installer
+          wget https://github.com/srb2-preservation/srb2assets/raw/refs/heads/retrowad/retro.wad
+          cd ../../
 
           echo "Setting CC to $(which emcc)"
           echo "Setting CXX to $(which emcc)"
