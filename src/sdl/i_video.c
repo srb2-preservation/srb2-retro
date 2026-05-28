@@ -1938,7 +1938,7 @@ void I_StartupGraphics(void)
 #endif
 	// Window icon
 #ifdef HAVE_IMAGE
-	icoSurface = IMG_ReadXPMFromArray(SDL_icon_xpm);
+	icoSurface = IMG_ReadXPMFromArray((char**)SDL_icon_xpm);
 #endif
 	Impl_SetWindowIcon();
 
