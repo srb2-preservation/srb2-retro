@@ -186,10 +186,10 @@ void __set_fpscr(long); // in libgcc / kernel's startup.s?
 #define DEFAULTSEARCHPATH1 "host0:/"
 #define DEFAULTSEARCHPATH2 "ms0:/PSP/GAME/SRB2PSP"
 #elif defined (__unix__) || defined(__APPLE__) || defined (UNIXCOMMON)
-#define DEFAULTWADLOCATION1 "/usr/local/share/games/SRB2"
-#define DEFAULTWADLOCATION2 "/usr/local/games/SRB2"
-#define DEFAULTWADLOCATION3 "/usr/share/games/SRB2"
-#define DEFAULTWADLOCATION4 "/usr/games/SRB2"
+#define DEFAULTWADLOCATION1 "/usr/local/share/games/srb2-retro"
+#define DEFAULTWADLOCATION2 "/usr/local/games/srb2-retro"
+#define DEFAULTWADLOCATION3 "/usr/share/games/srb2-retro"
+#define DEFAULTWADLOCATION4 "/usr/games/srb2-retro"
 #define DEFAULTSEARCHPATH1 "/usr/local/games"
 #define DEFAULTSEARCHPATH2 "/usr/games"
 #define DEFAULTSEARCHPATH3 "/usr/local"
@@ -211,8 +211,8 @@ void __set_fpscr(long); // in libgcc / kernel's startup.s?
 #define DEFAULTWADLOCATION1 "\\Storage Card\\SRB2DEMO"
 #define DEFAULTSEARCHPATH1 "\\Storage Card"
 #elif defined (_WIN32)
-#define DEFAULTWADLOCATION1 "c:\\games\\srb2"
-#define DEFAULTWADLOCATION2 "\\games\\srb2"
+#define DEFAULTWADLOCATION1 "c:\\games\\srb2-retro"
+#define DEFAULTWADLOCATION2 "\\games\\srb2-retro"
 #define DEFAULTSEARCHPATH1 "c:\\games"
 #define DEFAULTSEARCHPATH2 "\\games"
 #endif
