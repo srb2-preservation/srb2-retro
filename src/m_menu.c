@@ -7525,7 +7525,7 @@ static void M_LoadSelect(INT32 choice)
 //
 static void M_PlayWithNoSave(INT32 choice)
 {
-	(void)choice;	
+	(void)choice;
 	if (Playing())
 	{
 		M_StartMessage(ALREADYPLAYING,M_ExitGameResponse,MM_YESNO);
@@ -8293,8 +8293,8 @@ boolean M_Responder(event_t *ev)
 				M_QuitSRB2(0);
 				return true;
 
-			case KEY_F11: // Gamma Level
-				CV_AddValue(&cv_usegamma, 1);
+			case KEY_F11: // Fullscreen
+				CV_AddValue(&cv_fullscreen, 1);
 				return true;
 
 			case KEY_ESCAPE: // Pop up menu
