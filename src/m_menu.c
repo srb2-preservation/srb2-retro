@@ -8733,6 +8733,12 @@ void M_SetupNextMenu(menu_t *menudef)
 	}
 }
 
+// Guess I'll put this here, idk
+boolean M_MouseNeeded(void)
+{
+	return (currentMenu == &MessageDef && currentMenu->prevMenu == &ControlDef);
+}
+
 //
 // M_Ticker
 //

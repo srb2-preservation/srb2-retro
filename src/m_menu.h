@@ -153,6 +153,9 @@ void M_ExitGameResponse(INT32 ch);
 void M_EndGame(INT32 choice);
 void M_DrawGenericMenu(void);
 
+// Maybe this goes here????? Who knows.
+boolean M_MouseNeeded(void);
+
 extern menu_t *currentMenu;
 
 extern menu_t MainDef, SinglePlayerDef, MultiPlayerDef, SetupMultiPlayerDef;
