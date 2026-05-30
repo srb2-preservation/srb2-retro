@@ -797,8 +797,8 @@ static void Impl_HandleMouseMotionEvent(SDL_MouseMotionEvent evt)
 		}
 		else
 		{
-			event.data2 = (int)round((evt.xrel) * ((float)wwidth / (float)realwidth));
-			event.data3 = (int)round(-evt.yrel * ((float)wheight / (float)realheight));
+			event.data2 = (INT32)round((evt.xrel) * ((float)wwidth / (float)realwidth));
+			event.data3 = (INT32)round(-evt.yrel * ((float)wheight / (float)realheight));
 		}
 
 		event.type = ev_mouse;
