@@ -2256,6 +2256,9 @@ INT32 I_StartupSystem(void)
 	 SDLcompiled.major, SDLcompiled.minor, SDLcompiled.patch);
 	I_OutputMsg("Linked with SDL version: %d.%d.%d\n",
 	 SDLlinked.major, SDLlinked.minor, SDLlinked.patch);
+#if SDL_VERSION_ATLEAST(2,0,18)
+	SDL_SetHint(SDL_HINT_APP_NAME, "SRB2 Retro");
+#endif
 #if 0 //#ifdef GP2X //start up everything
 	if (SDL_Init(SDL_INIT_NOPARACHUTE|SDL_INIT_EVERYTHING) < 0)
 #else
