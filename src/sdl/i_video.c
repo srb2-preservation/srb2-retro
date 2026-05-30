@@ -426,9 +426,6 @@ static INT32 Impl_SDL_Scancode_To_Keycode(SDL_Scancode code)
 		default:
 			break;
 	}
-	DBG_Printf("Unknown incoming scancode: %d, represented %c\n",
-				code,
-				SDL_GetKeyName(SDL_GetKeyFromScancode(code)));
 	return 0;
 }
 
@@ -1590,7 +1587,7 @@ void I_StartupGraphics(void)
 
 	// Fury: we do window initialization after GL setup to allow
 	// SDL_GL_LoadLibrary to work well on Windows
-	
+
 	// Create window
 	//Impl_CreateWindow(USE_FULLSCREEN);
 	//Impl_SetWindowName("SRB2");
