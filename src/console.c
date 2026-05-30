@@ -520,6 +520,11 @@ void CON_ToggleOff(void)
 	con_clipviewtop = -1; // remove console clipping of view
 }
 
+boolean CON_Ready(void)
+{
+	return consoleready;
+}
+
 // Console ticker: handles console move in/out, cursor blinking
 //
 void CON_Ticker(void)

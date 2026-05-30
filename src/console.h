@@ -58,4 +58,7 @@ void CONS_Error(const char *msg); // print out error msg, and wait a key
 // force console to move out
 void CON_ToggleOff(void);
 
+// Is console down?
+boolean CON_Ready(void);
+
 void CON_LogMessage(const char *msg);

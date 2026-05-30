@@ -450,11 +450,10 @@ static void D_Display(void)
 	// vid size change is now finished if it was on...
 	vid.recalc = 0;
 
-	// FIXME: draw either console or menu, not the two
-	if (gamestate != GS_TIMEATTACK)
-		CON_Drawer();
-
 	M_Drawer(); // menu is drawn even on top of everything
+
+	CON_Drawer();
+
 	NetUpdate(); // send out any new accumulation
 
 	// It's safe to end the game now.
