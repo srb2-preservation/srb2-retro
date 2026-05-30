@@ -650,7 +650,7 @@ static void Command_Memdump_f(void)
 		if (block->tag >= mintag && block->tag <= maxtag)
 		{
 			char *filename = strrchr(block->ownerfile, PATHSEP[0]);
-			CONS_Printf("[%3d] "PRIdS" ("PRIdS") bytes @ %s:%d\n", block->tag, block->size, block->realsize, filename ? filename + 1 : block->ownerfile, block->ownerline);
+			CONS_Printf("[%3d] %s (%s) bytes @ %s:%d\n", block->tag, sizeu1(block->size), sizeu2(block->realsize), filename ? filename + 1 : block->ownerfile, block->ownerline);
 		}
 }
 #endif
