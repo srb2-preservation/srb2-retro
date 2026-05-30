@@ -517,6 +517,8 @@ void CON_ToggleOff(void)
 	CON_ClearHUD();
 	con_forcepic = 0;
 	con_clipviewtop = -1; // remove console clipping of view
+
+	I_UpdateMouseGrab();
 }
 
 // Console ticker: handles console move in/out, cursor blinking
@@ -539,6 +541,7 @@ void CON_Ticker(void)
 		{
 			con_destlines = 0;
 			CON_ClearHUD();
+			I_UpdateMouseGrab();
 		}
 		else
 		{

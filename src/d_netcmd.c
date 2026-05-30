@@ -2301,6 +2301,8 @@ static void Got_Pause(UINT8 **cp, INT32 playernum)
 		else
 			S_ResumeSound();
 	}
+
+	I_UpdateMouseGrab();
 }
 
 /** Deals with an ::XD_RANDOMSEED message in a netgame.

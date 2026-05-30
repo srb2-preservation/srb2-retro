@@ -145,6 +145,7 @@ void P_GivePlayerLives(player_t *player, INT32 numlives);
 void P_GiveEmerald(void);
 void P_ResetScore(player_t *player);
 boolean P_FreezeObjectplace(void);
+boolean P_AutoPause(void);
 
 void P_PlayerThink(player_t *player);
 void P_PlayerAfterThink(player_t *player);

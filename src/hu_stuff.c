@@ -765,6 +765,8 @@ void HU_clearChatChars(void)
 	while (tail != head)
 		HU_queueChatChar(KEY_BACKSPACE);
 	chat_on = false;
+
+	I_UpdateMouseGrab();
 }
 
 //
@@ -825,9 +827,15 @@ boolean HU_Responder(event_t *ev)
 		if (eatkey)
 			HU_queueChatChar(c);
 		if (c == KEY_ENTER)
+		{
 			chat_on = false;
+			I_UpdateMouseGrab();
+		}
 		else if (c == KEY_ESCAPE)
+		{
 			chat_on = false;
+			I_UpdateMouseGrab();
+		}
 
 		eatkey = true;
 	}

@@ -1408,7 +1408,10 @@ void G_DoLoadLevel(boolean resetplayer)
 
 	if (gamestate == GS_INTERMISSION)
 		Y_EndIntermission();
+
 	G_SetGamestate(GS_LEVEL);
+	I_UpdateMouseGrab();
+
 	for (i = 0; i < MAXPLAYERS; i++)
 	{
 		if (resetplayer || (playeringame[i] && players[i].playerstate == PST_DEAD))

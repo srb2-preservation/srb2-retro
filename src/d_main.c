@@ -104,6 +104,9 @@ int	snprintf(char *str, size_t n, const char *fmt, ...);
 #include "hardware/hw3sound.h"
 #endif
 
+// platform independant focus loss
+UINT8 window_notinfocus = false;
+
 //
 // DEMO LOOP
 //
@@ -455,6 +458,17 @@ static void D_Display(void)
 		CON_Drawer();
 
 	M_Drawer(); // menu is drawn even on top of everything
+
+	// focus lost notification goes on top of everything, even the former everything
+	if (window_notinfocus)
+	{
+		M_DrawTextBox((BASEVIDWIDTH/2) - (60), (BASEVIDHEIGHT/2) - (16), 13, 2);
+		if (gamestate == GS_LEVEL && (P_AutoPause() || paused))
+			V_DrawCenteredString(BASEVIDWIDTH/2, (BASEVIDHEIGHT/2) - (4), V_YELLOWMAP, "Game Paused");
+		else
+			V_DrawCenteredString(BASEVIDWIDTH/2, (BASEVIDHEIGHT/2) - (4), V_YELLOWMAP, "Focus Lost");
+	}
+
 	NetUpdate(); // send out any new accumulation
 
 	// It's safe to end the game now.

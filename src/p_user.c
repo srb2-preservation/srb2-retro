@@ -173,6 +173,19 @@ boolean P_FreezeObjectplace(void)
 }
 
 //
+// P_AutoPause
+// Returns true when gameplay should be halted even if the game isn't necessarily paused.
+//
+boolean P_AutoPause(void)
+{
+	// Don't pause even on menu-up or focus-lost in netgames or record attack
+	if (netgame || timeattacking)
+		return false;
+
+	return (menuactive || window_notinfocus);
+}
+
+//
 // P_CalcHeight
 // Calculate the walking / running height adjustment
 //
