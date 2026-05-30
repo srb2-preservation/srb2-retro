@@ -2847,8 +2847,7 @@ const char *I_LocateWad(void)
 #define MEMFREE "MemFree:"
 #endif
 
-// quick fix for compil
-UINT32 I_GetFreeMem(UINT32 *total)
+size_t I_GetFreeMem(size_t *total)
 {
 #if defined (_arch_dreamcast)
 	//Dreamcast!
@@ -2903,8 +2902,8 @@ UINT32 I_GetFreeMem(UINT32 *total)
 	info.dwLength = sizeof (MEMORYSTATUS);
 	GlobalMemoryStatus( &info );
 	if (total)
-		*total = (UINT32)info.dwTotalPhys;
-	return (UINT32)info.dwAvailPhys;
+		*total = (size_t)info.dwTotalPhys;
+	return (size_t)info.dwAvailPhys;
 #elif defined (__OS2__)
 	UINT32 pr_arena;
 
@@ -2919,8 +2918,8 @@ UINT32 I_GetFreeMem(UINT32 *total)
 	/* Linux */
 	char buf[1024];
 	char *memTag;
-	UINT32 freeKBytes;
-	UINT32 totalKBytes;
+	size_t freeKBytes;
+	size_t totalKBytes;
 	INT32 n;
 	INT32 meminfo_fd = -1;
 
@@ -2954,7 +2953,7 @@ UINT32 I_GetFreeMem(UINT32 *total)
 	}
 
 	memTag += sizeof (MEMFREE);
-	freeKBytes = atoi(memTag);
+	freeKBytes = (size_t)atoi(memTag);
 
 	if (total)
 		*total = totalKBytes << 10;
