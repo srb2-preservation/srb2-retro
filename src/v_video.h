@@ -34,7 +34,7 @@
 extern UINT8 *screens[5];
 
 extern const UINT8 gammatable[5][256];
-extern consvar_t cv_ticrate, cv_usegamma, cv_allcaps;
+extern consvar_t cv_ticrate, cv_usegamma, cv_usesaturation, cv_allcaps;
 
 // Allocates buffer screens, call before R_Init.
 void V_Init(void);

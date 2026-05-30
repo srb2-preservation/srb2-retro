@@ -5900,16 +5900,6 @@ static void M_DrawSlider(INT32 x, INT32 y, const consvar_t *cv)
 	INT32 range;
 	patch_t *p;
 
-	for (i = 0; cv->PossibleValue[i+1].strvalue; i++);
-
-	range = ((cv->value - cv->PossibleValue[0].value) * 100 /
-	 (cv->PossibleValue[i].value - cv->PossibleValue[0].value));
-
-	if (range < 0)
-		range = 0;
-	if (range > 100)
-		range = 100;
-
 	x = BASEVIDWIDTH - x - SLIDER_WIDTH;
 
 	V_DrawScaledPatch(x - 8, y, 0, W_CachePatchName("M_SLIDEL", PU_CACHE));
@@ -5942,14 +5932,16 @@ static menuitem_t VideoOptionsMenu[] =
 	//17/10/99: added by Hurdler
 	{IT_CALL|IT_WHITESTRING, NULL, "3D Card Options...",  M_OpenGLOption,    20},
 #endif
-	{IT_STRING | IT_CVAR | IT_CV_SLIDER,
+	{IT_STRING | IT_CVAR,
 	                         NULL, "Brightness",          &cv_usegamma,      40},
+	{IT_STRING | IT_CVAR,
+	                         NULL, "Saturation",          &cv_usesaturation,      50},
 
-	{IT_STRING | IT_CVAR,    NULL, "V-SYNC",              &cv_vidwait,       50},
+	{IT_STRING | IT_CVAR,    NULL, "V-SYNC",              &cv_vidwait,       60},
 
-	{IT_STRING | IT_CVAR,    NULL, "Rain/Snow Density",   &cv_precipdensity, 80}, // Changed all to normal string Tails 11-30-2000
-	{IT_STRING | IT_CVAR,    NULL, "Rain/Snow Draw Dist", &cv_precipdist,    90}, // Changed all to normal string Tails 11-30-2000
-	{IT_STRING | IT_CVAR,    NULL, "FPS Meter",           &cv_ticrate,       100},
+	{IT_STRING | IT_CVAR,    NULL, "Rain/Snow Density",   &cv_precipdensity, 70}, // Changed all to normal string Tails 11-30-2000
+	{IT_STRING | IT_CVAR,    NULL, "Rain/Snow Draw Dist", &cv_precipdist,    80}, // Changed all to normal string Tails 11-30-2000
+	{IT_STRING | IT_CVAR,    NULL, "FPS Meter",           &cv_ticrate,       90},
 };
 
 menu_t VideoOptionsDef =
