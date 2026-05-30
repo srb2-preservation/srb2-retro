@@ -4,7 +4,9 @@ name: Emscripten
 on:
   # Runs on pushes targeting the default branch
   push:
-    branches: [ "emscripten" ]
+    branches: [ "next", "master", "ci", "emscripten" ]
+  pull_request:
+    branches: [ "next", "master", "emscripten" ]
 
   # Allows you to run this workflow manually from the Actions tab
   workflow_dispatch:
@@ -36,7 +38,7 @@ jobs:
 
 
       - name: Setup Pages
-        uses: actions/configure-pages@v5.0.0
+        uses: actions/configure-pages@v6.0.0
 
       - name: Setup emsdk
         uses: mymindstorm/setup-emsdk@v14
@@ -66,10 +68,13 @@ jobs:
           emmake make -C build -j $(nproc)
 
       - name: Upload artifact
-        uses: actions/upload-pages-artifact@v4.0.0
+        uses: actions/upload-pages-artifact@v5.0.0
         with:
           # Upload not entire repository
           path: "build/bin/"
+
       - name: Deploy to GitHub Pages
         id: deployment
-        uses: actions/deploy-pages@v4.0.5
+        # Always test building, but only deploy if it's from the master or next branch
+        if: ${{ github.ref == 'refs/heads/master' || github.ref == 'refs/heads/next' }}
+        uses: actions/deploy-pages@v5.0.0
