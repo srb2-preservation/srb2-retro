@@ -453,11 +453,9 @@ static void D_Display(void)
 	// vid size change is now finished if it was on...
 	vid.recalc = 0;
 
-	// FIXME: draw either console or menu, not the two
-	if (gamestate != GS_TIMEATTACK)
-		CON_Drawer();
-
 	M_Drawer(); // menu is drawn even on top of everything
+
+	CON_Drawer();
 
 	// focus lost notification goes on top of everything, even the former everything
 	if (window_notinfocus)

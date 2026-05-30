@@ -521,6 +521,11 @@ void CON_ToggleOff(void)
 	I_UpdateMouseGrab();
 }
 
+boolean CON_Ready(void)
+{
+	return consoleready;
+}
+
 // Console ticker: handles console move in/out, cursor blinking
 //
 void CON_Ticker(void)
