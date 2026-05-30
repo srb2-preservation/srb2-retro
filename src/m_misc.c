@@ -61,10 +61,8 @@
 
 #ifdef HAVE_PNG
 
-#ifndef _MSC_VER
 #ifndef _LARGEFILE64_SOURCE
 #define _LARGEFILE64_SOURCE
-#endif
 #endif
 
 #ifndef _LFS64_LARGEFILE
@@ -75,16 +73,16 @@
 #define _FILE_OFFSET_BITS 0
 #endif
 
-
-
  #include "zlib.h"
  #include "png.h"
+ #if (PNG_LIBPNG_VER_MAJOR > 1) || (PNG_LIBPNG_VER_MAJOR == 1 && PNG_LIBPNG_VER_MINOR >= 4)
+  #define NO_PNG_DEBUG // 1.4.0 move png_debug to pngpriv.h
+ #endif
  #ifdef PNG_WRITE_SUPPORTED
   #define USE_PNG // Only actually use PNG if write is supported.
   #if defined (PNG_WRITE_APNG_SUPPORTED) //|| !defined(PNG_STATIC)
-  #if (PNG_LIBPNG_VER_MAJOR) == 1 && (PNG_LIBPNG_VER_MINOR <= 4) // Supposedly, the current APNG code can't work on newer versions as is
-  #define USE_APNG
-   #endif
+    #include "apng.h"
+    #define USE_APNG
   #endif
   // See hardware/hw_draw.c for a similar check to this one.
  #endif
@@ -217,6 +215,8 @@ boolean FIL_WriteFile(char const *name, const void *source, size_t length)
 
 	count = fwrite(source, 1, length, handle);
 	fclose(handle);
+
+	I_SyncIDBFS();
 
 	if (count < length)
 		return false;
@@ -519,6 +519,8 @@ void M_SaveConfig(const char *filename)
 	if (!dedicated) G_SaveKeySetting(f);
 
 	fclose(f);
+
+	I_SyncIDBFS();
 }
 
 
@@ -1219,6 +1221,8 @@ void M_DoScreenShot(void)
 #endif
 	}
 
+	I_SyncIDBFS();
+	
 failure:
 	if (ret)
 	{
@@ -1232,8 +1236,10 @@ failure:
 		else
 			CONS_Printf("Couldn't create screen shot (all 10000 slots used!) in %s\n", pathname);
 
+#ifdef HAVE_PNG
 		if (moviemode == MM_SCREENSHOT)
 			M_StopMovie();
+#endif
 	}
 #endif
 }
@@ -1354,6 +1360,7 @@ void M_StopMovie(void)
 		default:
 			return;
 	}
+	I_SyncIDBFS();
 	moviemode = MM_OFF;
 	CONS_Printf("Movie mode disabled.\n");
 #endif

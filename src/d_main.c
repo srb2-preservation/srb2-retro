@@ -100,6 +100,10 @@ int	snprintf(char *str, size_t n, const char *fmt, ...);
 #include "win32/win_main.h" // I_DoStartupMouse
 #endif
 
+#ifdef __EMSCRIPTEN__
+#include <emscripten.h>
+#endif
+
 #ifdef HW3SOUND
 #include "hardware/hw3sound.h"
 #endif
@@ -502,7 +506,11 @@ static void D_Display(void)
 
 		// Only take screenshots after drawing.
 		if (moviemode)
+#ifdef HAVE_PNG
 			M_SaveFrame();
+#else
+			COM_BufAddText("screenshot");
+#endif
 		if (takescreenshot)
 			M_DoScreenShot();
 
@@ -527,12 +535,13 @@ static void D_Display(void)
 // D_SRB2Loop
 // =========================================================================
 
+static void D_RunFrame(void);
 tic_t rendergametic;
 boolean supdate;
+tic_t oldentertics = 0, entertic = 0, realtics = 0, rendertimeout = INFTICS;
 
 void D_SRB2Loop(void)
 {
-	tic_t oldentertics = 0, entertic = 0, realtics = 0, rendertimeout = INFTICS;
 
 	if (demorecording)
 		G_BeginRecording();
@@ -568,8 +577,17 @@ void D_SRB2Loop(void)
 	SCR_SetMode(); // change video mode
 	SCR_Recalc();
 
+#if defined(__EMSCRIPTEN__)
+	emscripten_set_main_loop(D_RunFrame, 0, 1);
+#else
 	for (;;)
 	{
+		D_RunFrame();
+	}
+#endif
+}
+static void D_RunFrame(void)
+{
 		// get real tics
 		entertic = I_GetTime();
 		realtics = entertic - oldentertics;
@@ -586,7 +604,7 @@ void D_SRB2Loop(void)
 		if (!realtics && !singletics)
 		{
 			I_Sleep();
-			continue;
+			return;
 		}
 
 #ifdef HW3SOUND
@@ -637,7 +655,6 @@ void D_SRB2Loop(void)
 		HW3S_EndFrameUpdate();
 #endif
 	}
-}
 
 //
 // D_PageTicker

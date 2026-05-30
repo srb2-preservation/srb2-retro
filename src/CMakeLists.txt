@@ -164,12 +164,18 @@ set(SRB2_CONFIG_HWRENDER ON CACHE BOOL
 set(SRB2_CONFIG_STATIC_OPENGL OFF CACHE BOOL
 	"Use statically linked OpenGL. NOT RECOMMENDED.")
 
-if(${SRB2_CONFIG_HAVE_LIBGME})
-	# ???
+if (CMAKE_SYSTEM_NAME STREQUAL "Emscripten") # disable zlib, png and hardware rendering for web
+	set(SRB2_CONFIG_HAVE_PNG OFF)
+	set(SRB2_CONFIG_HAVE_ZLIB OFF)
+	set(SRB2_CONFIG_HWRENDER OFF)
 endif()
 
 if(${SRB2_CONFIG_HAVE_ZLIB})
-	find_package(ZLIB)
+	if(${CMAKE_SYSTEM} MATCHES Emscripten)
+		set(ZLIB_FOUND ON)
+	else()
+		find_package(ZLIB)
+	endif()
 	if(${ZLIB_FOUND})
 		set(SRB2_HAVE_ZLIB ON)
 	else()
@@ -179,7 +185,11 @@ endif()
 
 if(${SRB2_CONFIG_HAVE_PNG} AND ${SRB2_CONFIG_HAVE_ZLIB})
 	if (${ZLIB_FOUND})
-		find_package(PNG)
+		if(${CMAKE_SYSTEM} MATCHES Emscripten)
+			set(PNG_FOUND ON)
+		else()
+			find_package(PNG)
+		endif()
 		if(${PNG_FOUND})
 			set(SRB2_HAVE_PNG ON)
 			add_definitions(-DHAVE_PNG)

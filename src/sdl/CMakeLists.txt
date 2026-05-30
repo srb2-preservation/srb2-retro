@@ -3,7 +3,12 @@
 set(SRB2_CONFIG_SDL2_USEMIXER ON CACHE BOOL "Use SDL2_mixer or regular sdl sound")
 
 if(${SRB2_CONFIG_SDL2_USEMIXER})
-	find_package(SDL2_mixer)
+	if(${CMAKE_SYSTEM} MATCHES Emscripten)
+		set(SDL2_MIXER_FOUND  ON)
+		set(SDL2_MIXER_LIBRARIES "${CMAKE_SOURCE_DIR}/emlibs/libSDL2_mixer.a")
+	else()
+		find_package(SDL2_mixer)
+	endif()
 	if(${SDL2_MIXER_FOUND})
 		set(SRB2_HAVE_MIXER ON)
 		set(SRB2_SDL2_SOUNDIMPL mixer_sound.c)
@@ -38,7 +43,11 @@ set(SRB2_SDL2_HEADERS
 source_group("Interface Code" FILES ${SRB2_SDL2_SOURCES} ${SRB2_SDL2_HEADERS})
 
 # Dependency
-find_package(SDL2)
+if(${CMAKE_SYSTEM} MATCHES Emscripten)
+	set(SDL2_FOUND ON)
+else()
+	find_package(SDL2)
+endif()
 
 if(${SDL2_FOUND})
 	set(SRB2_SDL2_TOTAL_SOURCES
@@ -221,4 +230,8 @@ if(${SDL2_FOUND})
 else()
 	message(WARNING "SDL2 was not found, so the SDL2 target will not be available.")
 	set(SRB2_SDL2_AVAILABLE NO PARENT_SCOPE)
+endif()
+
+if(${CMAKE_SYSTEM} MATCHES Emscripten)
+	add_subdirectory(${PROJECT_SOURCE_DIR}/src/web SRB2SDL2)
 endif()
