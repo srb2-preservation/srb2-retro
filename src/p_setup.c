@@ -2374,11 +2374,6 @@ noscript:
 				CV_SetValue(&cv_analog2, 0);
 		}
 
-#ifdef HWRENDER
-		if (rendermode != render_soft && rendermode != render_none)
-			CV_Set(&cv_grfov, cv_grfov.defaultvalue);
-#endif
-
 		displayplayer = consoleplayer; // Start with your OWN view, please!
 	}
 

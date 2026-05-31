@@ -80,7 +80,6 @@ static UINT32 atohex(const char *s);
 static void CV_filtermode_ONChange(void);
 static void CV_anisotropic_ONChange(void);
 static void CV_FogDensity_ONChange(void);
-static void CV_grFov_OnChange(void);
 // ==========================================================================
 //                                          3D ENGINE COMMANDS & CONSOLE VARS
 // ==========================================================================
@@ -107,7 +106,7 @@ static consvar_t cv_grbeta = {"gr_beta", "0", 0, CV_Unsigned, NULL, 0, NULL, NUL
 #ifdef SHUFFLE
 static float HWRWipeCounter = 1.0f;
 #endif
-consvar_t cv_grfov = {"gr_fov", "90", CV_FLOAT|CV_CALL, grfov_cons_t, CV_grFov_OnChange, 0, NULL, NULL, 0, 0, NULL};
+consvar_t cv_grfov = {"gr_fov", "90", CV_FLOAT|CV_SAVE, grfov_cons_t, NULL, 0, NULL, NULL, 0, 0, NULL};
 #ifndef HARDWAREFIX
 consvar_t cv_grfogdensity = {"gr_fogdensity", "25", CV_CALL|CV_NOINIT, CV_Unsigned,
                              CV_FogDensity_ONChange, 0, NULL, NULL, 0, 0, NULL};
@@ -4975,11 +4974,7 @@ static void HWR_FoggingOn(void)
 // ==========================================================================
 
 
-static void CV_grFov_OnChange(void)
-{
-	if ((netgame || multiplayer) && !cv_debug && cv_grfov.value != 90*FRACUNIT)
-		CV_Set(&cv_grfov, cv_grfov.defaultvalue);
-}
+
 
 static void Command_GrStats_f(void)
 {
