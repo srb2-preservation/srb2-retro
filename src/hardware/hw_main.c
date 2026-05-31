@@ -42,7 +42,6 @@
 #endif
 
 #include "hw_md2.h"
-#include "../m_random.h"
 
 #define R_FAKEFLOORS
 //#define HWPRECIP
@@ -1971,7 +1970,6 @@ static void HWR_StoreWallRange(double startfrac, double endfrac)
 	if (gr_frontsector && gr_backsector && gr_frontsector->tag != gr_backsector->tag && (gr_backsector->ffloors || gr_frontsector->ffloors))
 	{
 		ffloor_t * rover;
-		ffloor_t * r2;
 		fixed_t    highcut = 0, lowcut = 0;
 
 		highcut = gr_frontsector->ceilingheight < gr_backsector->ceilingheight ? gr_frontsector->ceilingheight : gr_backsector->ceilingheight;
