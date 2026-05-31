@@ -24,7 +24,7 @@
 #include "hw_main.h"
 
 // the original aspect ratio of Doom graphics isn't square
-#define ORIGINAL_ASPECT (320.0f/200.0f)
+#define ORIGINAL_ASPECT ((float)vid.width / (float)vid.height)
 
 // -----------
 // structures
