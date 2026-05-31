@@ -5278,19 +5278,18 @@ void HWR_DoPostProcessor(void)
 	if (stplyr->bonuscount)
 	{
 		FOutVector      v[4];
-		INT32 flags;
 		FSurfaceInfo Surf;
 
-		// Overkill variables! :D
-		v[0].x = v[2].y = v[3].x = v[3].y = -50.0f;
-		v[0].y = v[1].x = v[1].y = v[2].x = 50.0f;
-		v[0].z = v[1].z = v[2].z = v[3].z = 50.0f;
+		v[0].x = v[2].y = v[3].x = v[3].y = -4.0f;
+		v[0].y = v[1].x = v[1].y = v[2].x = 4.0f;
+		v[0].z = v[1].z = v[2].z = v[3].z = 4.0f; // 4.0 because of the same reason as with the sky, just after the screen is cleared so near clipping plane is 3.99
 
-		flags = PF_Modulated | PF_Translucent | PF_Clip | PF_NoZClip | PF_NoDepthTest | PF_NoTexture;
-		Surf.FlatColor.s.red = Surf.FlatColor.s.green = Surf.FlatColor.s.blue = 255;
-		Surf.FlatColor.s.alpha = (UINT8)(stplyr->bonuscount*25);
+		Surf.FlatColor.s.red = Surf.FlatColor.s.green = Surf.FlatColor.s.blue = 0xff;
+		Surf.FlatColor.s.alpha = 0xc0; // match software mode
 
-		HWD.pfnDrawPolygon(&Surf, v, 4, flags);
+		//V_CubeApply(&Surf.FlatColor.s.red, &Surf.FlatColor.s.green, &Surf.FlatColor.s.blue);
+
+		HWD.pfnDrawPolygon(&Surf, v, 4, PF_Modulated|PF_Additive|PF_NoTexture|PF_NoDepthTest);
 	}
 }
 
