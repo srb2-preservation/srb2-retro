@@ -35,6 +35,7 @@
 #include "../w_wad.h"
 #include "../z_zone.h"
 #include "../r_things.h"
+#include "../d_main.h"
 
 #include "hw_main.h"
 
