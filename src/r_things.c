@@ -2384,6 +2384,12 @@ void R_InitSkins(void)
 	// add face/facename graphics (special case: 1 to MAXSKINS-1 handled in R_AddSkins)
 	ST_LoadFaceGraphics(skins[0].faceprefix, skins[0].superprefix, 0);
 	ST_LoadFaceNameGraphics(skins[0].nameprefix, 0);
+
+	//MD2 for sonic doesn't want to load in Linux.
+#ifdef HWRENDER
+	if (rendermode == render_opengl)
+		HWR_AddPlayerMD2(0);
+#endif	
 }
 
 static void R_DoSkinTranslationInit(void)
