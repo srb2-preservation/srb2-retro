@@ -162,7 +162,7 @@ boolean LoadGL(void)
 //                  : doesn't work. (ultimately for different pixel formats, we
 //                  : should close the window, and re-create it)
 // -----------------+
-int SetupPixelFormat(INT32 WantColorBits, INT32 WantStencilBits, INT32 WantDepthBits)
+boolean SetupPixelFormat(INT32 WantColorBits, INT32 WantStencilBits, INT32 WantDepthBits)
 {
 	static DWORD iLastPFD = 0;
 	INT32 nPixelFormat;

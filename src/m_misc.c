@@ -80,10 +80,6 @@
  #endif
  #ifdef PNG_WRITE_SUPPORTED
   #define USE_PNG // Only actually use PNG if write is supported.
-  #if defined (PNG_WRITE_APNG_SUPPORTED) //|| !defined(PNG_STATIC)
-    #include "apng.h"
-    #define USE_APNG
-  #endif
   // See hardware/hw_draw.c for a similar check to this one.
  #endif
 #endif

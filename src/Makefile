@@ -152,6 +152,11 @@ ifdef DJGPPDOS
 include djgppdos/Makefile.cfg
 endif
 
+ifdef MINGW64
+MINGW=1
+NONX86=1
+endif
+
 ifdef MINGW
 include win32/Makefile.cfg
 endif #ifdef MINGW

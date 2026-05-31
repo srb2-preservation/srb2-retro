@@ -2167,20 +2167,20 @@ void I_SleepToTic(tic_t tic)
 		if (frequency.LowPart && QueryPerformanceCounter(&currtime))
 		{
 			untilnexttic = (INT32)((currtime.QuadPart - basetime.QuadPart) * 1000
-				/ frequency.QuadPart % NEWTICRATE);
+				/ frequency.QuadPart % TICRATE);
 		}
 		else if (pfntimeGetTime)
 		{
 			currtime.LowPart = pfntimeGetTime();
 			if (!basetime.LowPart)
 				basetime.LowPart = currtime.LowPart;
-			untilnexttic = ((currtime.LowPart - basetime.LowPart)%(1000/NEWTICRATE));
+			untilnexttic = ((currtime.LowPart - basetime.LowPart)%(1000/TICRATE));
 		}
 	}
 	else
 	{
-		untilnexttic = (GetTickCount() - starttickcount)%(1000/NEWTICRATE);
-		untilnexttic = (1000/NEWTICRATE) - untilnexttic;
+		untilnexttic = (GetTickCount() - starttickcount)%(1000/TICRATE);
+		untilnexttic = (1000/TICRATE) - untilnexttic;
 	}
 
 	// give some extra slack then busy-wait on windows, since windows' sleep is garbage
