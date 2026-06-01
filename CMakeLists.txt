@@ -1,4 +1,4 @@
-cmake_minimum_required(VERSION 3.0)
+cmake_minimum_required(VERSION 3.13)
 project(SRB2
 	VERSION 2.0.7
 	LANGUAGES C)
