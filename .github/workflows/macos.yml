@@ -1,0 +1,46 @@
+name: macOS
+
+on:
+  push:
+    branches: [ "next", "master", "ci" ]
+  pull_request:
+    branches: [ "next", "master" ]
+
+jobs:
+  build:
+    continue-on-error: true
+    strategy:
+      matrix:
+        arch:
+          - runner: macos-latest
+            name: aarch64
+          - runner: macos-15-intel
+            name: x86_64
+
+    name: ${{ matrix.arch.name }}
+    runs-on: ${{ matrix.arch.runner }}
+
+    steps:
+    - uses: actions/checkout@v6.0.1
+
+    - name: Install dependencies
+      run: brew install --formula sdl2 sdl2_mixer
+
+    - name: Clone Assets
+      run: |
+          git clone https://github.com/srb2-preservation/srb2assets -b retro assets/installer/
+          cd assets/installer
+          wget https://github.com/srb2-preservation/srb2assets/raw/refs/heads/retrowad/retro.wad
+          cd ../../
+
+    - name: Configure CMake
+      run: cmake -B build -G Ninja -DCMAKE_BUILD_TYPE=Release -DSRB2_CONFIG_HAVE_PNG=OFF
+
+    - name: Build SRB2 Retro
+      run: ninja -C build
+
+    - name: Upload build artifact
+      uses: actions/upload-artifact@v6.0.0
+      with:
+        name: srb2retro-macOS-${{ matrix.arch.name }}-${{ github.sha }}
+        path: build/bin
