@@ -4712,7 +4712,7 @@ static void HWR_DrawSkyBackground(player_t *player)
 
 	if (angle > ANGLE_180) // Do this because we don't want the sky to suddenly teleport when crossing over 0 to 360 and vice versa
 	{
-		angle = InvAngle(angle);
+		angle = (ANGLE_MAX-angle)+1;
 		v[3].tow = v[2].tow += ((float) angle / angleturn);
 		v[0].tow = v[1].tow += ((float) angle / angleturn);
 	}
