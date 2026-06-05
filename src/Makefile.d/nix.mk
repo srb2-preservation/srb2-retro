@@ -8,7 +8,7 @@ else
 EXENAME?=lsdl2srb2retro
 endif
 
-opts+=-DUNIXCOMMON -DLUA_USE_POSIX
+opts+=-DUNIXCOMMON #-DLUA_USE_POSIX
 libs+=-lm
 
 ifndef nasm_format

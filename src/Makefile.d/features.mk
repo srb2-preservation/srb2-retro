@@ -47,17 +47,17 @@ opts+=-DHAVE_PNG
 endif
 endif
 
-ifndef NONET
-ifndef NOCURL
-CURLCONFIG?=curl-config
-$(eval $(call Configure,CURL,$(CURLCONFIG)))
-opts+=-DHAVE_CURL
-endif
-endif
+#ifndef NONET
+#ifndef NOCURL
+#CURLCONFIG?=curl-config
+#$(eval $(call Configure,CURL,$(CURLCONFIG)))
+#opts+=-DHAVE_CURL
+#endif
+#endif
 
-ifdef HAVE_MINIUPNPC
-libs+=-lminiupnpc
-endif
+#ifdef HAVE_MINIUPNPC
+#libs+=-lminiupnpc
+#endif
 
 # (Valgrind is a memory debugger.)
 ifdef VALGRIND
@@ -68,9 +68,12 @@ ZDEBUG=1
 opts+=-DHAVE_VALGRIND
 endif
 
+#default_packages:=\
+#	GME/libgme/LIBGME\
+#	OPENMPT/libopenmpt/LIBOPENMPT\
+#	ZLIB/zlib\
+
 default_packages:=\
-	GME/libgme/LIBGME\
-	OPENMPT/libopenmpt/LIBOPENMPT\
 	ZLIB/zlib\
 
 $(foreach p,$(default_packages),\
