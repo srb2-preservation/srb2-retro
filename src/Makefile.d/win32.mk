@@ -54,41 +54,41 @@ $(1)_CFLAGS?=$($(1)_opts)
 $(1)_LDFLAGS?=$($(1)_libs)
 endef
 
-lib:=../libs/gme
-LIBGME_opts:=-I$(lib)/include
-LIBGME_libs:=-L$(lib)/win$(32) -lgme
-$(eval $(call _set,LIBGME))
-
-lib:=../libs/libopenmpt
-LIBOPENMPT_opts:=-I$(lib)/inc
-LIBOPENMPT_libs:=-L$(lib)/lib/$(x86)/mingw -lopenmpt
-$(eval $(call _set,LIBOPENMPT))
-
-lib:=../libs/SDL2_mixer/$(mingw)
-
-mixer_opts:=-I$(lib)/include/SDL2
-mixer_libs:=-L$(lib)/lib
-
-lib:=../libs/SDL2/$(mingw)
-SDL_opts:=-I$(lib)/include/SDL2\
-	$(mixer_opts) -Dmain=SDL_main
-SDL_libs:=-L$(lib)/lib $(mixer_libs)\
-	-lmingw32 -lSDL2main -lSDL2 -mwindows
-$(eval $(call _set,SDL))
-
-lib:=../libs/zlib
-ZLIB_opts:=-I$(lib)
-ZLIB_libs:=-L$(lib)/win32 -lz$(32)
-$(eval $(call _set,ZLIB))
-
-ifndef PNG_CONFIG
-lib:=../libs/libpng-src
-PNG_opts:=-I$(lib)
-PNG_libs:=-L$(lib)/projects -lpng$(32)
-$(eval $(call _set,PNG))
-endif
-
-lib:=../libs/curl
-CURL_opts:=-I$(lib)/include
-CURL_libs:=-L$(lib)/lib$(32) -lcurl
-$(eval $(call _set,CURL))
+#lib:=../libs/gme
+#LIBGME_opts:=-I$(lib)/include
+#LIBGME_libs:=-L$(lib)/win$(32) -lgme
+#$(eval $(call _set,LIBGME))
+#
+#lib:=../libs/libopenmpt
+#LIBOPENMPT_opts:=-I$(lib)/inc
+#LIBOPENMPT_libs:=-L$(lib)/lib/$(x86)/mingw -lopenmpt
+#$(eval $(call _set,LIBOPENMPT))
+#
+#lib:=../libs/SDL2_mixer/$(mingw)
+#
+#mixer_opts:=-I$(lib)/include/SDL2
+#mixer_libs:=-L$(lib)/lib
+#
+#lib:=../libs/SDL2/$(mingw)
+#SDL_opts:=-I$(lib)/include/SDL2\
+#	$(mixer_opts) -Dmain=SDL_main
+#SDL_libs:=-L$(lib)/lib $(mixer_libs)\
+#	-lmingw32 -lSDL2main -lSDL2 -mwindows
+#$(eval $(call _set,SDL))
+#
+#lib:=../libs/zlib
+#ZLIB_opts:=-I$(lib)
+#ZLIB_libs:=-L$(lib)/win32 -lz$(32)
+#$(eval $(call _set,ZLIB))
+#
+#ifndef PNG_CONFIG
+#lib:=../libs/libpng-src
+#PNG_opts:=-I$(lib)
+#PNG_libs:=-L$(lib)/projects -lpng$(32)
+#$(eval $(call _set,PNG))
+#endif
+#
+#lib:=../libs/curl
+#CURL_opts:=-I$(lib)/include
+#CURL_libs:=-L$(lib)/lib$(32) -lcurl
+#$(eval $(call _set,CURL))
