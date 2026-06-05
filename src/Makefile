@@ -266,8 +266,10 @@ else # build a normal optimized version
 debug_opts=-DNDEBUG
 opts+=-O3
 ifndef NOLTO
+ifndef MINGW
 opts+=-flto=auto
 libs+=-flto=auto
+endif
 endif
 endif
 
