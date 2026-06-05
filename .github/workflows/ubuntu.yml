@@ -41,5 +41,5 @@ jobs:
       with:
         name: srb2retro-linux-${{ matrix.arch.name }}-${{ github.sha }}
         path: |
-          bin/Linux64/Release
+          bin/
           src/comptime.h
