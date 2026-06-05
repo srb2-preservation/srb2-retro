@@ -46,6 +46,7 @@ else ifdef SOLARIS # FIXME: UNTESTED
 UNIX=1
 platform=solaris
 else ifdef CYGWIN32 # FIXME: UNTESTED
+nasm_format=win32
 platform=cygwin
 else ifdef MINGW
 ifdef MINGW64

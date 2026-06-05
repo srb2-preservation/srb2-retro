@@ -11,6 +11,10 @@ endif
 opts+=-DUNIXCOMMON -DLUA_USE_POSIX
 libs+=-lm
 
+ifndef nasm_format
+nasm_format:=elf -DLINUX
+endif
+
 ifndef NOHW
 opts+=-I/usr/X11R6/include
 libs+=-L/usr/X11R6/lib
