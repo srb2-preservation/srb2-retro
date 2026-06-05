@@ -9,6 +9,7 @@ EXENAME?=srb2retrowin64.exe
 endif
 
 sources+=win32/Srb2win.rc
+sources+=win32/win_dbg.c
 opts+=-DSTDC_HEADERS
 libs+=-ladvapi32 -lkernel32 -lmsvcrt -luser32
 
