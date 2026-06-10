@@ -73,32 +73,94 @@ typedef UINT8 GLRGB[3];
 // Notes            : x,y : positions relative to the original Doom resolution
 //                  : textes(console+score) + menus + status bar
 // -----------------+
-void HWR_DrawPatch(GLPatch_t *gpatch, INT32 x, INT32 y, INT32 option)
+void HWR_DrawPatch(GLPatch_t *gpatch, fixed_t x, fixed_t y, INT32 option)
 {
+	// hack
+	x = x * FRACUNIT;
+	y = y * FRACUNIT;
+
+	fixed_t pscale = FRACUNIT;
 	FOutVector v[4];
 	FBITFIELD flags;
+	float cx = FIXED_TO_FLOAT(x);
+	float cy = FIXED_TO_FLOAT(y);
 
 //  3--2
 //  | /|
 //  |/ |
 //  0--1
-	float sdupx = vid.fdupx*2;
-	float sdupy = vid.fdupy*2;
-	float pdupx = vid.fdupx*2;
-	float pdupy = vid.fdupy*2;
+	float dupx, dupy, fscale, fwidth, fheight;
 
 	// make patch ready in hardware cache
 	HWR_GetPatch(gpatch);
 
-	if (option & V_NOSCALEPATCH)
-		pdupx = pdupy = 2.0f;
-	if (option & V_NOSCALESTART)
-		sdupx = sdupy = 2.0f;
+	dupx = (float)vid.dupx;
+	dupy = (float)vid.dupy;
 
-	v[0].x = v[3].x = (x*sdupx-gpatch->leftoffset*pdupx)/vid.width - 1;
-	v[2].x = v[1].x = (x*sdupx+(gpatch->width-gpatch->leftoffset)*pdupx)/vid.width - 1;
-	v[0].y = v[1].y = 1-(y*sdupy-gpatch->topoffset*pdupy)/vid.height;
-	v[2].y = v[3].y = 1-(y*sdupy+(gpatch->height-gpatch->topoffset)*pdupy)/vid.height;
+	if (option & V_NOSCALEPATCH)
+		dupx = dupy = 1.0f;
+
+	dupx = dupy = (dupx < dupy ? dupx : dupy);
+	fscale = FIXED_TO_FLOAT(pscale);
+
+	cy -= (float)gpatch->topoffset * fscale;
+	cx -= (float)gpatch->leftoffset * fscale;
+
+	if (!(option & V_NOSCALESTART))
+	{
+		cx = cx * dupx;
+		cy = cy * dupy;
+
+		// centre screen
+		if (vid.width != BASEVIDWIDTH * vid.dupx)
+		{
+			if (option & V_SNAPTORIGHT)
+				cx += ((float)vid.width - ((float)BASEVIDWIDTH * dupx));
+			else if (!(option & V_SNAPTOLEFT))
+				cx += ((float)vid.width - ((float)BASEVIDWIDTH * dupx))/2;
+		}
+		if (vid.height != BASEVIDHEIGHT * vid.dupy)
+		{
+			if (option & V_SNAPTOBOTTOM)
+				cy += ((float)vid.height - ((float)BASEVIDHEIGHT * dupy));
+			else if (!(option & V_SNAPTOTOP))
+				cy += ((float)vid.height - ((float)BASEVIDHEIGHT * dupy))/2;
+		}
+		// if it's meant to cover the whole screen, black out the rest
+		// TODO
+		/*if (x == 0 && SHORT(gpatch->width) == BASEVIDWIDTH && y == 0 && SHORT(gpatch->height) == BASEVIDHEIGHT)
+		{
+			const column_t *column = (const column_t *)((const UINT8 *)((patch_t *)gpatch) + LONG(((patch_t *)gpatch)->columnofs[0]));
+			const UINT8 *source = (const UINT8 *)(column) + 3;
+			HWR_DrawFill(0, 0, BASEVIDWIDTH, BASEVIDHEIGHT, (column->topdelta == 0xff ? 31 : source[0]));
+		}*/
+	}
+
+	if (pscale != FRACUNIT)
+	{
+		fwidth = (float)gpatch->width * fscale * dupx;
+		fheight = (float)gpatch->height * fscale * dupy;
+	}
+	else
+	{
+		fwidth = (float)gpatch->width * dupx;
+		fheight = (float)gpatch->height * dupy;
+	}
+
+	// positions of the cx, cy, are between 0 and vid.width/vid.height now, we need them to be between -1 and 1
+	cx = -1 + (cx / (vid.width/2));
+	cy = 1 - (cy / (vid.height/2));
+
+	// fwidth and fheight are similar
+	fwidth /= vid.width / 2;
+	fheight /= vid.height / 2;
+
+	// set the polygon vertices to the right positions
+	v[0].x = v[3].x = cx;
+	v[2].x = v[1].x = cx + fwidth;
+
+	v[0].y = v[1].y = cy;
+	v[2].y = v[3].y = cy - fheight;
 
 	v[0].z = v[1].z = v[2].z = v[3].z = 1.0f;
 
@@ -193,26 +255,92 @@ void HWR_DrawTranslucentPatch (GLPatch_t *gpatch, INT32 x, INT32 y, INT32 option
 // Draws a patch 2x as small SSNTails 06-10-2003
 void HWR_DrawSmallPatch (GLPatch_t *gpatch, INT32 x, INT32 y, INT32 option, const UINT8 *colormap)
 {
-	FOutVector      v[4];
-	FBITFIELD flags;
+	// hack
+	x = x * FRACUNIT;
+	y = y * FRACUNIT;
 
-	float sdupx = vid.fdupx;
-	float sdupy = vid.fdupy;
-	float pdupx = vid.fdupx;
-	float pdupy = vid.fdupy;
+	fixed_t pscale = FRACUNIT/2;
+	FOutVector v[4];
+	FBITFIELD flags;
+	float cx = FIXED_TO_FLOAT(x);
+	float cy = FIXED_TO_FLOAT(y);
+
+//  3--2
+//  | /|
+//  |/ |
+//  0--1
+	float dupx, dupy, fscale, fwidth, fheight;
 
 	// make patch ready in hardware cache
 	HWR_GetMappedPatch (gpatch, colormap);
 
-	if (option & V_NOSCALEPATCH)
-		pdupx = pdupy = 2.0f;
-	if (option & V_NOSCALESTART)
-		sdupx = sdupy = 2.0f;
+	dupx = (float)vid.dupx;
+	dupy = (float)vid.dupy;
 
-	v[0].x = v[3].x = (x*sdupx-gpatch->leftoffset*pdupx)/vid.width - 1;
-	v[2].x = v[1].x = (x*sdupx+(gpatch->width-gpatch->leftoffset)*pdupx)/vid.width - 1;
-	v[0].y = v[1].y = 1-(y*sdupy-gpatch->topoffset*pdupy)/vid.height;
-	v[2].y = v[3].y = 1-(y*sdupy+(gpatch->height-gpatch->topoffset)*pdupy)/vid.height;
+	if (option & V_NOSCALEPATCH)
+		dupx = dupy = 1.0f;
+
+	dupx = dupy = (dupx < dupy ? dupx : dupy);
+	fscale = FIXED_TO_FLOAT(pscale);
+
+	cy -= (float)gpatch->topoffset * fscale;
+	cx -= (float)gpatch->leftoffset * fscale;
+
+	if (!(option & V_NOSCALESTART))
+	{
+		cx = cx * dupx;
+		cy = cy * dupy;
+
+		// centre screen
+		if (vid.width != BASEVIDWIDTH * vid.dupx)
+		{
+			if (option & V_SNAPTORIGHT)
+				cx += ((float)vid.width - ((float)BASEVIDWIDTH * dupx));
+			else if (!(option & V_SNAPTOLEFT))
+				cx += ((float)vid.width - ((float)BASEVIDWIDTH * dupx))/2;
+		}
+		if (vid.height != BASEVIDHEIGHT * vid.dupy)
+		{
+			if (option & V_SNAPTOBOTTOM)
+				cy += ((float)vid.height - ((float)BASEVIDHEIGHT * dupy));
+			else if (!(option & V_SNAPTOTOP))
+				cy += ((float)vid.height - ((float)BASEVIDHEIGHT * dupy))/2;
+		}
+		// if it's meant to cover the whole screen, black out the rest
+		// TODO
+		/*if (x == 0 && SHORT(gpatch->width) == BASEVIDWIDTH && y == 0 && SHORT(gpatch->height) == BASEVIDHEIGHT)
+		{
+			const column_t *column = (const column_t *)((const UINT8 *)((patch_t *)gpatch) + LONG(((patch_t *)gpatch)->columnofs[0]));
+			const UINT8 *source = (const UINT8 *)(column) + 3;
+			HWR_DrawFill(0, 0, BASEVIDWIDTH, BASEVIDHEIGHT, (column->topdelta == 0xff ? 31 : source[0]));
+		}*/
+	}
+
+	if (pscale != FRACUNIT)
+	{
+		fwidth = (float)gpatch->width * fscale * dupx;
+		fheight = (float)gpatch->height * fscale * dupy;
+	}
+	else
+	{
+		fwidth = (float)gpatch->width * dupx;
+		fheight = (float)gpatch->height * dupy;
+	}
+
+	// positions of the cx, cy, are between 0 and vid.width/vid.height now, we need them to be between -1 and 1
+	cx = -1 + (cx / (vid.width/2));
+	cy = 1 - (cy / (vid.height/2));
+
+	// fwidth and fheight are similar
+	fwidth /= vid.width / 2;
+	fheight /= vid.height / 2;
+
+	// set the polygon vertices to the right positions
+	v[0].x = v[3].x = cx;
+	v[2].x = v[1].x = cx + fwidth;
+
+	v[0].y = v[1].y = cy;
+	v[2].y = v[3].y = cy - fheight;
 
 	v[0].z = v[1].z = v[2].z = v[3].z = 1.0f;
 
@@ -221,7 +349,7 @@ void HWR_DrawSmallPatch (GLPatch_t *gpatch, INT32 x, INT32 y, INT32 option, cons
 	v[0].tow = v[1].tow = 0.0f;
 	v[2].tow = v[3].tow = gpatch->max_t;
 
-	flags = BLENDMODE | PF_Clip | PF_NoZClip | PF_NoDepthTest;
+	flags = BLENDMODE|PF_Clip|PF_NoZClip|PF_NoDepthTest;
 
 	if (option & V_WRAPX)
 		flags |= PF_ForceWrapX;
@@ -246,26 +374,92 @@ void HWR_DrawSmallPatch (GLPatch_t *gpatch, INT32 x, INT32 y, INT32 option, cons
 //
 void HWR_DrawMappedPatch (GLPatch_t *gpatch, INT32 x, INT32 y, INT32 option, const UINT8 *colormap)
 {
-	FOutVector      v[4];
-	FBITFIELD flags;
+	// hack
+	x = x * FRACUNIT;
+	y = y * FRACUNIT;
 
-	float sdupx = vid.fdupx*2;
-	float sdupy = vid.fdupy*2;
-	float pdupx = vid.fdupx*2;
-	float pdupy = vid.fdupy*2;
+	fixed_t pscale = FRACUNIT;
+	FOutVector v[4];
+	FBITFIELD flags;
+	float cx = FIXED_TO_FLOAT(x);
+	float cy = FIXED_TO_FLOAT(y);
+
+//  3--2
+//  | /|
+//  |/ |
+//  0--1
+	float dupx, dupy, fscale, fwidth, fheight;
 
 	// make patch ready in hardware cache
 	HWR_GetMappedPatch (gpatch, colormap);
 
-	if (option & V_NOSCALEPATCH)
-		pdupx = pdupy = 2.0f;
-	if (option & V_NOSCALESTART)
-		sdupx = sdupy = 2.0f;
+	dupx = (float)vid.dupx;
+	dupy = (float)vid.dupy;
 
-	v[0].x = v[3].x = (x*sdupx-gpatch->leftoffset*pdupx)/vid.width - 1;
-	v[2].x = v[1].x = (x*sdupx+(gpatch->width-gpatch->leftoffset)*pdupx)/vid.width - 1;
-	v[0].y = v[1].y = 1-(y*sdupy-gpatch->topoffset*pdupy)/vid.height;
-	v[2].y = v[3].y = 1-(y*sdupy+(gpatch->height-gpatch->topoffset)*pdupy)/vid.height;
+	if (option & V_NOSCALEPATCH)
+		dupx = dupy = 1.0f;
+
+	dupx = dupy = (dupx < dupy ? dupx : dupy);
+	fscale = FIXED_TO_FLOAT(pscale);
+
+	cy -= (float)gpatch->topoffset * fscale;
+	cx -= (float)gpatch->leftoffset * fscale;
+
+	if (!(option & V_NOSCALESTART))
+	{
+		cx = cx * dupx;
+		cy = cy * dupy;
+
+		// centre screen
+		if (vid.width != BASEVIDWIDTH * vid.dupx)
+		{
+			if (option & V_SNAPTORIGHT)
+				cx += ((float)vid.width - ((float)BASEVIDWIDTH * dupx));
+			else if (!(option & V_SNAPTOLEFT))
+				cx += ((float)vid.width - ((float)BASEVIDWIDTH * dupx))/2;
+		}
+		if (vid.height != BASEVIDHEIGHT * vid.dupy)
+		{
+			if (option & V_SNAPTOBOTTOM)
+				cy += ((float)vid.height - ((float)BASEVIDHEIGHT * dupy));
+			else if (!(option & V_SNAPTOTOP))
+				cy += ((float)vid.height - ((float)BASEVIDHEIGHT * dupy))/2;
+		}
+		// if it's meant to cover the whole screen, black out the rest
+		// TODO
+		/*if (x == 0 && SHORT(gpatch->width) == BASEVIDWIDTH && y == 0 && SHORT(gpatch->height) == BASEVIDHEIGHT)
+		{
+			const column_t *column = (const column_t *)((const UINT8 *)((patch_t *)gpatch) + LONG(((patch_t *)gpatch)->columnofs[0]));
+			const UINT8 *source = (const UINT8 *)(column) + 3;
+			HWR_DrawFill(0, 0, BASEVIDWIDTH, BASEVIDHEIGHT, (column->topdelta == 0xff ? 31 : source[0]));
+		}*/
+	}
+
+	if (pscale != FRACUNIT)
+	{
+		fwidth = (float)gpatch->width * fscale * dupx;
+		fheight = (float)gpatch->height * fscale * dupy;
+	}
+	else
+	{
+		fwidth = (float)gpatch->width * dupx;
+		fheight = (float)gpatch->height * dupy;
+	}
+
+	// positions of the cx, cy, are between 0 and vid.width/vid.height now, we need them to be between -1 and 1
+	cx = -1 + (cx / (vid.width/2));
+	cy = 1 - (cy / (vid.height/2));
+
+	// fwidth and fheight are similar
+	fwidth /= vid.width / 2;
+	fheight /= vid.height / 2;
+
+	// set the polygon vertices to the right positions
+	v[0].x = v[3].x = cx;
+	v[2].x = v[1].x = cx + fwidth;
+
+	v[0].y = v[1].y = cy;
+	v[2].y = v[3].y = cy - fheight;
 
 	v[0].z = v[1].z = v[2].z = v[3].z = 1.0f;
 
@@ -274,7 +468,7 @@ void HWR_DrawMappedPatch (GLPatch_t *gpatch, INT32 x, INT32 y, INT32 option, con
 	v[0].tow = v[1].tow = 0.0f;
 	v[2].tow = v[3].tow = gpatch->max_t;
 
-	flags = BLENDMODE | PF_Clip | PF_NoZClip | PF_NoDepthTest;
+	flags = BLENDMODE|PF_Clip|PF_NoZClip|PF_NoDepthTest;
 
 	if (option & V_WRAPX)
 		flags |= PF_ForceWrapX;
