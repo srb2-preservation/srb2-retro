@@ -623,12 +623,12 @@ void HWR_DrawFlatFill (INT32 x, INT32 y, INT32 w, INT32 h, lumpnum_t flatlumpnum
 	v[0].z = v[1].z = v[2].z = v[3].z = 1.0f;
 
     // sides
-	v[0].sow = v[3].sow = (float)(flatflag/dflatsize) * 2;
-	v[2].sow = v[1].sow = (float)(v[0].sow + w/dflatsize) * 2;
+	v[0].sow = v[3].sow = (float)(flatflag/dflatsize);
+	v[2].sow = v[1].sow = (float)(v[0].sow + w/dflatsize);
 
     // top/bottom
-	v[0].tow = v[1].tow = (float)(flatflag/dflatsize) * 2;
-	v[2].tow = v[3].tow = (float)(v[0].tow + h/dflatsize) * 2;
+	v[0].tow = v[1].tow = (float)(flatflag/dflatsize);
+	v[2].tow = v[3].tow = (float)(v[0].tow + h/dflatsize);
 
     // needed to texture the poly
 	HWR_GetFlat(flatlumpnum);
