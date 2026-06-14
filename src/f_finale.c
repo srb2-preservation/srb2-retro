@@ -1103,56 +1103,38 @@ static void F_IntroTextWrite(void)
 //
 // F_DrawPatchCol
 //
-static void F_DrawPatchCol(INT32 x, patch_t *patch, INT32 col, INT32 yrepeat)
+static void F_DrawPatchCol(INT32 x, patch_t *patch, INT32 col)
 {
 	const column_t *column;
 	const UINT8 *source;
 	UINT8 *desttop, *dest = NULL;
-	const UINT8 *deststop;
+	const UINT8 *deststop, *destbottom;
 	size_t count;
 
-	column = (column_t *)((UINT8 *)patch + LONG(patch->columnofs[col]));
 	desttop = screens[0] + x*vid.dupx;
-	deststop = screens[0] + vid.width * vid.height * vid.bpp;
+	deststop = screens[0] + vid.rowbytes * vid.height;
+	destbottom = desttop + vid.height*vid.width;
 
-	// step through the posts in a column
-	while (column->topdelta != 0xff)
-	{
-		source = (const UINT8 *)column + 3;
-		dest = desttop + column->topdelta*vid.width;
-		count = column->length;
-
-		while (count--)
-		{
-			INT32 dupycount = vid.dupy;
-
-			while (dupycount--)
-			{
-				INT32 dupxcount = vid.dupx;
-				while (dupxcount-- && dest <= deststop)
-					*dest++ = *source;
-
-				dest += (vid.width - vid.dupx);
-			}
-			source++;
-		}
-		column = (const column_t *)((const UINT8 *)column + column->length + 4);
-	}
-
-	// repeat a second time, for yrepeat number of pixels
-	if (yrepeat)
-	{
+	do {
+		INT32 topdelta, prevdelta = -1;
 		column = (column_t *)((UINT8 *)patch + LONG(patch->columnofs[col]));
+
+		// step through the posts in a column
 		while (column->topdelta != 0xff)
 		{
+			topdelta = column->topdelta;
+			if (topdelta <= prevdelta)
+				topdelta += prevdelta;
+			prevdelta = topdelta;
 			source = (const UINT8 *)column + 3;
+			dest = desttop + topdelta*vid.width;
 			count = column->length;
 
 			while (count--)
 			{
 				INT32 dupycount = vid.dupy;
 
-				while (dupycount--)
+				while (dupycount-- && dest < destbottom)
 				{
 					INT32 dupxcount = vid.dupx;
 					while (dupxcount-- && dest <= deststop)
@@ -1162,12 +1144,13 @@ static void F_DrawPatchCol(INT32 x, patch_t *patch, INT32 col, INT32 yrepeat)
 				}
 				source++;
 			}
-			if (!--yrepeat)
-				break;
 			column = (const column_t *)((const UINT8 *)column + column->length + 4);
 		}
-	}
+
+		desttop += SHORT(patch->height)*vid.dupy*vid.width;
+	} while(dest < destbottom);
 }
+
 
 //
 // F_SkyScroll
@@ -1179,43 +1162,31 @@ static void F_SkyScroll(void)
 
 	pat = W_CachePatchName("TITLESKY", PU_CACHE);
 
-	animtimer = ((finalecount*((gamestate == GS_INTRO || gamestate == GS_INTRO2) ? titlescrollspeed*4 : titlescrollspeed))/16) % SHORT(pat->width);
+	animtimer = ((finalecount*titlescrollspeed)/16) % SHORT(pat->width);
 
 	fakedwidth = vid.width / vid.dupx;
 
 	if (rendermode == render_soft)
-	{
-		INT32 yr = 0;
-
-		if (vid.fdupy > vid.dupy)
-			yr = vid.height - vid.dupy*SHORT(pat->height);
-
-		scrolled = BASEVIDWIDTH - animtimer;
-		if (scrolled > BASEVIDWIDTH)
-			scrolled = BASEVIDWIDTH;
-		if (scrolled < 0)
-			scrolled = 0;
-		for (x = 0, mx = 0; x < fakedwidth; x++, mx++)
-		{
-			if (mx >= SHORT(pat->width))
-				mx = 0;
-
-			if (mx + scrolled < SHORT(pat->width))
-				F_DrawPatchCol(x, pat, mx + scrolled, yr);
-			else
-				F_DrawPatchCol(x, pat, mx + scrolled - SHORT(pat->width), yr);
-		}
+	{ // if only hardware rendering could be this elegant and complete
+		scrolled = (SHORT(pat->width) - animtimer) - 1;
+		for (x = 0, mx = scrolled; x < fakedwidth; x++, mx = (mx+1)%SHORT(pat->width))
+			F_DrawPatchCol(x, pat, mx);
 	}
 #ifdef HWRENDER
 	else if (rendermode != render_none)
-	{ // I wish it were as easy as this for software. I really do.
-		scrolled = animtimer;
-		if (scrolled > 0)
-			V_DrawScaledPatch(scrolled - SHORT(pat->width), 0, 0, pat);
-		while(scrolled < BASEVIDWIDTH)
+	{ // if only software rendering could be this simple and retarded
+		INT32 dupz = (vid.dupx < vid.dupy ? vid.dupx : vid.dupy);
+		INT32 y, pw = SHORT(pat->width) * dupz, ph = SHORT(pat->height) * dupz;
+		scrolled = animtimer * dupz;
+		for (x = 0; x < vid.width; x += pw)
 		{
-			V_DrawScaledPatch(scrolled, 0, 0, pat);
-			scrolled += SHORT(pat->width);
+			for (y = 0; y < vid.height; y += ph)
+			{
+				if (scrolled > 0)
+					V_DrawScaledPatch(scrolled - pw, y, V_NOSCALESTART, pat);
+
+				V_DrawScaledPatch(x + scrolled, y, V_NOSCALESTART, pat);
+			}
 		}
 	}
 #endif
