@@ -216,6 +216,44 @@ static void M_DrawMenuTitle(void)
 	}
 }
 
+// proto
+emblem_t *M_GetLevelEmblem(INT32 mapnum, INT32 player);
+
+static void M_DrawPauseMenu(void)
+{
+	char names[8], hours[4], minutes[4], seconds[4];
+	INT32 j;
+	emblem_t *emblem;
+
+	M_DrawTextBox(27, 16, 32, 6);
+	M_DrawGenericMenu();
+
+	if (mapheaderinfo[gamemap-1].actnum != 0)
+		V_DrawString(40, 28, V_YELLOWMAP, va("%s %d", mapheaderinfo[gamemap-1].lvlttl, mapheaderinfo[gamemap-1].actnum));
+	else
+		V_DrawString(40, 28, V_YELLOWMAP, mapheaderinfo[gamemap-1].lvlttl);
+
+	sprintf(names, "%c %c %c", skins[0].name[0], skins[1].name[0], skins[2].name[0]);
+	V_DrawString(250, 24, 0, names);
+
+	for (j = 0;j < 3;j++)
+	{
+		emblem = M_GetLevelEmblem(gamemap, j);
+		if (emblem)
+			V_DrawScaledPatch(248 + (j * 12), 32, 0, W_CachePatchName((emblem->collected) ? "GOTIT" : "NEEDIT", PU_CACHE));
+	}
+
+	if (timedata[gamemap-1].time)
+	{
+		sprintf(minutes, "%02i", G_TicsToMinutes(timedata[gamemap-1].time, true));
+		sprintf(seconds, "%02i", G_TicsToSeconds(timedata[gamemap-1].time));
+		sprintf(hours, "%02i", G_TicsToCentiseconds(timedata[gamemap-1].time));
+
+		V_DrawString(40, 40, V_YELLOWMAP, "Best Time Attack:");
+		V_DrawRightAlignedString(284, 40, 0, va("%s:%s:%s", minutes,seconds,hours));
+	}
+}
+
 void M_DrawGenericMenu(void)
 {
 	INT32 x, y, i, cursory = 0;
@@ -456,6 +494,9 @@ static inline size_t M_StringHeight(const char *string)
 
 static void M_QuitSRB2(INT32 choice);
 static void M_OptionsMenu(INT32 choice);
+static void M_Options(INT32 choice);
+static void M_SelectableClearMenus(INT32 choice);
+static void M_Retry(INT32 choice);
 static void M_SecretsMenu(INT32 choice);
 static void M_CustomSecretsMenu(INT32 choice);
 static void M_MapChange(INT32 choice);
@@ -494,6 +535,42 @@ static menuitem_t MainMenu[] =
 	{IT_CALL    | IT_STRING, NULL, "quit  game"       , M_QuitSRB2,           116},
 };
 
+// ---------------------
+// Pause Menu MP Edition
+// ---------------------
+static menuitem_t MPauseMenu[] =
+{
+	{IT_STRING  | IT_CALL,   NULL, "Scramble Teams...",    M_TeamScramble,  	  16},
+	{IT_STRING  | IT_CALL,   NULL, "Switch Map...",        M_MapChange,     	  24},
+
+	{IT_CALL | IT_STRING,    NULL, "Continue",             M_SelectableClearMenus,40},
+
+	{IT_STRING | IT_CALL,    NULL, "Spectate",             M_ConfirmSpectate,     48},
+//	{IT_STRING | IT_CALL,    NULL, "Enter Game",           M_ConfirmEnterGame,    48},
+	{IT_STRING | IT_CALL,    NULL, "Switch Team...",       M_TeamChange,   		  48},
+	{IT_CALL | IT_SUBMENU,   NULL, "Player Setup",         &SetupMultiPlayerDef,  56}, // alone
+	{IT_CALL | IT_STRING,    NULL, "Options",              M_Options,             64},
+
+	{IT_CALL | IT_STRING,    NULL, "Return to Title",      M_EndGame,             80},
+	{IT_CALL | IT_STRING,    NULL, "Quit Game",            M_QuitSRB2,            88},
+};
+
+// ---------------------
+// Pause Menu SP Edition
+// ---------------------
+static menuitem_t SPauseMenu[] =
+{
+	// Pandora's Box (secrets) will be shifted up if both options are available
+	{IT_CALL | IT_SUBMENU,   NULL, "Secrets...",           &SecretsDef,           32},
+
+	{IT_CALL | IT_STRING,    NULL, "Continue",             M_SelectableClearMenus,48},
+	{IT_CALL | IT_STRING,    NULL, "Retry",                M_Retry,               56},
+	{IT_CALL | IT_STRING,    NULL, "Options",              M_Options,             64},
+
+	{IT_CALL | IT_STRING,    NULL, "Return to Title",      M_EndGame,             80},
+	{IT_CALL | IT_STRING,    NULL, "Quit Game",            M_QuitSRB2,            88},
+};
+
 menu_t MainDef =
 {
 	NULL,
@@ -503,6 +580,32 @@ menu_t MainDef =
 	MainMenu,
 	M_DrawCenteredMenu,
 	BASEVIDWIDTH/2, 72,
+	0,
+	NULL
+};
+
+menu_t SPauseDef =
+{
+	NULL,
+	NULL,
+	sizeof(SPauseMenu)/sizeof(menuitem_t),\
+	NULL,
+	SPauseMenu,
+	M_DrawPauseMenu,
+	40, 72,
+	0,
+	NULL
+};
+
+menu_t MPauseDef =
+{
+	NULL,
+	NULL,
+	sizeof(MPauseMenu)/sizeof(menuitem_t),\
+	NULL,
+	MPauseMenu,
+	M_DrawPauseMenu,
+	40, 72,
 	0,
 	NULL
 };
@@ -4123,7 +4226,7 @@ static void M_Stats4(INT32 choice)
 // for that level, and exists for that player.
 // NULL if not found.
 //
-static emblem_t *M_GetLevelEmblem(INT32 mapnum, INT32 player)
+emblem_t *M_GetLevelEmblem(INT32 mapnum, INT32 player)
 {
 	INT32 i;
 
@@ -5163,6 +5266,41 @@ static void M_OptionsMenu(INT32 choice)
 {
 	(void)choice;
 	M_SetupNextMenu (&OptionsDef);
+}
+
+static void M_Options(INT32 choice)
+{
+	(void)choice;
+	OptionsDef.prevMenu = currentMenu;
+	M_SetupNextMenu(&OptionsDef);
+}
+
+static void M_RetryResponse(INT32 ch)
+{
+	if (ch != 'y' && ch != KEY_ENTER)
+		return;
+
+	if (!&players[consoleplayer] || netgame || multiplayer) // Should never happen!
+		return;
+
+	players[consoleplayer].lives -= 1;
+	if (cv_resetmusic.value) // Reset Music hack?
+		S_StopMusic();
+
+	M_ClearMenus(true);
+	G_DoReborn(consoleplayer);
+}
+
+static void M_Retry(INT32 choice)
+{
+	(void)choice;
+	M_StartMessage(M_GetText("Retry this act from the last starpost?\n\n(Press 'Y' to confirm)\n"),M_RetryResponse,MM_YESNO);
+}
+
+static void M_SelectableClearMenus(INT32 choice)
+{
+	(void)choice;
+	M_ClearMenus(true);
 }
 
 FUNCNORETURN static ATTRNORETURN void M_UltimateCheat(INT32 choice)
@@ -8658,8 +8796,11 @@ void M_StartControlPanel(void)
 	else
 		MainMenu[secrets].itemaction = M_SecretsMenu;
 
-	currentMenu = &MainDef;
-	itemOn = singleplr;
+	if (netgame || multiplayer)
+		currentMenu = &MPauseDef;
+	else
+		currentMenu = &SPauseDef;
+	itemOn = 2;
 
 	//CON_ToggleOff(); // move away console
 
