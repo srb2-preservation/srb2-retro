@@ -248,12 +248,10 @@ void SCR_Startup(void)
 
 	vid.modenum = 0;
 
-	vid.dupx = vid.width / BASEVIDWIDTH;
-	vid.dupy = vid.height / BASEVIDHEIGHT;
-	vid.dupx = vid.dupy = (vid.dupx < vid.dupy ? vid.dupx : vid.dupy);
-	vid.fdupx = FixedDiv(vid.width*FRACUNIT, BASEVIDWIDTH*FRACUNIT)/FRACUNIT;
-	vid.fdupy = FixedDiv(vid.height*FRACUNIT, BASEVIDHEIGHT*FRACUNIT)/FRACUNIT;
-	vid.fdupx = vid.fdupy = (vid.fdupx < vid.fdupy ? vid.fdupx : vid.fdupy);
+	vid.fdupx = (float)vid.width/BASEVIDWIDTH;
+	vid.fdupy = (float)vid.height/BASEVIDHEIGHT;
+	vid.dupx = (INT32)vid.fdupx;
+	vid.dupy = (INT32)vid.fdupy;
 
 	vid.baseratio = FRACUNIT;
 
@@ -285,10 +283,10 @@ void SCR_Recalc(void)
 	vid.dupx = vid.width / BASEVIDWIDTH;
 	vid.dupy = vid.height / BASEVIDHEIGHT;
 	vid.dupx = vid.dupy = (vid.dupx < vid.dupy ? vid.dupx : vid.dupy);
-	vid.fdupx = FixedDiv(vid.width*FRACUNIT, BASEVIDWIDTH*FRACUNIT)/FRACUNIT;
-	vid.fdupy = FixedDiv(vid.height*FRACUNIT, BASEVIDHEIGHT*FRACUNIT)/FRACUNIT;
-	vid.baseratio = FixedDiv(vid.height << FRACBITS, BASEVIDHEIGHT << FRACBITS);
 	vid.fdupx = vid.fdupy = (vid.fdupx < vid.fdupy ? vid.fdupx : vid.fdupy);
+	vid.fdupx = (float)vid.width / BASEVIDWIDTH;
+	vid.fdupy = (float)vid.height / BASEVIDHEIGHT;
+	vid.baseratio = FixedDiv(vid.height << FRACBITS, BASEVIDHEIGHT << FRACBITS);
 
 	// patch the asm code depending on vid buffer rowbytes
 #ifdef RUSEASM
