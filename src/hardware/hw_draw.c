@@ -76,8 +76,8 @@ typedef UINT8 GLRGB[3];
 void HWR_DrawPatch(GLPatch_t *gpatch, fixed_t x, fixed_t y, INT32 option)
 {
 	// hack
-	x = x * FRACUNIT;
-	y = y * FRACUNIT;
+	x <<= FRACBITS;
+	y <<= FRACBITS;
 
 	fixed_t pscale = FRACUNIT;
 	FOutVector v[4];
@@ -256,8 +256,8 @@ void HWR_DrawTranslucentPatch (GLPatch_t *gpatch, INT32 x, INT32 y, INT32 option
 void HWR_DrawSmallPatch (GLPatch_t *gpatch, INT32 x, INT32 y, INT32 option, const UINT8 *colormap)
 {
 	// hack
-	x = x * FRACUNIT;
-	y = y * FRACUNIT;
+	x <<= FRACBITS;
+	y <<= FRACBITS;
 
 	fixed_t pscale = FRACUNIT/2;
 	FOutVector v[4];
@@ -375,8 +375,8 @@ void HWR_DrawSmallPatch (GLPatch_t *gpatch, INT32 x, INT32 y, INT32 option, cons
 void HWR_DrawMappedPatch (GLPatch_t *gpatch, INT32 x, INT32 y, INT32 option, const UINT8 *colormap)
 {
 	// hack
-	x = x * FRACUNIT;
-	y = y * FRACUNIT;
+	x <<= FRACBITS;
+	y <<= FRACBITS;
 
 	fixed_t pscale = FRACUNIT;
 	FOutVector v[4];
