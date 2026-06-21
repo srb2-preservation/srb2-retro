@@ -17,6 +17,7 @@
 /// \brief Load dehacked file and change tables and text
 
 #include "doomdef.h"
+#include "d_main.h" // for srb2home
 #include "g_game.h"
 #include "sounds.h"
 #include "info.h"
@@ -1861,6 +1862,9 @@ static void readmaincfg(MYFILE *f)
 
 				strncpy(savegamename, timeattackfolder, sizeof (timeattackfolder));
 				strlcat(savegamename, "%u.ssg", sizeof(savegamename));
+				// can't use sprintf since there is %u in savegamename
+				strcatbf(savegamename, srb2home, PATHSEP);
+
 
 				reload = true;
 			}

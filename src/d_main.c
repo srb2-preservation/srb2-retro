@@ -154,6 +154,7 @@ char srb2path[256] = "/cd";
 char srb2home[256] = ".";
 char srb2path[256] = ".";
 #endif
+char savegamename[256];
 boolean usehome = true;
 const char *pandf = "%s" PATHSEP "%s";
 

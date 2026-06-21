@@ -23,7 +23,7 @@
 /*
 Character reference for future "Spanish Mode"
 
-á, é, í, ó, ú, ñ, ¿, ¡
+ï¿½, ï¿½, ï¿½, ï¿½, ï¿½, ï¿½, ï¿½, ï¿½
 */
 
 //
@@ -566,4 +566,4 @@ if that explosion I saw is anything to go by."
 	"Sonic Robo Blast 2:" VERSIONSTRING, //SPECIALDEHACKED
 };
 
-char savegamename[256];
+
