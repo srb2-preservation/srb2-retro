@@ -852,12 +852,6 @@ void V_DrawSmallScaledPatch(INT32 x, INT32 y, INT32 scrn, patch_t *patch)
 	// draw a hardware converted patch
 	if (rendermode != render_soft && rendermode != render_none)
 	{
-		if (!(scrn & V_NOSCALESTART)) // Graue 07-08-2004: I have no idea why this works
-		{
-			x = (INT32)(vid.fdupx*x);
-			y = (INT32)(vid.fdupy*y);
-			scrn |= V_NOSCALESTART;
-		}
 		HWR_DrawSmallPatch((GLPatch_t *)patch, x, y, scrn, colormaps);
 		return;
 	}
@@ -1015,12 +1009,6 @@ void V_DrawSmallTranslucentMappedPatch(INT32 x, INT32 y, INT32 scrn, patch_t *pa
 	// draw a hardware converted patch
 	if (rendermode != render_soft && rendermode != render_none)
 	{
-		if (!(scrn & V_NOSCALESTART)) // Graue 07-08-2004: I have no idea why this works
-		{
-			x = (INT32)(vid.fdupx*x);
-			y = (INT32)(vid.fdupy*y);
-			scrn |= V_NOSCALESTART;
-		}
 		HWR_DrawSmallPatch((GLPatch_t *)patch, x, y, scrn, colormap);
 		return;
 	}
@@ -1173,12 +1161,6 @@ void V_DrawSmallTranslucentPatch(INT32 x, INT32 y, INT32 scrn, patch_t *patch)
 	// draw a hardware converted patch
 	if (rendermode != render_soft && rendermode != render_none)
 	{
-		if (!(scrn & V_NOSCALESTART)) // Graue 07-08-2004: I have no idea why this works
-		{
-			x = (INT32)(vid.fdupx*x);
-			y = (INT32)(vid.fdupy*y);
-			scrn |= V_NOSCALESTART;
-		}
 		HWR_DrawSmallPatch((GLPatch_t *)patch, x, y, scrn, colormaps);
 		return;
 	}
@@ -1335,12 +1317,6 @@ void V_DrawSmallMappedPatch(INT32 x, INT32 y, INT32 scrn, patch_t *patch, const 
 	// draw a hardware converted patch
 	if (rendermode != render_soft && rendermode != render_none)
 	{
-		if (!(scrn & V_NOSCALESTART)) // Graue 07-08-2004: I have no idea why this works
-		{
-			x = (INT32)(vid.fdupx*x);
-			y = (INT32)(vid.fdupy*y);
-			scrn |= V_NOSCALESTART;
-		}
 		HWR_DrawSmallPatch((GLPatch_t *)patch, x, y, scrn, colormap);
 		return;
 	}
