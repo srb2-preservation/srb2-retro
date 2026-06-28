@@ -50,37 +50,38 @@
 
 #define MAXHUDLINES 20
 
-static boolean con_started = false; // console has been initialised
-       boolean con_startup = false; // true at game startup, screen need refreshing
+static boolean con_started = false;  // console has been initialised
+boolean con_startup = false;  // true at game startup, screen need refreshing
 static boolean con_forcepic = true; // at startup toggle console translucency when first off
-       boolean con_recalc;          // set true when screen size has changed
+boolean con_recalc;           // set true when screen size has changed
+static boolean insertmode = true; // insert or overwrite
 
-static tic_t con_tick; // console ticker for anim or blinking prompt cursor
+static tic_t con_tick;  // console ticker for anim or blinking prompt cursor
                         // con_scrollup should use time (currenttime - lasttime)..
 
 static boolean consoletoggle; // true when console key pushed, ticker will handle
 static boolean consoleready;  // console prompt is ready
 
-       INT32 con_destlines; // vid lines used by console at final position
+INT32 con_destlines;  // vid lines used by console at final position
 static INT32 con_curlines;  // vid lines currently used by console
 
-       INT32 con_clipviewtop; // clip value for planes & sprites, so that the
+INT32 con_clipviewtop;  // clip value for planes & sprites, so that the
                             // part of the view covered by the console is not
                             // drawn when not needed, this must be -1 when
                             // console is off
 
 static INT32 con_hudlines;        // number of console heads up message lines
-static INT32 con_hudtime[MAXHUDLINES];      // remaining time of display for hud msg lines
+static INT32 con_hudtime[MAXHUDLINES];  // remaining time of display for hud msg lines
 
-       INT32 con_clearlines;      // top screen lines to refresh when view reduced
-       boolean con_hudupdate;   // when messages scroll, we need a backgrnd refresh
+INT32 con_clearlines;      // top screen lines to refresh when view reduced
+boolean con_hudupdate;   // when messages scroll, we need a backgrnd refresh
 
 // console text output
-static char *con_line;          // console text output current line
-static size_t con_cx;           // cursor position in current line
-static size_t con_cy;           // cursor line number in con_buffer, is always
-                                // increasing, and wrapped around in the text
-                                // buffer using modulo.
+static char *con_line;             // console text output current line
+static size_t con_cx;              // cursor position in current line
+static size_t con_cy;              // cursor line number in con_buffer, is always
+                                   // increasing, and wrapped around in the text
+                                   // buffer using modulo.
 
 static size_t con_totallines;      // lines of console text into the console buffer
 static size_t con_width;           // columns of chars, depend on vid mode width
@@ -89,7 +90,7 @@ static size_t con_scrollup;        // how many rows of text to scroll up (pgup/p
 
 // hold 32 last lines of input for history
 #define CON_MAXPROMPTCHARS 256
-#define CON_PROMPTCHAR '>'
+#define CON_PROMPTCHAR '$'
 
 static char inputlines[32][CON_MAXPROMPTCHARS]; // hold last 32 prompt lines
 
@@ -104,14 +105,13 @@ static void CON_InputInit(void);
 static void CON_RecalcSize(void);
 
 static void CONS_hudlines_Change(void);
-static void CONS_speed_Change(void);
-static void CONS_backcolor_Change(void);
+static void CON_DrawBackpic(patch_t *pic, INT32 startx, INT32 destwidth);
 
 //======================================================================
 //                   CONSOLE VARS AND COMMANDS
 //======================================================================
 #ifdef macintosh
-#define CON_BUFFERSIZE 4096 // my compiler can't handle local vars >32k
+#define CON_BUFFERSIZE 4096 // my compiler can't handle local vars > 32k
 #else
 #define CON_BUFFERSIZE 16384
 #endif
@@ -124,23 +124,22 @@ static consvar_t cons_msgtimeout = {"con_hudtime", "5", CV_SAVE, CV_Unsigned, NU
 // number of lines displayed on the HUD
 static consvar_t cons_hudlines = {"con_hudlines", "5", CV_CALL|CV_SAVE, CV_Unsigned, CONS_hudlines_Change, 0, NULL, NULL, 0, 0, NULL};
 
-// (con_speed needs a limit, apparently)
-static CV_PossibleValue_t speed_cons_t[] = {{1, "MIN"}, {255, "MAX"}, {0, NULL}};
-
 // number of lines console move per frame
-static consvar_t cons_speed = {"con_speed", "8", CV_CALL|CV_SAVE, speed_cons_t, CONS_speed_Change, 0, NULL, NULL, 0, 0, NULL};
+static consvar_t cons_speed = {"con_speed", "3", CV_SAVE, CV_Unsigned, NULL, 0, NULL, NULL, 0, 0, NULL};
 
 // percentage of screen height to use for console
-static consvar_t cons_height = {"con_height", "50", CV_SAVE, CV_Unsigned, NULL, 0, NULL, NULL, 0, 0, NULL};
+static consvar_t cons_height = {"con_height", "16", CV_SAVE, CV_Unsigned, NULL, 0, NULL, NULL, 0, 0, NULL};
 
-static CV_PossibleValue_t backpic_cons_t[] = {{0, "translucent"}, {1, "picture"}, {0, NULL}};
-// whether to use console background picture, or translucent mode
-static consvar_t cons_backpic = {"con_backpic", "translucent", CV_SAVE, backpic_cons_t, NULL, 0, NULL, NULL, 0, 0, NULL};
+// SRB2CBTODO: Console pause option
+
+static CV_PossibleValue_t backpic_cons_t[] = {{0, "Translucent"}, {1, "Picture"}, {0, NULL}};
+// Whether to use console background picture, or translucent mode // SRB2CBTODO: Trans only
+static consvar_t cons_backpic = {"con_backpic", "Translucent", CV_SAVE, backpic_cons_t, NULL, 0, NULL, NULL, 0, 0, NULL};
 
 static CV_PossibleValue_t backcolor_cons_t[] = {{0, "White"}, {1, "Orange"},
-												{2, "Blue"}, {3, "Green"}, {4, "Gray"},
+												{2, "Blue"}, {3, "Green"}, {4, "Black"},
 												{5, "Red"}, {0, NULL}};
-consvar_t cons_backcolor = {"con_backcolor", "3", CV_SAVE, backcolor_cons_t, NULL, 0, NULL, NULL, 0, 0, NULL};
+consvar_t cons_backcolor = {"con_backcolor", "Black", CV_SAVE, backcolor_cons_t, NULL, 0, NULL, NULL, 0, 0, NULL};
 
 static void CON_Print(char *msg);
 
@@ -162,14 +161,6 @@ static void CONS_hudlines_Change(void)
 	con_hudlines = cons_hudlines.value;
 
 	CONS_Printf("Number of console HUD lines is now %d\n", con_hudlines);
-}
-
-// Check CONS_speed value (must be positive)
-//
-static void CONS_speed_Change(void)
-{
-	if (cons_speed.value < 1)
-		CV_SetValue(&cons_speed, 1);
 }
 
 // Clear console text buffer
@@ -245,6 +236,11 @@ UINT8 *graymap;
 UINT8 *redmap;
 UINT8 *orangemap;
 
+// XSRB2: new
+UINT8 *pinkmap;
+UINT8 *skybluemap;
+UINT8 *silvermap;
+
 // Console BG colors
 UINT8 *cwhitemap;
 UINT8 *corangemap;
@@ -252,32 +248,12 @@ UINT8 *cbluemap;
 UINT8 *cgreenmap;
 UINT8 *cgraymap;
 UINT8 *credmap;
-
-void CON_ReSetupBackColormap(UINT16 num)
-{
-	UINT16 i, j;
-	UINT8 k;
-	UINT8 *pal = W_CacheLumpName(R_GetPalname(num), PU_CACHE);
-
-	// setup the green translucent background colormaps
-	for (i = 0, k = 0; i < 768; i += 3, k++)
-	{
-		j = pal[i] + pal[i+1] + pal[i+2];
-		cwhitemap[k] = (UINT8)(15 - (j>>6));
-		corangemap[k] = (UINT8)(95 - (j>>6));
-		cbluemap[k] = (UINT8)(239 - (j>>6));
-		cgreenmap[k] = (UINT8)(175 - (j>>6));
-		cgraymap[k] = (UINT8)(31 - (j>>6));
-		credmap[k] = (UINT8)(143 - (j>>6));
-	}
-}
-
 static void CON_SetupBackColormap(void)
 {
 	INT32 i, j, k;
 	UINT8 *pal;
 
-	cwhitemap   = (UINT8 *)Z_Malloc(256, PU_STATIC, NULL);
+	cwhitemap   = (UINT8 *)Z_Malloc(256, PU_STATIC, NULL); // SRB2CBTODO: If this is static, make it a normal!
 	corangemap  = (UINT8 *)Z_Malloc(256, PU_STATIC, NULL);
 	cbluemap    = (UINT8 *)Z_Malloc(256, PU_STATIC, NULL);
 	cgreenmap   = (UINT8 *)Z_Malloc(256, PU_STATIC, NULL);
@@ -291,6 +267,11 @@ static void CON_SetupBackColormap(void)
 	bluemap   = (UINT8 *)Z_Malloc(256, PU_STATIC, NULL);
 	redmap    = (UINT8 *)Z_Malloc(256, PU_STATIC, NULL);
 	orangemap = (UINT8 *)Z_Malloc(256, PU_STATIC, NULL);
+	
+	// XSRB2: new
+	pinkmap    = (UINT8 *)Z_Malloc(256, PU_STATIC, NULL);
+	skybluemap = (UINT8 *)Z_Malloc(256, PU_STATIC, NULL);
+	silvermap  = (UINT8 *)Z_Malloc(256, PU_STATIC, NULL);
 
 	pal = W_CacheLumpName("PLAYPAL", PU_CACHE);
 
@@ -320,22 +301,34 @@ static void CON_SetupBackColormap(void)
 		bluemap[i] = (UINT8)i;
 		redmap[i] = (UINT8)i;
 		orangemap[i] = (UINT8)i;
+		// XSRB2: New
+		pinkmap[i] = (UINT8)i;
+		silvermap[i] = (UINT8)i;
+		skybluemap[i] = (UINT8)i;
 	}
 
 	yellowmap[3] = (UINT8)103;
 	yellowmap[9] = (UINT8)115;
-	purplemap[3] = (UINT8)195;
-	purplemap[9] = (UINT8)198;
+	purplemap[3] = (UINT8)250;
+	purplemap[9] = (UINT8)253;
 	lgreenmap[3] = (UINT8)162;
 	lgreenmap[9] = (UINT8)170;
 	bluemap[3]   = (UINT8)228;
 	bluemap[9]   = (UINT8)238;
-	graymap[3]   = (UINT8)10;
-	graymap[9]   = (UINT8)15;
-	redmap[3]    = (UINT8)124;
+	graymap[3]   = (UINT8)28;
+	graymap[9]   = (UINT8)28;
+	redmap[3]    = (UINT8)126;
 	redmap[9]    = (UINT8)127;
-	orangemap[3] = (UINT8)85;
-	orangemap[9] = (UINT8)90;
+	orangemap[3] = (UINT8)86;
+	orangemap[9] = (UINT8)88;
+	
+	// XSRB2: new
+	pinkmap[3] = (UINT8)250;
+	pinkmap[9] = (UINT8)253;
+	skybluemap[3] = (UINT8)194;
+	skybluemap[9] = (UINT8)198;
+	silvermap[3] = (UINT8)94;
+	silvermap[9] = (UINT8)100;
 }
 
 // Setup the console text buffer
@@ -356,16 +349,13 @@ void CON_Init(void)
 
 	CON_SetupBackColormap();
 
-	//note: CON_Ticker should always execute at least once before D_Display()
+	// NOTE: CON_Ticker should always execute at least once before D_Display()
 	con_clipviewtop = -1; // -1 does not clip
 
 	con_hudlines = atoi(cons_hudlines.defaultvalue);
 
 	// setup console input filtering
 	CON_InputInit();
-
-	// load console background pic
-	con_backpic = (patch_t *)W_CacheLumpName("CONSBACK",PU_STATIC);
 
 	// register our commands
 	//
@@ -379,7 +369,7 @@ void CON_Init(void)
 	if (!dedicated)
 	{
 		con_started = true;
-		con_startup = true; // need explicit screen refresh until we are in Doom loop
+		con_startup = true; // Need explicit screen refresh until we are in SRB2's main loop
 		consoletoggle = false;
 		CV_RegisterVar(&cons_msgtimeout);
 		CV_RegisterVar(&cons_hudlines);
@@ -392,7 +382,7 @@ void CON_Init(void)
 	else
 	{
 		con_started = true;
-		con_startup = false; // need explicit screen refresh until we are in Doom loop
+		con_startup = false; // need explicit screen refresh until we are in SRB2's main loop
 		consoletoggle = true;
 	}
 }
@@ -440,7 +430,7 @@ static void CON_RecalcSize(void)
 	oldcon_width = con_width;
 	oldnumlines = con_totallines;
 	oldcon_cy = con_cy;
-	M_Memcpy(tmp_buffer, con_buffer, CON_BUFFERSIZE);
+	memcpy(tmp_buffer, con_buffer, CON_BUFFERSIZE);
 
 	if (conw < 1)
 		con_width = (BASEVIDWIDTH>>3) - 2;
@@ -464,7 +454,7 @@ static void CON_RecalcSize(void)
 		{
 			if (tmp_buffer[(i%oldnumlines)*oldcon_width])
 			{
-				M_Memcpy(string, &tmp_buffer[(i%oldnumlines)*oldcon_width], oldcon_width);
+				memcpy(string, &tmp_buffer[(i%oldnumlines)*oldcon_width], oldcon_width);
 				conw = oldcon_width - 1;
 				while (string[conw] == ' ' && conw)
 					conw--;
@@ -505,8 +495,8 @@ void CON_ClearHUD(void)
 		con_hudtime[i] = 0;
 }
 
-// Force console to move out immediately
-// note: con_ticker will set consoleready false
+// Force the console to move out immediately
+// NOTE: Con_Ticker will set 'consoleready' false
 void CON_ToggleOff(void)
 {
 	if (!con_destlines)
@@ -519,11 +509,7 @@ void CON_ToggleOff(void)
 	con_clipviewtop = -1; // remove console clipping of view
 
 	I_UpdateMouseGrab();
-}
 
-boolean CON_Ready(void)
-{
-	return consoleready;
 }
 
 // Console ticker: handles console move in/out, cursor blinking
@@ -534,7 +520,6 @@ void CON_Ticker(void)
 
 	// cursor blinking
 	con_tick++;
-	con_tick &= 7;
 
 	// console key was pushed
 	if (consoletoggle)
@@ -571,7 +556,7 @@ void CON_Ticker(void)
 	{
 		if (con_curlines > 0)
 			con_clipviewtop = con_curlines - viewwindowy - 1 - 10;
-		// NOTE: BIG HACK::SUBTRACT 10, SO THAT WATER DON'T COPY LINES OF THE CONSOLE
+		// NOTE: BIG HACK::SUBTRACT 10, SO THAT WATER DON'T COPY LINES OF THE CONSOLE // SRB2CBTODO: Hacks are bad...
 		//       WINDOW!!! (draw some more lines behind the bottom of the console)
 		if (con_clipviewtop < 0)
 			con_clipviewtop = -1; // maybe not necessary, provided it's < 0
@@ -583,10 +568,10 @@ void CON_Ticker(void)
 	else
 		consoleready = false;
 
-	// make overlay messages disappear after a while
+	// Make overlay messages disappear after a while
 	for (i = 0; i < con_hudlines; i++)
 	{
-		con_hudtime[i]--;
+		con_hudtime[i]--; // SRB2CBTODO: For hud time, use fade in and out too!
 		if (con_hudtime[i] < 0)
 			con_hudtime[i] = 0;
 	}
@@ -640,7 +625,7 @@ boolean CON_Responder(event_t *ev)
 		}
 
 		// check other keys only if console prompt is active
-		if (!consoleready && key < NUMINPUTS) // metzgermeister: boundary check!!
+		if (!consoleready && key < NUMINPUTS) // Boundary check!!
 		{
 			if (bindtable[key] && !timeattacking)
 			{
@@ -664,14 +649,21 @@ boolean CON_Responder(event_t *ev)
 
 	}
 
-	// eat shift only if console active
+	// eat shift only if console active // SRB2CBTODO: CAPS LOCK!
 	if (key == KEY_LSHIFT || key == KEY_RSHIFT)
 	{
 		shiftdown = true;
 		return true;
 	}
 
-	// command completion forward (tab) and backward (shift-tab)
+	// toggle insert mode
+	if (key == KEY_INS)
+	{
+		insertmode = !insertmode;
+		return true;
+	}
+
+	// command completion forward (tab) and backward (shift-tab) // SRB2CBTODO: LOOP the COMPLETION
 	if (key == KEY_TAB)
 	{
 		// sequential command completion forward and backward
@@ -794,6 +786,33 @@ boolean CON_Responder(event_t *ev)
 		}
 		return true;
 	}
+	
+#define AWESOMECONSOLE
+	
+	// SRB2CBTODO: Back and forth console
+#ifdef AWESOMECONSOLE
+	if (key == KEY_LEFTARROW)
+	{
+		if (input_cx > 1)
+		{
+			input_cx--;
+			//inputlines[inputline][input_cx] = 0;
+		}
+		return true;
+	}
+	
+	if (key == KEY_RIGHTARROW)
+	{
+		// SRB2CBTODO: This restricts the input to the
+		// last line in the console correctly, but how?
+		if (input_cx < (size_t)inputlines[inputline][input_cx])
+		{
+			input_cx++;
+			//inputlines[inputline][input_cx] = 0;
+		}
+		return true;
+	}
+#endif
 
 	// move back in input history
 	if (key == KEY_UPARROW)
@@ -809,7 +828,7 @@ boolean CON_Responder(event_t *ev)
 		if (inputhist == inputline)
 			inputhist = (inputline + 1) & 31;
 
-		M_Memcpy(inputlines[inputline], inputlines[inputhist], CON_MAXPROMPTCHARS);
+		memcpy(inputlines[inputline], inputlines[inputhist], CON_MAXPROMPTCHARS);
 		input_cx = strlen(inputlines[inputline]);
 
 		return true;
@@ -862,13 +881,21 @@ boolean CON_Responder(event_t *ev)
 		return false;
 
 	// add key to cmd line here
-	if (input_cx < CON_MAXPROMPTCHARS)
+	if (insertmode)
 	{
-		if (key >= 'A' && key <= 'Z' && !shiftdown) //this is only really necessary for dedicated servers
-			key = key + 'a' - 'A';
+		int i;
+		if (input_cx < CON_MAXPROMPTCHARS)
+		{
+			for (i = CON_MAXPROMPTCHARS; i >= input_cx; i--)
+				inputlines[inputline][i + 1] = inputlines[inputline][i];
 
-		inputlines[inputline][input_cx] = (char)key;
-		inputlines[inputline][input_cx + 1] = 0;
+			inputlines[inputline][input_cx] = (char)key;
+			input_cx++;
+		}
+	}
+	else
+	{
+		inputlines[inputline][input_cx + 1] = (char)key;
 		input_cx++;
 	}
 
@@ -877,7 +904,7 @@ boolean CON_Responder(event_t *ev)
 
 // Insert a new line in the console text buffer
 //
-static void CON_Linefeed(void)
+static void CON_Linefeed(void) // SRB2CBTODO: Support full console left to right insert and stuff
 {
 	// set time for heads up messages
 	con_hudtime[con_cy%con_hudlines] = cons_msgtimeout.value*TICRATE;
@@ -981,37 +1008,6 @@ static void CON_Print(char *msg)
 	}
 }
 
-void CON_LogMessage(const char *msg)
-{
-	XBOXSTATIC char txt[128], *t;
-#if defined (LOGMESSAGES) && defined (_WINDOWS)
-	const boolean ls = (logstream != INVALID_HANDLE_VALUE);
-#endif
-	const char *p = msg, *e = txt+sizeof (txt)-2;
-
-	for (t = txt; *p != '\0'; p++)
-	{
-		if (*p == '\n' || *p >= ' ') // don't log or console print CON_Print's control characters
-		{
-#if defined (LOGMESSAGES) && defined (_WINDOWS)
-			if (*p == '\n' && (p == msg || *(p-1) != '\r') && ls)
-				*t++ = '\r';
-#endif
-			*t++ = *p;
-		}
-
-		if (t >= e)
-		{
-			*t = '\0'; //end of string
-			I_OutputMsg("%s", txt); //print string
-			t = txt; //reset t pointer
-			memset(txt,'\0', sizeof (txt)); //reset txt
-		}
-	}
-	*t = '\0'; //end of string
-	I_OutputMsg("%s", txt);
-}
-
 // Console print! Wahooo! Lots o fun!
 //
 
@@ -1024,7 +1020,7 @@ void CONS_Printf(const char *fmt, ...)
 	vsprintf(txt, fmt, argptr);
 	va_end(argptr);
 
-	// echo console prints to log file
+	// Any CONS_Printf's are stored in the game's log
 #ifndef _arch_dreamcast
 	DEBFILE(txt);
 #endif
@@ -1032,25 +1028,28 @@ void CONS_Printf(const char *fmt, ...)
 	if (!con_started)
 	{
 #if defined (_XBOX) && defined (__GNUC__)
-		if (!keyboard_started) debugPrint(txt);
+		if (!keyboard_started)
+			debugPrint(txt);
 #endif
 #ifdef PC_DOS
-		CON_LogMessage(txt);
+		CONS_LogPrintf(txt);
 		return;
 #endif
 	}
 	else
-		// write message in con text buffer
+		// Write message into the console text buffer
 		CON_Print(txt);
 
 #ifndef PC_DOS
-	CON_LogMessage(txt);
+	const char *stringy = NULL;
+	CONS_LogPrintf(txt, stringy);
 #endif
 
-	// make sure new text is visible
+	// Allow the text to be visible even when the console isn't out
 	con_scrollup = 0;
 
-	// if not in display loop, force screen update
+	// If the game is not in the main display loop(The main game rendering),
+	// force screen update
 	if (con_startup)
 	{
 #if (defined (_WINDOWS)) || (defined (__OS2__) && !defined (HAVE_SDL))
@@ -1069,7 +1068,11 @@ void CONS_Printf(const char *fmt, ...)
 
 // Print an error message, and wait for ENTER key to continue.
 // To make sure the user has seen the message
+// If not on Windows, don't press enter to continue,
+// (because it causes some OS's to stall)
 //
+// SRB2CBTODO: Make CONS_Error integrate into the game,
+// either making a window on all OS's or by some other means
 void CONS_Error(const char *msg)
 {
 #ifdef RPC_NO_WINDOWS_H
@@ -1080,11 +1083,39 @@ void CONS_Error(const char *msg)
 	}
 #endif
 	CONS_Printf("\2%s", msg); // write error msg in different colour
-	CONS_Printf("Press ENTER to continue\n");
+}
 
-	// dirty quick hack, but for the good cause
-	while (I_GetKey() != KEY_ENTER)
-		I_OsPolling();
+// -----------------+
+// CONS_LogPrintf       : Outputs messages to the game's log file as long as LOGMESSAGES is defined,
+//                  : otherwise it does nothing
+// Returns          :
+// -----------------+
+FUNCPRINTF void CONS_LogPrintf(const char *lpFmt, ...)
+{
+#ifdef LOGMESSAGES
+	char    str[4096] = "";
+	va_list arglist;
+	
+	va_start (arglist, lpFmt);
+	vsnprintf (str, 4096, lpFmt, arglist);
+	va_end   (arglist);
+#ifdef _WINDOWS
+	{
+		DWORD bytesWritten;
+		if (logstream != INVALID_HANDLE_VALUE)
+			WriteFile(logstream, str, (DWORD)strlen(str), &bytesWritten, NULL);
+	}
+#else
+	if (logstream)
+	{
+		size_t d;
+		d = fwrite(str, strlen(str), 1, logstream);
+	}
+#endif
+	
+#else // LOGMESSAGES
+	(void)lpFmt;
+#endif
 }
 
 //======================================================================
@@ -1109,15 +1140,15 @@ static void CON_DrawInput(void)
 	for (x = 0; x < con_width-11; x++)
 		V_DrawCharacter((INT32)(x+1)<<3, y, p[x]|V_NOSCALEPATCH|V_NOSCALESTART, !cv_allcaps.value);
 
-	// draw the blinking cursor
-	//
+	// Draw a blinking cursor for the console
 	x = (input_cx >= con_width-11) ? (con_width-11) - 1 : input_cx;
-	if (con_tick < 4)
-		V_DrawCharacter((INT32)(x+1)<<3, y, '_'|V_NOSCALEPATCH|V_NOSCALESTART, !cv_allcaps.value);
+	if (con_tick & 4*NEWTICRATERATIO)
+		V_DrawCharacter((INT32)(x+1)<<3, y+2, '_'|V_NOSCALEPATCH|V_NOSCALESTART, !cv_allcaps.value);
 }
 
-// draw the last lines of console text to the top of the screen
-static void CON_DrawHudlines(void)
+// Draw the last lines of console text to the top of the screen
+// when the console isn't even out
+static void CON_DrawHudlines(void) // SRB2CBTODO!:! Fade this stuff in and out with con_hudtime stuff and alpha!
 {
 	UINT8 *p;
 	size_t i, x;
@@ -1151,12 +1182,22 @@ static void CON_DrawHudlines(void)
 			V_DrawCharacter((INT32)(x)<<3, y, (INT32)(*p) | charflags | V_NOSCALEPATCH|V_NOSCALESTART, !cv_allcaps.value);
 		}
 
-		V_DrawCharacter((INT32)(x)<<3, y, (p[x]&0xff)|V_NOSCALEPATCH|V_NOSCALESTART, !cv_allcaps.value);
+		V_DrawCharacter((INT32)(x)<<3, y, (p[x]&0xff)|V_NOSCALEPATCH|V_NOSCALESTART, !cv_allcaps.value); // SRB2CBTODO: ALLCAPS is stupid, no one wants to use it
 		y += 8;
 	}
 
 	// top screen lines that might need clearing when view is reduced
 	con_clearlines = y; // this is handled by HU_Erase();
+}
+
+// Scale a pic_t at 'startx' pos, to 'destwidth' columns.
+//   startx, destwidth is resolution dependent
+// Used to draw console borders, console background.
+// The pic must be sized BASEVIDHEIGHT height.
+static void CON_DrawBackpic(patch_t *pic, INT32 startx, INT32 destwidth)
+{
+	startx = destwidth = 0;
+	V_DrawScaledPatch(0, 0, 0, pic);
 }
 
 // draw the console background, text, and prompt if enough place
@@ -1175,20 +1216,39 @@ static void CON_DrawConsole(void)
 	//FIXME: refresh borders only when console bg is translucent
 	con_clearlines = con_curlines; // clear console draw from view borders
 	con_hudupdate = true; // always refresh while console is on
-
+	
+#if 0
 	// draw console background
 	if (cons_backpic.value || con_forcepic)
 	{
-		patch_t *con_backpic = W_CachePatchName("CONSBACK", PU_CACHE);
-
-		// Jimita: CON_DrawBackpic just called V_DrawScaledPatch
-		V_DrawScaledPatch(0, 0, 0, con_backpic);
+		if (rendermode == render_opengl)
+			CON_DrawBackpic(con_backpic, 0, vid.width);
+		else if (rendermode == render_soft)
+			V_DrawScaledPatch(0, 0, 0, con_backpic); // picture as background
 	}
+#else
+	// draw console background
+	if (cons_backpic.value || con_forcepic)
+	{
+		static lumpnum_t con_backpic_lumpnum = UINT32_MAX;
+		patch_t *con_backpic;
+		
+		if (con_backpic_lumpnum == UINT32_MAX)
+			con_backpic_lumpnum = W_GetNumForName("CONSBACK");
+		
+		con_backpic = (patch_t*)W_CachePatchNum(con_backpic_lumpnum, PU_CACHE);
+		
+		if (rendermode != render_soft)
+			V_DrawScaledPatch(0, 0, 0, con_backpic);
+		else if (rendermode != render_none)
+			CON_DrawBackpic(con_backpic, 0, vid.width); // picture as background
+	}
+#endif
 	else
 	{
 		x2 = vid.width;
-		// Hurdler: what's the correct value of w and x2 in hardware mode???
-		if (rendermode != render_none) V_DrawFadeConsBack(w, 0, x2, con_curlines, cons_backcolor.value); // translucent background
+		if (rendermode != render_none)
+			V_DrawFadeConsBack(w, 0, x2, con_curlines, cons_backcolor.value); // translucent background
 	}
 
 	// draw console text lines from top to bottom

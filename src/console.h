@@ -42,23 +42,18 @@ extern boolean con_hudupdate; // hud messages have changed, need refresh
 
 extern consvar_t cons_backcolor;
 
-extern UINT8 *yellowmap, *purplemap, *lgreenmap, *bluemap, *graymap, *redmap, *orangemap;
+extern UINT8 *yellowmap, *purplemap, *lgreenmap, *bluemap, *graymap, *redmap, *orangemap, *silvermap, *pinkmap, *skybluemap;
 
 // Console bg colors:
 extern UINT8 *cwhitemap, *corangemap, *cbluemap, *cgreenmap, *cgraymap,
 	*credmap;
 
-void CON_ReSetupBackColormap(UINT16 num);
 void CON_ClearHUD(void); // clear heads up messages
 
 void CON_Ticker(void);
 void CON_Drawer(void);
 void CONS_Error(const char *msg); // print out error msg, and wait a key
+void CONS_LogPrintf(const char *lpFmt, ...);
 
-// force console to move out
+// Force console to move out
 void CON_ToggleOff(void);
-
-// Is console down?
-boolean CON_Ready(void);
-
-void CON_LogMessage(const char *msg);

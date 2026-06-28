@@ -8127,9 +8127,6 @@ boolean M_Responder(event_t *ev)
 	if (dedicated || gamestate == GS_INTRO || gamestate == GS_INTRO2 || gamestate == GS_CUTSCENE)
 		return false;
 
-	if (CON_Ready())
-		return false;
-
 	if (ev->type == ev_keyup && (ev->data1 == KEY_LSHIFT || ev->data1 == KEY_RSHIFT))
 	{
 		shiftdown = false;

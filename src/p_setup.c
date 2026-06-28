@@ -145,7 +145,7 @@ mapthing_t *tagstarts[MAXPLAYERS];
   *            to va(), since that function is not used here.
   * \todo Fix the I_Error() message. On some implementations the logfile may
   *       not be called log.txt.
-  * \sa CON_LogMessage, I_Error
+  * \sa CONS_LogPrintf, I_Error
   */
 FUNCNORETURN static ATTRNORETURN void CorruptMapError(const char *msg)
 {
@@ -153,11 +153,7 @@ FUNCNORETURN static ATTRNORETURN void CorruptMapError(const char *msg)
 	char mapnum[10];
 
 	sprintf(mapnum, "%hd", gamemap);
-	CON_LogMessage("Map ");
-	CON_LogMessage(mapnum);
-	CON_LogMessage(" is corrupt: ");
-	CON_LogMessage(msg);
-	CON_LogMessage("\n");
+	CONS_LogPrintf("Map %d is corrupt: %s\n", mapnum, msg);
 	I_Error("Invalid or corrupt map.\nLook in log file or text console for technical details.");
 }
 
@@ -2188,8 +2184,7 @@ noscript:
 	// internal game map
 	lastloadedmaplumpnum = W_GetNumForName(maplumpname = G_BuildMapName(map));
 
-	R_ReInitColormaps(mapheaderinfo[map-1].palette);
-	CON_ReSetupBackColormap(mapheaderinfo[map-1].palette);
+	R_ClearColormaps();
 
 	// Start the music!
 	S_Start();
