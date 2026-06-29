@@ -110,6 +110,7 @@ static GLint       viewport[4];
 static GLuint screentexture = 60000;
 static GLuint startScreenWipe = 60001;
 static GLuint endScreenWipe = 60002;
+static GLuint finalScreenTexture = 60003;
 #if 0
 GLuint screentexture = FIRST_TEX_AVAIL;
 #endif
@@ -262,6 +263,10 @@ FUNCPRINTF void DBG_Printf(const char *lpFmt, ...)
 
 /* GLU functions */
 #define pgluBuild2DMipmaps gluBuild2DMipmaps
+
+/* 1.3 functions for multitexturing */
+#define pglActiveTexture glActiveTexture
+#define pglMultiTexCoord2f glMultiTexCoord2f
 #endif
 #else //!STATIC_OPENGL
 
@@ -387,6 +392,12 @@ static PFNglCopyTexImage2D pglCopyTexImage2D;
 /* GLU functions */
 typedef GLint (APIENTRY * PFNgluBuild2DMipmaps) (GLenum target, GLint internalFormat, GLsizei width, GLsizei height, GLenum format, GLenum type, const void *data);
 static PFNgluBuild2DMipmaps pgluBuild2DMipmaps;
+
+/* 1.3 functions for multitexturing */
+typedef void (APIENTRY *PFNglActiveTexture) (GLenum);
+static PFNglActiveTexture pglActiveTexture;
+typedef void (APIENTRY *PFNglMultiTexCoord2f) (GLenum, GLfloat, GLfloat);
+static PFNglMultiTexCoord2f pglMultiTexCoord2f;
 #endif
 
 #ifndef MINI_GL_COMPATIBILITY
@@ -2186,6 +2197,99 @@ EXPORT void HWRAPI(MakeScreenTexture) (void)
 #ifndef KOS_GL_COMPATIBILITY
 	pglCopyTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, 0, 0, texsize, texsize, 0);
 #endif
+
+	tex_downloaded = 0; // 0 so it knows it doesn't have any of the cached patches downloaded right now
+}
+
+EXPORT void HWRAPI(MakeScreenFinalTexture) (void)
+{
+	INT32 texsize = 2048;
+
+	// Use a power of two texture, dammit
+	if(screen_width <= 512)
+		texsize = 512;
+	else if(screen_width <= 1024)
+		texsize = 1024;
+
+	// Create screen texture
+	pglBindTexture(GL_TEXTURE_2D, finalScreenTexture);
+#ifdef KOS_GL_COMPATIBILITY
+	pglTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_FILTER_NONE);
+	pglTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_FILTER_NONE);
+#else
+	pglTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+	pglTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+#endif
+	Clamp2D(GL_TEXTURE_WRAP_S);
+	Clamp2D(GL_TEXTURE_WRAP_T);
+#ifndef KOS_GL_COMPATIBILITY
+	pglCopyTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, 0, 0, texsize, texsize, 0);
+#endif
+
+	tex_downloaded = 0; // 0 so it knows it doesn't have any of the cached patches downloaded right now
+
+}
+
+EXPORT void HWRAPI(DrawScreenFinalTexture)(int width, int height)
+{
+	float xfix, yfix;
+	float origaspect, newaspect;
+	float xoff = 1, yoff = 1; // xoffset and yoffset for the polygon to have black bars around the screen
+	FRGBAFloat clearColour;
+	int lmaxx, lmaxy;
+	INT32 texsize = 2048;
+
+	lmaxx = width < screen_width ? screen_width : width;
+	lmaxy = height < screen_height ? screen_height : height;
+
+	if(screen_width <= 1024)
+		texsize = 1024;
+	if(screen_width <= 512)
+		texsize = 512;
+
+	xfix = 1/((float)(texsize)/((float)((screen_width))));
+	yfix = 1/((float)(texsize)/((float)((screen_height))));
+
+
+	origaspect = (float)screen_width / screen_height;
+	newaspect = (float)width / height;
+	if (origaspect < newaspect)
+	{
+		xoff = origaspect / newaspect;
+		yoff = 1;
+	}
+	else if (origaspect > newaspect)
+	{
+		xoff = 1;
+		yoff = newaspect / origaspect;
+	}
+
+	pglViewport(0, 0, width, height);
+
+	clearColour.red = clearColour.green = clearColour.blue = 0;
+	clearColour.alpha = 1;
+	ClearBuffer(true, false, &clearColour);
+	pglBindTexture(GL_TEXTURE_2D, finalScreenTexture);
+	pglBegin(GL_QUADS);
+
+		pglColor4f(1.0f, 1.0f, 1.0f, 1.0f);
+		// Bottom left
+		pglTexCoord2f(0.0f, 0.0f);
+		pglVertex3f(-xoff, -yoff, 1.0f);
+
+		// Top left
+		pglTexCoord2f(0.0f, yfix);
+		pglVertex3f(-xoff, yoff, 1.0f);
+
+		// Top right
+		pglTexCoord2f(xfix, yfix);
+		pglVertex3f(xoff, yoff, 1.0f);
+
+		// Bottom right
+		pglTexCoord2f(xfix, 0.0f);
+		pglVertex3f(xoff, -yoff, 1.0f);
+
+	pglEnd();
 
 	tex_downloaded = 0; // 0 so it knows it doesn't have any of the cached patches downloaded right now
 }
