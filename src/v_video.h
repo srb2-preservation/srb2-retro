@@ -68,8 +68,12 @@ extern RGBA_t *pLocalPalette;
 void V_DrawMappedPatch(INT32 x, INT32 y, INT32 scrn, patch_t *patch, const UINT8 *colormap);
 
 // flags hacked in scrn (not supported by all functions (see src))
+#define V_PARAMMASK          0x000000FF
 #define V_CHARCOLORSHIFT     12
 #define V_CHARCOLORMASK      0x0000F000
+#define V_SCALEPATCHMASK     0x00000300
+#define V_ALPHASHIFT         16
+#define V_ALPHAMASK          0x000F0000
 #define V_NOSCALESTART       0x00010000  // don't scale x, y, start coords
 #define V_WRAPY              0x00020000  // Don't clamp texture on Y (for HW mode)
 // V_SCALEPATCH isn't even used anywhere in the entire project! thus, I'm hijacking it for something else ~MattW_CFI
