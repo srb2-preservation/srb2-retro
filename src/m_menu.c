@@ -3990,7 +3990,7 @@ static void M_DrawSetupChoosePlayerMenu(void)
 	patch_t *patch;
 
 	// Black BG
-	V_DrawFill(0, 0, vid.width, vid.height, 31);
+	V_DrawFill(0, 0, vid.width, vid.height, 31|V_SNAPTOTOP|V_SNAPTOLEFT);
 
 	{
 		// Compact the menu
