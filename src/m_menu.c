@@ -8597,9 +8597,9 @@ void M_Drawer(void)
 
 	// Draw version down in corner
 	if (customversionstring[0] != '\0')
-		V_DrawString(0, BASEVIDHEIGHT - 8, V_TRANSLUCENT, customversionstring);
+		V_DrawString(0, BASEVIDHEIGHT - 8, V_TRANSLUCENT|V_SNAPTOBOTTOM|V_SNAPTOLEFT, customversionstring);
 	else
-		V_DrawString(0, BASEVIDHEIGHT - 8, V_TRANSLUCENT, VERSIONSTRING);
+		V_DrawString(0, BASEVIDHEIGHT - 8, V_TRANSLUCENT|V_SNAPTOBOTTOM|V_SNAPTOLEFT, VERSIONSTRING);
 }
 
 //
