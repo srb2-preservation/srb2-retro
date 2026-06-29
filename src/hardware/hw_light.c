@@ -819,14 +819,6 @@ void HWR_DoCoronasLighting(FOutVector *outVerts, gr_vissprite_t *spr)
 	if (coronalumpnum == LUMPERROR)
 		return;
 
-	//CONS_Printf("sprite (type): %d (%s)\n", spr->type, sprnames[spr->type]);
-	p_lspr = t_lspr[spr->mobj->sprite];
-	if ((spr->mobj->state>=&states[S_EXPLODE1] && spr->mobj->state<=&states[S_EXPLODE3])
-	 || (spr->mobj->state>=&states[S_FATSHOTX1] && spr->mobj->state<=&states[S_FATSHOTX3]))
-	{
-		p_lspr = &lspr[ROCKETEXP_L];
-	}
-
 	if (cv_grcoronas.value && (p_lspr->type & CORONA_SPR))
 	{ // it's an object which emits light
 		FOutVector      light[4];
