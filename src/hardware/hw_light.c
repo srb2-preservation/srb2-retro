@@ -161,8 +161,6 @@ light_t *t_lspr[NUMSPRITES] =
 	&lspr[NOLIGHT],     // SPR_SNLR
 	&lspr[NOLIGHT],     // SPR_VLTR
 	&lspr[NOLIGHT],     // SPR_PNTY
-	&lspr[NOLIGHT],     // SPR_VLTR
-	&lspr[NOLIGHT],     // SPR_PNTY
 	&lspr[NOLIGHT],     // SPR_ARCH
 	&lspr[NOLIGHT],     // SPR_CBFS
 	&lspr[NOLIGHT],     // SPR_SPSH
