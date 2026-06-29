@@ -1767,7 +1767,7 @@ static void ST_drawContinueHUD(void)
 			F_WipeStartScreen();
 
 			// Then, draw what the new screen will look like.
-			V_DrawFill(0, 0, vid.width, vid.height, 31);
+			V_DrawFill(0, 0, BASEVIDWIDTH, BASEVIDHEIGHT, 31);
 
 			contsonic = W_CachePatchName("CONT1", PU_CACHE);
 			V_DrawScaledPatch((BASEVIDWIDTH-SHORT(contsonic->width))/2, 64, 0, contsonic);
@@ -1783,7 +1783,7 @@ static void ST_drawContinueHUD(void)
 		}
 	}
 
-	V_DrawFill(0, 0, vid.width, vid.height, 31);
+	V_DrawFill(0, 0, BASEVIDWIDTH, BASEVIDHEIGHT, 31);
 	V_DrawString(128, 128, 0, "CONTINUE?");
 	// Draw a Sonic!
 	contsonic = W_CachePatchName("CONT1", PU_CACHE);

@@ -909,7 +909,7 @@ static void F_IntroTextWrite(void)
 		highres = true;
 	}
 
-	V_DrawFill(0, 0, vid.width, vid.height, 31);
+	V_DrawFill(0, 0, BASEVIDWIDTH, BASEVIDHEIGHT, 31);
 
 	if (finaletext == text[INTRO01TEXT])
 	{
@@ -993,7 +993,7 @@ static void F_IntroTextWrite(void)
 
 	if (finaletext == text[INTRO14TEXT])
 	{
-		V_DrawFill(0, 0, vid.width, vid.height, 31);
+		V_DrawFill(0, 0, BASEVIDWIDTH, BASEVIDHEIGHT, 31);
 		V_DrawSmallScaledPatch(144, 0, 0, W_CachePatchName("TAILSSAD", PU_CACHE));
 	}
 	else if (finaletext == text[INTRO05TEXT]) // The asteroid SPINS!
@@ -1253,7 +1253,7 @@ void F_GameEvaluationDrawer(void)
 	const fixed_t radius = 48*FRACUNIT;
 	angle_t fa;
 
-	V_DrawFill(0, 0, vid.width, vid.height, 31);
+	V_DrawFill(0, 0, BASEVIDWIDTH, BASEVIDHEIGHT, 31);
 
 	// Draw all the good crap here.
 	if (animtimer == 64)
@@ -1627,7 +1627,7 @@ static void F_DrawCreditScreen(credit_t *creditpassed)
 
 void F_CreditDrawer(void)
 {
-	V_DrawFill(0, 0, vid.width, vid.height, 31);
+	V_DrawFill(0, 0, BASEVIDWIDTH, BASEVIDHEIGHT, 31);
 
 	if (timetonext-- <= 0) // Fade to the next!
 	{
@@ -1643,7 +1643,7 @@ void F_CreditDrawer(void)
 		if (rendermode != render_none)
 		{
 			F_WipeStartScreen();
-			V_DrawFill(0, 0, vid.width, vid.height, 31);
+			V_DrawFill(0, 0, BASEVIDWIDTH, BASEVIDHEIGHT, 31);
 			F_DrawCreditScreen(&credits[animtimer]);
 			F_WipeEndScreen(0, 0, vid.width, vid.height);
 
@@ -1713,7 +1713,7 @@ void F_IntroDrawer(void)
 			if (rendermode != render_none)
 			{
 				F_WipeStartScreen();
-				V_DrawFill(0, 0, vid.width, vid.height, 31);
+				V_DrawFill(0, 0, BASEVIDWIDTH, BASEVIDHEIGHT, 31);
 				F_WipeEndScreen(0, 0, vid.width, vid.height);
 
 				F_RunWipe(TICRATE, true);
@@ -1759,7 +1759,7 @@ void F_IntroDrawer(void)
 		if (rendermode != render_none)
 		{
 			F_WipeStartScreen();
-			V_DrawFill(0, 0, vid.width, vid.height, 31);
+			V_DrawFill(0, 0, BASEVIDWIDTH, BASEVIDHEIGHT, 31);
 			V_DrawScaledPatch(0, 0, 0, W_CachePatchName("SGRASS5", PU_CACHE));
 			F_IntroTextWrite();
 			F_WipeEndScreen(0, 0, vid.width, vid.height);
@@ -1827,7 +1827,7 @@ static void F_AdvanceToNextScene(void)
 
 static void F_CutsceneTextWrite(void)
 {
-	V_DrawFill(0, 0, vid.width, vid.height, 31);
+	V_DrawFill(0, 0, BASEVIDWIDTH, BASEVIDHEIGHT, 31);
 
 	if (cutscenes[cutnum].scene[scenenum].picname[picnum][0] != '\0')
 	{
