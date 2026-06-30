@@ -5900,6 +5900,16 @@ static void M_DrawSlider(INT32 x, INT32 y, const consvar_t *cv)
 	INT32 range;
 	patch_t *p;
 
+	for (i = 0; cv->PossibleValue[i+1].strvalue; i++);
+
+	range = ((cv->value - cv->PossibleValue[0].value) * 100 /
+	 (cv->PossibleValue[i].value - cv->PossibleValue[0].value));
+
+	if (range < 0)
+		range = 0;
+	if (range > 100)
+		range = 100;
+
 	x = BASEVIDWIDTH - x - SLIDER_WIDTH;
 
 	V_DrawScaledPatch(x - 8, y, 0, W_CachePatchName("M_SLIDEL", PU_CACHE));
