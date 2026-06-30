@@ -559,10 +559,7 @@ void R_ExecuteSetViewSize(void)
 	centeryfrac = centery<<FRACBITS;
 
 	projection = centerxfrac;
-	if (rendermode == render_opengl)
-		projectiony = (((vid.height*centerx*BASEVIDWIDTH)/BASEVIDHEIGHT)/vid.width)<<FRACBITS;
-	else
-		projectiony = centerxfrac;
+	projectiony = centerxfrac;
 
 	R_InitViewBuffer(scaledviewwidth, viewheight);
 
@@ -875,7 +872,7 @@ void R_RenderPlayerView(player_t *player)
 #endif
 
 	if (cv_homremoval.value && player == &players[displayplayer]) // if this is display player 1
-		V_DrawFill(0, 0, vid.width, vid.height, 31); // No HOM effect!
+		V_DrawFill(0, 0, BASEVIDWIDTH, BASEVIDHEIGHT, 31); // No HOM effect!
 
 	// check for new console commands.
 	NetUpdate();

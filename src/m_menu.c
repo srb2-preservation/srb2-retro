@@ -3990,7 +3990,7 @@ static void M_DrawSetupChoosePlayerMenu(void)
 	patch_t *patch;
 
 	// Black BG
-	V_DrawFill(0, 0, vid.width, vid.height, 31);
+	V_DrawFill(0, 0, BASEVIDWIDTH, BASEVIDHEIGHT, 31);
 
 	{
 		// Compact the menu
@@ -8480,7 +8480,7 @@ boolean M_Responder(event_t *ev)
 					// Fade to black first
 					if (rendermode != render_none)
 					{
-						V_DrawFill(0, 0, vid.width, vid.height, 31);
+						V_DrawFill(0, 0, BASEVIDWIDTH, BASEVIDHEIGHT, 31);
 						F_WipeEndScreen(0, 0, vid.width, vid.height);
 
 						F_RunWipe(2*TICRATE, false);
@@ -8597,9 +8597,9 @@ void M_Drawer(void)
 
 	// Draw version down in corner
 	if (customversionstring[0] != '\0')
-		V_DrawString(0, BASEVIDHEIGHT - 8, V_TRANSLUCENT, customversionstring);
+		V_DrawString(0, BASEVIDHEIGHT - 8, V_TRANSLUCENT|V_SNAPTOBOTTOM|V_SNAPTOLEFT, customversionstring);
 	else
-		V_DrawString(0, BASEVIDHEIGHT - 8, V_TRANSLUCENT, VERSIONSTRING);
+		V_DrawString(0, BASEVIDHEIGHT - 8, V_TRANSLUCENT|V_SNAPTOBOTTOM|V_SNAPTOLEFT, VERSIONSTRING);
 }
 
 //

@@ -432,7 +432,7 @@ static void V_DrawTranslucentMappedPatch(INT32 x, INT32 y, INT32 scrn, patch_t *
 			}
 			// if it's meant to cover the whole screen, black out the rest
 			if (x == 0 && SHORT(patch->width) == BASEVIDWIDTH && y == 0 && SHORT(patch->height) == BASEVIDHEIGHT)
-				V_DrawFill(0, 0, vid.width, vid.height, 31);
+				V_DrawFill(0, 0, BASEVIDWIDTH, BASEVIDHEIGHT, 31);
 		}
 	}
 	scrn &= 0xffff;
@@ -532,7 +532,7 @@ void V_DrawMappedPatch(INT32 x, INT32 y, INT32 scrn, patch_t *patch, const UINT8
 			}
 			// if it's meant to cover the whole screen, black out the rest
 			if (x == 0 && SHORT(patch->width) == BASEVIDWIDTH && y == 0 && SHORT(patch->height) == BASEVIDHEIGHT)
-				V_DrawFill(0, 0, vid.width, vid.height, 31);
+				V_DrawFill(0, 0, BASEVIDWIDTH, BASEVIDHEIGHT, 31);
 		}
 	}
 	scrn &= 0xffff;
@@ -646,7 +646,7 @@ void V_DrawScaledPatch(INT32 x, INT32 y, INT32 scrn, patch_t *patch)
 			}
 			// if it's meant to cover the whole screen, black out the rest
 			if (x == 0 && SHORT(patch->width) == BASEVIDWIDTH && y == 0 && SHORT(patch->height) == BASEVIDHEIGHT)
-				V_DrawFill(0, 0, vid.width, vid.height, 31);
+				V_DrawFill(0, 0, BASEVIDWIDTH, BASEVIDHEIGHT, 31);
 		}
 	}
 	destend = desttop + SHORT(patch->width) * dupx;
@@ -851,12 +851,6 @@ void V_DrawSmallScaledPatch(INT32 x, INT32 y, INT32 scrn, patch_t *patch)
 	// draw a hardware converted patch
 	if (rendermode != render_soft && rendermode != render_none)
 	{
-		if (!(scrn & V_NOSCALESTART)) // Graue 07-08-2004: I have no idea why this works
-		{
-			x = FixedInt(FixedMul(vid.fdupx, x*FRACUNIT));
-			y = FixedInt(FixedMul(vid.fdupy, y*FRACUNIT));
-			scrn |= V_NOSCALESTART;
-		}
 		HWR_DrawSmallPatch((GLPatch_t *)patch, x, y, scrn, colormaps);
 		return;
 	}
@@ -973,12 +967,6 @@ void V_DrawSmallTranslucentMappedPatch(INT32 x, INT32 y, INT32 scrn, patch_t *pa
 	// draw a hardware converted patch
 	if (rendermode != render_soft && rendermode != render_none)
 	{
-		if (!(scrn & V_NOSCALESTART)) // Graue 07-08-2004: I have no idea why this works
-		{
-			x = FixedInt(FixedMul(vid.fdupx, x*FRACUNIT));
-			y = FixedInt(FixedMul(vid.fdupy, y*FRACUNIT));
-			scrn |= V_NOSCALESTART;
-		}
 		HWR_DrawSmallPatch((GLPatch_t *)patch, x, y, scrn, colormap);
 		return;
 	}
@@ -1084,12 +1072,6 @@ void V_DrawSmallTranslucentPatch(INT32 x, INT32 y, INT32 scrn, patch_t *patch)
 	// draw a hardware converted patch
 	if (rendermode != render_soft && rendermode != render_none)
 	{
-		if (!(scrn & V_NOSCALESTART)) // Graue 07-08-2004: I have no idea why this works
-		{
-			x = FixedInt(FixedMul(vid.fdupx, x*FRACUNIT));
-			y = FixedInt(FixedMul(vid.fdupy, y*FRACUNIT));
-			scrn |= V_NOSCALESTART;
-		}
 		HWR_DrawSmallPatch((GLPatch_t *)patch, x, y, scrn, colormaps);
 		return;
 	}
@@ -1194,12 +1176,6 @@ void V_DrawSmallMappedPatch(INT32 x, INT32 y, INT32 scrn, patch_t *patch, const 
 	// draw a hardware converted patch
 	if (rendermode != render_soft && rendermode != render_none)
 	{
-		if (!(scrn & V_NOSCALESTART)) // Graue 07-08-2004: I have no idea why this works
-		{
-			x = FixedInt(FixedMul(vid.fdupx, x*FRACUNIT));
-			y = FixedInt(FixedMul(vid.fdupy, y*FRACUNIT));
-			scrn |= V_NOSCALESTART;
-		}
 		HWR_DrawSmallPatch((GLPatch_t *)patch, x, y, scrn, colormap);
 		return;
 	}
@@ -1372,7 +1348,7 @@ void V_DrawTranslucentPatch(INT32 x, INT32 y, INT32 scrn, patch_t *patch)
 			}
 			// if it's meant to cover the whole screen, black out the rest
 			if (x == 0 && SHORT(patch->width) == BASEVIDWIDTH && y == 0 && SHORT(patch->height) == BASEVIDHEIGHT)
-				V_DrawFill(0, 0, vid.width, vid.height, 31);
+				V_DrawFill(0, 0, BASEVIDWIDTH, BASEVIDHEIGHT, 31);
 		}
 	}
 

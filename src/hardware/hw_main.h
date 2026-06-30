@@ -66,6 +66,8 @@ void HWR_StartScreenWipe(void);
 void HWR_EndScreenWipe(void);
 void HWR_DoScreenWipe(void);
 void HWR_DrawIntermissionBG(void);
+void HWR_MakeScreenFinalTexture(void);
+void HWR_DrawScreenFinalTexture(int width, int height);
 #endif
 
 // This stuff is put here so MD2's can use them

@@ -5516,4 +5516,14 @@ void HWR_DoScreenWipe(void)
 }
 #endif // SHUFFLE
 
+void HWR_MakeScreenFinalTexture(void)
+{
+    HWD.pfnMakeScreenFinalTexture();
+}
+
+void HWR_DrawScreenFinalTexture(int width, int height)
+{
+    HWD.pfnDrawScreenFinalTexture(width, height);
+}
+
 #endif // HWRENDER
