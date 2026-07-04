@@ -578,6 +578,9 @@ void D_SRB2Loop(void)
 	SCR_SetMode(); // change video mode
 	SCR_Recalc();
 
+	// hack to start on a nice clear console screen.
+	COM_ImmedExecute("cls;version");
+
 #if defined(__EMSCRIPTEN__)
 	emscripten_set_main_loop(D_RunFrame, 0, 1);
 #else
