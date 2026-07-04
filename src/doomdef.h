@@ -107,7 +107,7 @@ extern FILE *logstream;
 // we use comprevision and compbranch instead.
 #else
 #define VERSION    200 // Game version
-#define SUBVERSION 14  // more precise version number
+#define SUBVERSION 7   // more precise version number
 #define VERSIONSTRING "v2.0.7"
 #define VERSIONSTRINGW L"v2.0.7"
 // Hey! If you change this, add 1 to the MODVERSION below!
