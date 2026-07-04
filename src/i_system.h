@@ -331,6 +331,10 @@ INT32 I_PutEnv(char *variable);
 
 void I_RegisterSysCommands(void);
 
+/** \brief Get the current platform
+*/
+const char *I_GetPlatform(void);
+
 /** \brief Mount IndexedDB filesystem for WASM on program start, does nothing elsewhere
 */
 FUNCINLINE static ATTRINLINE void I_MountIDBFS(void)

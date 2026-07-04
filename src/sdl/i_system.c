@@ -933,6 +933,11 @@ INT32 I_GetKey (void)
 	return rc;
 }
 
+const char *I_GetPlatform(void)
+{
+	return SDL_GetPlatform();
+}
+
 //
 // I_JoyScale
 //
