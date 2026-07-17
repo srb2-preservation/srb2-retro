@@ -724,13 +724,6 @@ void S_PauseSound(void)
 		I_PauseSong(mus_playing->handle);
 		mus_paused = true;
 	}
-
-	// pause cd music
-#if defined (__unix__) || defined (UNIXCOMMON) || defined (SDL)
-	I_PauseCD();
-#else
-	I_StopCD();
-#endif
 }
 
 void S_ResumeSound(void)
@@ -743,9 +736,6 @@ void S_ResumeSound(void)
 		I_ResumeSong(mus_playing->handle);
 		mus_paused = false;
 	}
-
-	// resume cd music
-	I_ResumeCD();
 }
 
 //

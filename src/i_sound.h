@@ -15,7 +15,7 @@
 // GNU General Public License for more details.
 //-----------------------------------------------------------------------------
 /// \file
-/// \brief System interface, sound, music and CD
+/// \brief System interface, sound, music
 
 #ifndef __I_SOUND__
 #define __I_SOUND__
@@ -241,55 +241,5 @@ void I_StopDigSong(void);
 	\return	void
 */
 void I_SetDigMusicVolume(INT32 volume);
-
-//
-// CD MUSIC I/O
-//
-
-
-/**	\brief  cd music interface
-*/
-extern UINT8 cdaudio_started;
-
-/**	\brief Startup the CD system
-*/
-void I_InitCD(void);
-
-/**	\brief Stop the CD playback
-*/
-void I_StopCD(void);
-
-/**	\brief Pause the CD playback
-*/
-void I_PauseCD(void);
-
-/**	\brief Resume the CD playback
-*/
-void I_ResumeCD(void);
-
-/**	\brief Shutdown the CD system
-*/
-void I_ShutdownCD(void);
-
-/**	\brief Update the CD info
-*/
-void I_UpdateCD(void);
-
-/**	\brief	The I_PlayCD function
-
-	\param	track	CD track number
-	\param	looping	if true, loop the track
-
-	\return	void
-*/
-void I_PlayCD(UINT8 track, UINT8 looping);
-
-/**	\brief	The I_SetVolumeCD function
-
-	\param	volume	volume level to set at
-
-	\return	return 0 on failure
-*/
-boolean I_SetVolumeCD(INT32 volume);
 
 #endif

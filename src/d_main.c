@@ -654,9 +654,6 @@ static void D_RunFrame(void)
 		// consoleplayer -> displayplayer (hear sounds from viewpoint)
 		S_UpdateSounds(); // move positional sounds
 
-		// check for media change, loop music..
-		I_UpdateCD();
-
 #ifdef HW3SOUND
 		HW3S_EndFrameUpdate();
 #endif
@@ -1253,10 +1250,6 @@ void D_SRB2Main(void)
 	savedata.lives = 0; // flag this as not-used
 
 	//------------------------------------------------ COMMAND LINE PARAMS
-
-	// Initialize CD-Audio
-	if (M_CheckParm("-usecd") && !dedicated)
-		I_InitCD();
 
 	if (M_CheckParm("-nodownloading"))
 		COM_BufAddText("downloading 0\n");
