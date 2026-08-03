@@ -1972,16 +1972,10 @@ static void DEH_LoadDehackedFile(MYFILE *f)
 	char *word2;
 	INT32 i;
 	// do a copy of this for cross references probleme
-	XBOXSTATIC actionf_p1 saveactions[NUMSTATES];
-	XBOXSTATIC const char *savesprnames[NUMSPRITES];
 	XBOXSTATIC const char *savesfxnames[NUMSFX];
 
 	deh_num_warning = 0;
 	// save values for cross reference
-	for (i = 0; i < NUMSTATES; i++)
-		saveactions[i] = states[i].action;
-	for (i = 0; i < NUMSPRITES; i++)
-		savesprnames[i] = sprnames[i];
 	for (i = 0; i < NUMSFX; i++)
 		savesfxnames[i] = S_sfx[i].name;
 
@@ -2093,24 +2087,6 @@ static void DEH_LoadDehackedFile(MYFILE *f)
 						deh_warning(text[FRAME_NOTEXIST], i);
 					DEH_WriteUndoline(word, word2, UNDO_HEADER);
 				}
-/*				else if (!strcmp(word, "POINTER"))
-				{
-					word = strtok(NULL, " "); // get frame
-					word = strtok(NULL, ")");
-					if (word)
-					{
-						i = atoi(word);
-						if (i < NUMSTATES && i >= 0)
-						{
-							if (myfgets(s, sizeof (s), f))
-								states[i].action = saveactions[searchvalue(s)];
-						}
-						else
-							deh_warning("Pointer: Frame %d doesn't exist", i);
-					}
-					else
-						deh_warning("pointer (Frame %d) : missing ')'", i);
-				}*/
 				else if (!strcmp(word, "SOUND"))
 				{
 					if (i < NUMSFX && i >= 0)
@@ -2119,23 +2095,6 @@ static void DEH_LoadDehackedFile(MYFILE *f)
 						deh_warning(text[SOUND_NOTEXIST], i);
 					DEH_WriteUndoline(word, word2, UNDO_HEADER);
 				}
-/*				else if (!strcmp(word, "SPRITE"))
-				{
-					if (i < NUMSPRITES && i >= 0)
-					{
-						if (myfgets(s, sizeof (s), f))
-						{
-							INT32 k;
-							k = (searchvalue(s) - 151328)/8;
-							if (k >= 0 && k < NUMSPRITES)
-								sprnames[i] = savesprnames[k];
-							else
-								deh_warning("Sprite %d: offset out of bound", i);
-						}
-					}
-					else
-						deh_warning("Sprite %d doesn't exist",i);
-				}*/
 				else if (!strcmp(word, "HUDITEM"))
 				{
 					if (i >= 0 && i < NUMHUDITEMS)

@@ -1701,7 +1701,6 @@ static void R_CreateDrawNodes(void)
 	drawnode_t *r2;
 	visplane_t *plane;
 	INT32 sintersect;
-	fixed_t gzm;
 	fixed_t scale = 0;
 
 	// Add the 3D floors, thicksides, and masked textures...
@@ -1770,7 +1769,6 @@ static void R_CreateDrawNodes(void)
 			continue;
 
 		sintersect = (rover->x1 + rover->x2) / 2;
-		gzm = (rover->gz + rover->gzt) / 2;
 
 		for (r2 = nodehead.next; r2 != &nodehead; r2 = r2->next)
 		{
@@ -2772,13 +2770,10 @@ void R_AddSkins(UINT16 wadnum)
 			// custom translation table
 			else if (!stricmp(stoken, "startcolor"))
 			{
-				UINT8 colorval;
 
 				STRBUFCPY(skins[numskins].starttranscolor,
 					value);
 				strupr(skins[numskins].starttranscolor);
-
-				colorval = (UINT8)atoi(skins[numskins].starttranscolor);
 			}
 
 			GETSKINATTRIB_(prefcolor)

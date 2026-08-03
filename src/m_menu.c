@@ -1082,21 +1082,6 @@ enum
 	op_screenshot_apng_end = 16,
 };
 
-void Moviemode_mode_Onchange(void) // i guess this can go here?
-{
-	INT32 i, cstart, cend;
-
-	switch (cv_moviemode.value)
-	{
-		case MM_GIF:
-			cstart = op_screenshot_gif_start;
-			cend = op_screenshot_gif_end;
-			break;
-		default:
-			return;
-	}
-}
-
 static menuitem_t OP_AddonsOptionsMenu[] =
 {
 	{IT_STRING|IT_CVAR,              NULL, "Location",                    &cv_addons_option,      10},
@@ -2625,7 +2610,6 @@ static void M_DrawAddons(void)
 {
 	INT32 x, y;
 	ssize_t i, m;
-	const UINT8 *flashcol = NULL;
 	UINT8 hilicol;
 
 	// hack - need to refresh at end of frame to handle addfile...
@@ -2703,9 +2687,6 @@ static void M_DrawAddons(void)
 
 	if (i != 0)
 		V_DrawString(19, y+4 - (skullAnimCounter/5), highlightflags, "\x1A");
-
-	if (skullAnimCounter < 4)
-		flashcol = yellowmap;
 
 	for (; i < m; i++)
 	{

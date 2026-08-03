@@ -2021,7 +2021,6 @@ static boolean G_CheckSpot(INT32 playernum, mapthing_t *mthing)
 {
 	fixed_t x;
 	fixed_t y;
-	subsector_t *ss;
 	INT32 i;
 
 	// maybe there is no player start
@@ -2043,7 +2042,6 @@ static boolean G_CheckSpot(INT32 playernum, mapthing_t *mthing)
 
 	x = mthing->x << FRACBITS;
 	y = mthing->y << FRACBITS;
-	ss = R_PointInSubsector(x, y);
 
 	if (!P_CheckPosition(players[playernum].mo, x, y))
 		return false;
@@ -3165,7 +3163,6 @@ void G_DeferedPlayDemo(const char *name)
 void G_DoPlayDemo(char *defdemoname)
 {
 	INT32 i;
-	INT16 map;
 	lumpnum_t l;
 
 	// load demo file / resource
@@ -3188,7 +3185,6 @@ void G_DoPlayDemo(char *defdemoname)
 	// read demo header
 	gameaction = ga_nothing;
 	(void)READUINT8(demo_p); // ultmode
-	map = READUINT8(demo_p);
 
 	(void)READUINT8(demo_p);
 

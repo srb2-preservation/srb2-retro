@@ -251,20 +251,9 @@ boolean CL_CheckDownloadable(void)
   */
 boolean SendRequestFile(void)
 {
-	boolean candownloadfiles = true;
 	char *p;
 	INT32 i;
 	INT64 totalfreespaceneeded = 0, availablefreespace;
-
-	if (M_CheckParm("-nodownload"))
-		candownloadfiles = false;
-	else
-		for (i = 0; i < fileneedednum; i++)
-			if (fileneeded[i].status != FS_FOUND && fileneeded[i].status != FS_OPEN
-				&& fileneeded[i].important && (fileneeded[i].willsend == 0 || fileneeded[i].willsend == 2))
-			{
-				candownloadfiles = false;
-			}
 
 	for (i = 0; i < fileneedednum; i++)
 		if (fileneeded[i].status != FS_FOUND && fileneeded[i].status != FS_OPEN

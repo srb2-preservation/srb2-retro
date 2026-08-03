@@ -242,11 +242,10 @@ void P_InitMapHeaders(void)
 {
 	char mapheader[7];
 	lumpnum_t lumpnum;
-	INT32 moremapnumbers, mapnum;
+	INT32 mapnum;
 
 	for (mapnum = 1; mapnum <= NUMMAPS; mapnum++)
 	{
-		moremapnumbers = mapnum - 1;
 
 		strncpy(mapheader, G_BuildMapName(mapnum), 5);
 
@@ -875,11 +874,11 @@ void P_WriteThings(lumpnum_t lumpnum)
 {
 	size_t i, length;
 	mapthing_t *mt;
-	UINT8 *data, *datastart;
+	UINT8 *datastart;
 	UINT8 *savebuffer, *savebuf_p;
 	INT16 temp;
 
-	data = datastart = W_CacheLumpNum(lumpnum, PU_LEVEL);
+	datastart = W_CacheLumpNum(lumpnum, PU_LEVEL);
 
 	savebuf_p = savebuffer = (UINT8 *)malloc(nummapthings * sizeof (mapthing_t));
 
@@ -1299,7 +1298,6 @@ static boolean LineInBlock(fixed_t cx1, fixed_t cy1, fixed_t cx2, fixed_t cy2, f
 {
 	fixed_t bx2 = bx1 + MAPBLOCKUNITS;
 	fixed_t by2 = by1 + MAPBLOCKUNITS;
-	fixed_t bbox[4];
 	line_t boxline, testline;
 	vertex_t vbox, vtest;
 
@@ -1328,10 +1326,6 @@ static boolean LineInBlock(fixed_t cx1, fixed_t cy1, fixed_t cx2, fixed_t cy2, f
 	bx2 <<= FRACBITS;
 	by2 <<= FRACBITS;
 
-	bbox[BOXTOP] = by2;
-	bbox[BOXBOTTOM] = by1;
-	bbox[BOXRIGHT] = bx2;
-	bbox[BOXLEFT] = bx1;
 	boxline.v1 = &vbox;
 	testline.v1 = &vtest;
 

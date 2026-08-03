@@ -397,7 +397,7 @@ static PFNgluBuild2DMipmaps pgluBuild2DMipmaps;
 typedef void (APIENTRY *PFNglActiveTexture) (GLenum);
 static PFNglActiveTexture pglActiveTexture;
 typedef void (APIENTRY *PFNglMultiTexCoord2f) (GLenum, GLfloat, GLfloat);
-static PFNglMultiTexCoord2f pglMultiTexCoord2f;
+
 #endif
 
 #ifndef MINI_GL_COMPATIBILITY
@@ -2236,11 +2236,10 @@ EXPORT void HWRAPI(DrawScreenFinalTexture)(int width, int height)
 	float origaspect, newaspect;
 	float xoff = 1, yoff = 1; // xoffset and yoffset for the polygon to have black bars around the screen
 	FRGBAFloat clearColour;
-	int lmaxx, lmaxy;
+	int lmaxx;
 	INT32 texsize = 2048;
 
 	lmaxx = width < screen_width ? screen_width : width;
-	lmaxy = height < screen_height ? screen_height : height;
 
 	if(screen_width <= 1024)
 		texsize = 1024;
