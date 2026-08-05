@@ -5973,6 +5973,8 @@ static menuitem_t RetroMenu[] =
 {
 	{IT_CVAR | IT_STRING, NULL, "GIF Optimization", &cv_gif_optimize, 20},
 	{IT_CVAR | IT_STRING, NULL, "GIF Downscaling", &cv_gif_downscale, 30},
+	{IT_STRING|IT_CVAR, NULL, "Maximum Filesize", &cv_gif_maxsize,             40},
+	{IT_STRING|IT_CVAR, NULL, "Rolling GIFs", &cv_gif_rolling,             50},
 };
 
 menu_t RetroDef =
@@ -7793,6 +7795,10 @@ void M_QuitResponse(INT32 ch)
 			V_DrawScaledPatch(0, 0, 0, W_CachePatchName("GAMEQUIT", PU_CACHE)); // Demo 3 Quit Screen Tails 06-16-2001
 			I_FinishUpdate(); // Update the screen with the image Tails 06-19-2001
 			I_Sleep();
+			if (moviemode)
+				M_SaveFrame();
+			if (takescreenshot)
+				M_DoScreenShot();
 		}
 	}
 	I_Quit();

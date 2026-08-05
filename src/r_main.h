@@ -87,7 +87,7 @@ subsector_t *R_IsPointInSubsector(fixed_t x, fixed_t y);
 // REFRESH - the actual rendering functions.
 //
 
-extern consvar_t cv_showhud;
+extern consvar_t cv_showhud, cv_moviemodeinfo;
 extern consvar_t cv_limitdraw;
 extern consvar_t cv_grtranslucenthud;
 extern consvar_t cv_chasecam, cv_chasecam2;

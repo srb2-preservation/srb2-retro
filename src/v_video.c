@@ -2042,7 +2042,7 @@ void V_DrawString(INT32 x, INT32 y, INT32 option, const char *string)
 			colormap = purplemap;
 		else if (lastcolorchar == 0x84)
 			colormap = bluemap;
-		else if (lastcolorchar == 0x85)
+		else if ((option & V_REDMAP) || lastcolorchar == 0x85)
 			colormap = redmap;
 		else if (lastcolorchar == 0x86)
 			colormap = graymap;

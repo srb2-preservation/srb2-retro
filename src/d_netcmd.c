@@ -665,6 +665,8 @@ void D_RegisterClientCommands(void)
 
 	CV_RegisterVar(&cv_gif_downscale);
 	CV_RegisterVar(&cv_gif_optimize);
+	CV_RegisterVar(&cv_gif_maxsize);
+	CV_RegisterVar(&cv_gif_rolling);
 
 	CV_RegisterVar(&cv_zlib_level);
 	CV_RegisterVar(&cv_zlib_memory);

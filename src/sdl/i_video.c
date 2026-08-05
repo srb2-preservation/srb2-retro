@@ -1019,6 +1019,8 @@ void I_FinishUpdate(void)
 	if (cv_ticrate.value)
 		SCR_DisplayTicRate();
 
+	ST_MovieInfoDrawer();
+
 	if (render_soft == rendermode && screens[0])
 	{
 		SDL_Rect rect;

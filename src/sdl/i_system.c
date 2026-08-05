@@ -2384,6 +2384,8 @@ void I_Quit(void)
 
 	if (demorecording)
 		G_CheckDemoStatus();
+	if (moviemode)
+		M_StopMovie();
 
 	D_QuitNetGame();
 	I_ShutdownMusic();
@@ -2509,6 +2511,8 @@ void I_Error(const char *error, ...)
 	// Shutdown. Here might be other errors.
 	if (demorecording)
 		G_CheckDemoStatus();
+	if (moviemode)
+		M_StopMovie();
 
 	D_QuitNetGame();
 	I_ShutdownMusic();

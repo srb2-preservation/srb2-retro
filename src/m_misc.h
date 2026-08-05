@@ -68,6 +68,8 @@ boolean M_SavePNG(const char *filename, void *data, int width, int height, const
 void M_StartMovie(void);
 void M_SaveFrame(void);
 void M_StopMovie(void);
+INT32 M_RecordedFrames(void);
+float M_SavedSize(void);
 #endif
 
 extern boolean takescreenshot;
