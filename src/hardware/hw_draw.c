@@ -127,13 +127,15 @@ void HWR_DrawPatch(GLPatch_t *gpatch, fixed_t x, fixed_t y, INT32 option)
 				cy += ((float)vid.height - ((float)BASEVIDHEIGHT * dupy))/2;
 		}
 		// if it's meant to cover the whole screen, black out the rest
-		// TODO
-		/*if (x == 0 && SHORT(gpatch->width) == BASEVIDWIDTH && y == 0 && SHORT(gpatch->height) == BASEVIDHEIGHT)
+		if (x == 0 && SHORT(gpatch->width) == BASEVIDWIDTH && y == 0 && SHORT(gpatch->height) == BASEVIDHEIGHT)
 		{
-			const column_t *column = (const column_t *)((const UINT8 *)((patch_t *)gpatch) + LONG(((patch_t *)gpatch)->columnofs[0]));
+			// Need to temporarily cache the real patch to get the colour of the top left pixel
+			patch_t *realpatch = W_CacheLumpNum(gpatch->patchlump, PU_STATIC);
+			const column_t *column = (const column_t *)((const UINT8 *)(realpatch) + LONG((realpatch)->columnofs[0]));
 			const UINT8 *source = (const UINT8 *)(column) + 3;
 			HWR_DrawFill(0, 0, BASEVIDWIDTH, BASEVIDHEIGHT, (column->topdelta == 0xff ? 31 : source[0]));
-		}*/
+			Z_Free(realpatch);
+		}
 	}
 
 	if (pscale != FRACUNIT)
@@ -253,13 +255,15 @@ void HWR_DrawTranslucentPatch(GLPatch_t *gpatch, fixed_t x, fixed_t y, INT32 opt
 				cy += ((float)vid.height - ((float)BASEVIDHEIGHT * dupy))/2;
 		}
 		// if it's meant to cover the whole screen, black out the rest
-		// TODO
-		/*if (x == 0 && SHORT(gpatch->width) == BASEVIDWIDTH && y == 0 && SHORT(gpatch->height) == BASEVIDHEIGHT)
+		if (x == 0 && SHORT(gpatch->width) == BASEVIDWIDTH && y == 0 && SHORT(gpatch->height) == BASEVIDHEIGHT)
 		{
-			const column_t *column = (const column_t *)((const UINT8 *)((patch_t *)gpatch) + LONG(((patch_t *)gpatch)->columnofs[0]));
+			// Need to temporarily cache the real patch to get the colour of the top left pixel
+			patch_t *realpatch = W_CacheLumpNum(gpatch->patchlump, PU_STATIC);
+			const column_t *column = (const column_t *)((const UINT8 *)(realpatch) + LONG((realpatch)->columnofs[0]));
 			const UINT8 *source = (const UINT8 *)(column) + 3;
 			HWR_DrawFill(0, 0, BASEVIDWIDTH, BASEVIDHEIGHT, (column->topdelta == 0xff ? 31 : source[0]));
-		}*/
+			Z_Free(realpatch);
+		}
 	}
 
 	if (pscale != FRACUNIT)
@@ -369,13 +373,15 @@ void HWR_DrawSmallPatch (GLPatch_t *gpatch, INT32 x, INT32 y, INT32 option, cons
 				cy += ((float)vid.height - ((float)BASEVIDHEIGHT * dupy))/2;
 		}
 		// if it's meant to cover the whole screen, black out the rest
-		// TODO
-		/*if (x == 0 && SHORT(gpatch->width) == BASEVIDWIDTH && y == 0 && SHORT(gpatch->height) == BASEVIDHEIGHT)
+		if (x == 0 && SHORT(gpatch->width) == BASEVIDWIDTH && y == 0 && SHORT(gpatch->height) == BASEVIDHEIGHT)
 		{
-			const column_t *column = (const column_t *)((const UINT8 *)((patch_t *)gpatch) + LONG(((patch_t *)gpatch)->columnofs[0]));
+			// Need to temporarily cache the real patch to get the colour of the top left pixel
+			patch_t *realpatch = W_CacheLumpNum(gpatch->patchlump, PU_STATIC);
+			const column_t *column = (const column_t *)((const UINT8 *)(realpatch) + LONG((realpatch)->columnofs[0]));
 			const UINT8 *source = (const UINT8 *)(column) + 3;
 			HWR_DrawFill(0, 0, BASEVIDWIDTH, BASEVIDHEIGHT, (column->topdelta == 0xff ? 31 : source[0]));
-		}*/
+			Z_Free(realpatch);
+		}
 	}
 
 	if (pscale != FRACUNIT)
@@ -488,13 +494,15 @@ void HWR_DrawMappedPatch (GLPatch_t *gpatch, INT32 x, INT32 y, INT32 option, con
 				cy += ((float)vid.height - ((float)BASEVIDHEIGHT * dupy))/2;
 		}
 		// if it's meant to cover the whole screen, black out the rest
-		// TODO
-		/*if (x == 0 && SHORT(gpatch->width) == BASEVIDWIDTH && y == 0 && SHORT(gpatch->height) == BASEVIDHEIGHT)
+		if (x == 0 && SHORT(gpatch->width) == BASEVIDWIDTH && y == 0 && SHORT(gpatch->height) == BASEVIDHEIGHT)
 		{
-			const column_t *column = (const column_t *)((const UINT8 *)((patch_t *)gpatch) + LONG(((patch_t *)gpatch)->columnofs[0]));
+			// Need to temporarily cache the real patch to get the colour of the top left pixel
+			patch_t *realpatch = W_CacheLumpNum(gpatch->patchlump, PU_STATIC);
+			const column_t *column = (const column_t *)((const UINT8 *)(realpatch) + LONG((realpatch)->columnofs[0]));
 			const UINT8 *source = (const UINT8 *)(column) + 3;
 			HWR_DrawFill(0, 0, BASEVIDWIDTH, BASEVIDHEIGHT, (column->topdelta == 0xff ? 31 : source[0]));
-		}*/
+			Z_Free(realpatch);
+		}
 	}
 
 	if (pscale != FRACUNIT)
