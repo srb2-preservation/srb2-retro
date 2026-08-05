@@ -1016,6 +1016,9 @@ void I_FinishUpdate(void)
 	if (I_SkipFrame())
 		return;
 
+	if (cv_ticrate.value)
+		SCR_DisplayTicRate();
+
 	if (render_soft == rendermode && screens[0])
 	{
 		SDL_Rect rect;

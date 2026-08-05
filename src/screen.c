@@ -383,3 +383,35 @@ void SCR_ChangeFullscreen(void)
 	return;
 #endif
 }
+
+// XMOD FPS display
+// moved out of os-specific code for consistency
+static boolean fpsgraph[TICRATE];
+static tic_t lasttic;
+
+void SCR_DisplayTicRate(void)
+{
+	tic_t i;
+	tic_t ontic = I_GetTime();
+	tic_t totaltics = 0;
+	INT32 ticcntcolor = 0;
+
+	for (i = lasttic + 1; i < TICRATE+lasttic && i < ontic; ++i)
+		fpsgraph[i % TICRATE] = false;
+
+	fpsgraph[ontic % TICRATE] = true;
+
+	for (i = 0;i < TICRATE;++i)
+		if (fpsgraph[i])
+			++totaltics;
+
+	if (totaltics <= TICRATE/2) ticcntcolor = V_YELLOWMAP;
+	else if (totaltics == TICRATE) ticcntcolor = V_GREENMAP;
+
+	V_DrawString(vid.width-(24*vid.dupx), vid.height-(16*vid.dupy),
+		V_YELLOWMAP|V_NOSCALESTART, "FPS");
+	V_DrawString(vid.width-(40*vid.dupx), vid.height-( 8*vid.dupy),
+		ticcntcolor|V_NOSCALESTART, va("%02d/%02u", totaltics, TICRATE));
+
+	lasttic = ontic;
+}
