@@ -960,6 +960,7 @@ static boolean M_SetupaPNG(png_const_charp filename, png_bytep pal)
 	return true;
 }
 #endif
+#endif // USE_APNG
 
 INT32 M_RecordedFrames(void)
 {
@@ -970,9 +971,9 @@ float M_SavedSize(void)
 {
 	if (!moviemode)
 		return 0;
-	
+
 	switch (moviemode)
-	{	
+	{
 		case MM_GIF:
 			return GIF_GetSizeMB();
 		default:
@@ -981,8 +982,6 @@ float M_SavedSize(void)
 	// bruh
 	return 0;
 }
-
-#endif
 
 // ==========================================================================
 //                            SCREEN SHOTS
@@ -1242,7 +1241,7 @@ void M_DoScreenShot(void)
 	}
 
 	I_SyncIDBFS();
-	
+
 failure:
 	if (ret)
 	{
@@ -1466,35 +1465,35 @@ void strcatbf(char *s1, const char *s2, const char *s3)
 	 sprintf(sizeu1_buf, "%"PRIdS, num);
 	 return sizeu1_buf;
  }
- 
+
  char *sizeu2(size_t num)
  {
 	 static char sizeu2_buf[28];
 	 sprintf(sizeu2_buf, "%"PRIdS, num);
 	 return sizeu2_buf;
  }
- 
+
  char *sizeu3(size_t num)
  {
 	 static char sizeu3_buf[28];
 	 sprintf(sizeu3_buf, "%"PRIdS, num);
 	 return sizeu3_buf;
  }
- 
+
  char *sizeu4(size_t num)
  {
 	 static char sizeu4_buf[28];
 	 sprintf(sizeu4_buf, "%"PRIdS, num);
 	 return sizeu4_buf;
  }
- 
+
  char *sizeu5(size_t num)
  {
 	 static char sizeu5_buf[28];
 	 sprintf(sizeu5_buf, "%"PRIdS, num);
 	 return sizeu5_buf;
  }
- 
+
 
 #if defined (__GNUC__) && defined (__i386__) // from libkwave, under GPL
 // Alam: note libkwave memcpy code comes from mplayer's libvo/aclib_template.c, r699
