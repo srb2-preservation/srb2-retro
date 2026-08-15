@@ -279,8 +279,6 @@ static INT32 MS_Write(msg_t *msg)
 #else
 	size_t len;
 
-	if (msg->length == 0)
-		msg->length = (INT32)strlen(msg->buffer);
 	len = msg->length + HEADER_SIZE;
 
 	msg->type = htonl(msg->type);
