@@ -2080,7 +2080,7 @@ static void reademblemdata(MYFILE *f, INT32 num)
 
 static void DEH_LoadDehackedFile(MYFILE *f)
 {
-	XBOXSTATIC char s[1000];
+	XBOXSTATIC char *s = Z_Malloc(MAXLINELEN, PU_STATIC, NULL);
 	char *word;
 	char *word2;
 	INT32 i;
@@ -2103,11 +2103,11 @@ static void DEH_LoadDehackedFile(MYFILE *f)
 	// it doesn't test the version of SRB2 and version of dehacked file
 	while (!myfeof(f))
 	{
-		XBOXSTATIC char origpos[32];
+		XBOXSTATIC char origpos[128];
 		INT32 size = 0;
 		char *traverse;
 
-		myfgets(s, sizeof (s), f);
+		myfgets(s, MAXLINELEN, f);
 		if (s[0] == '\n' || s[0] == '#')
 			continue;
 
@@ -2122,8 +2122,11 @@ static void DEH_LoadDehackedFile(MYFILE *f)
 		strncpy(origpos, s, size);
 		origpos[size] = '\0';
 
-		if (NULL != (word = strtok(s, " ")))
+		if (NULL != (word = strtok(s, " "))) {
 			strupr(word);
+			if (word[strlen(word)-1] == '\n')
+				word[strlen(word)-1] = '\0';
+		}
 		if (word)
 		{
 			word2 = strtok(NULL, " ");
@@ -2229,7 +2232,7 @@ static void DEH_LoadDehackedFile(MYFILE *f)
 						i = atoi(word);
 						if (i < NUMSTATES && i >= 0)
 						{
-							if (myfgets(s, sizeof (s), f))
+							if (myfgets(s, MAXLINELEN, f))
 								states[i].action = saveactions[searchvalue(s)];
 						}
 						else
@@ -2250,7 +2253,7 @@ static void DEH_LoadDehackedFile(MYFILE *f)
 				{
 					if (i < NUMSPRITES && i >= 0)
 					{
-						if (myfgets(s, sizeof (s), f))
+						if (myfgets(s, MAXLINELEN, f))
 						{
 							INT32 k;
 							k = (searchvalue(s) - 151328)/8;
@@ -2331,6 +2334,7 @@ static void DEH_LoadDehackedFile(MYFILE *f)
 	}
 
 	deh_loaded = true;
+	Z_Free(s);
 }
 
 // read dehacked lump in a wad (there is special trick for for deh
