@@ -732,10 +732,14 @@ void R_SetupFrame(player_t *player)
 	if (splitscreen && player == &players[secondarydisplayplayer]
 		&& player != &players[consoleplayer])
 	{
+		R_SetViewContext(VIEWCONTEXT_PLAYER2);
 		thiscam = &camera2;
 	}
 	else
+	{
+		R_SetViewContext(VIEWCONTEXT_PLAYER1);
 		thiscam = &camera;
+	}
 
 	if (cv_chasecam.value && thiscam == &camera && !thiscam->chase)
 	{
@@ -756,9 +760,9 @@ void R_SetupFrame(player_t *player)
 	{
 		// cut-away view stuff
 		viewmobj = player->awayviewmobj; // should be a MT_ALTVIEWMAN
-		newview.z = viewmobj->z + 20*FRACUNIT;
-		newview.aim = player->awayviewaiming;
-		newview.angle = viewmobj->angle;
+		newview->z = viewmobj->z + 20*FRACUNIT;
+		newview->aim = player->awayviewaiming;
+		newview->angle = viewmobj->angle;
 	}
 	else if ((cv_chasecam.value && thiscam == &camera)
 		|| (cv_chasecam2.value && thiscam == &camera2))
@@ -766,31 +770,31 @@ void R_SetupFrame(player_t *player)
 	{
 		viewmobj = player->mo; // LIES! FILTHY STINKING LIES!!!
 		I_Assert(viewmobj != NULL);
-		newview.z = thiscam->z + (thiscam->height>>1);
-		newview.aim = thiscam->aiming;
-		newview.angle = thiscam->angle;
+		newview->z = thiscam->z + (thiscam->height>>1);
+		newview->aim = thiscam->aiming;
+		newview->angle = thiscam->angle;
 	}
 	else
 	// use the player's eyes view
 	{
-		newview.z = player->viewz;
+		newview->z = player->viewz;
 
 		viewmobj = player->mo;
 
-		newview.aim = player->aiming;
-		newview.angle = viewmobj->angle;
+		newview->aim = player->aiming;
+		newview->angle = viewmobj->angle;
 
 		if (!demoplayback && player->playerstate != PST_DEAD)
 		{
 			if (player == &players[consoleplayer])
 			{
-				newview.angle = localangle; // WARNING: camera uses this
-				newview.aim = localaiming;
+				newview->angle = localangle; // WARNING: camera uses this
+				newview->aim = localaiming;
 			}
 			else if (player == &players[secondarydisplayplayer])
 			{
-				newview.angle = localangle2;
-				newview.aim = localaiming2;
+				newview->angle = localangle2;
+				newview->aim = localaiming2;
 			}
 		}
 	}
@@ -805,39 +809,39 @@ void R_SetupFrame(player_t *player)
 		return;
 #endif
 
-	viewplayer = player;
+	newview->player = player;
 
 	if (((cv_chasecam.value && thiscam == &camera) || (cv_chasecam2.value && thiscam == &camera2))
 		&& !player->awayviewtics)
 	{
-		newview.x = thiscam->x;
-		newview.y = thiscam->y;
+		newview->x = thiscam->x;
+		newview->y = thiscam->y;
 
 		if (thiscam->subsector)
-			viewsector = thiscam->subsector->sector;
+			newview->sector = thiscam->subsector->sector;
 		else
-			viewsector = R_PointInSubsector(viewx, viewy)->sector;
+			newview->sector = R_PointInSubsector(viewx, viewy)->sector;
 	}
 	else
 	{
-		newview.x = viewmobj->x;
-		newview.y = viewmobj->y;
+		newview->x = viewmobj->x;
+		newview->y = viewmobj->y;
 
 		if (viewmobj->subsector)
-			viewsector = viewmobj->subsector->sector;
+			newview->sector = viewmobj->subsector->sector;
 		else
-			viewsector = R_PointInSubsector(viewx, viewy)->sector;
+			newview->sector = R_PointInSubsector(viewx, viewy)->sector;
 	}
 
-	//viewsin = FINESINE(viewangle>>ANGLETOFINESHIFT);
-	//viewcos = FINECOSINE(viewangle>>ANGLETOFINESHIFT);
+	//newview->sin = FINESINE(newview->angle>>ANGLETOFINESHIFT);
+	//newview->cos = FINECOSINE(newview->angle>>ANGLETOFINESHIFT);
 
 	sscount = 0;
 
 	// recalc necessary stuff for mouseaiming
 	// slopes are already calculated for the full possible view (which is 4*viewheight).
 
-	if (rendermode == render_soft)
+	/*if (rendermode == render_soft)
 	{
 		// clip it in the case we are looking a hardware 90 degrees full aiming
 		// (lmps, network and use F12...)
@@ -851,7 +855,9 @@ void R_SetupFrame(player_t *player)
 		yslope = &yslopetab[(3*viewheight/2) - dy];
 	}
 	centery = (viewheight/2) + dy;
-	centeryfrac = centery<<FRACBITS;
+	centeryfrac = centery<<FRACBITS;*/
+
+	R_InterpolateView(cv_capframerate.value == 0 ? I_GetTimeFrac() : FRACUNIT);
 
 	framecount++;
 	validcount++;
