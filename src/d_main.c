@@ -621,15 +621,21 @@ static void D_RunFrame(void)
 		// process tics (but maybe not if realtic == 0)
 		TryRunTics(realtics);
 
-		R_InterpolateView(I_GetTimeFrac());
-		D_Display();
+		if (cv_capframerate.value == 0)
+		{
+			R_InterpolateView(I_GetTimeFrac());
+			D_Display();
+		}
+		else
+			R_InterpolateView(FRACUNIT);
+
 		if (lastdraw || singletics || gametic > rendergametic)
 		{
 			rendergametic = gametic;
 			rendertimeout = entertic+TICRATE/17;
 
 			// Update display, next frame, with current state.
-			//D_Display();
+			cv_capframerate.value == 1 ? D_Display() : 0;
 			supdate = false;
 
 			if (moviemode)
@@ -651,7 +657,7 @@ static void D_RunFrame(void)
 				if (camera.chase)
 					P_MoveChaseCamera(&players[displayplayer], &camera, true);
 			}
-			//D_Display();
+			cv_capframerate.value == 1 ? D_Display() : 0;
 		}
 
 		// consoleplayer -> displayplayer (hear sounds from viewpoint)

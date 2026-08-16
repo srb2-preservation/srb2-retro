@@ -133,6 +133,9 @@ consvar_t cv_grtranslucenthud = {"gr_translucenthud", "255", CV_SAVE|CV_CALL, gr
 // Enabling homremoval constitutes a rather sizeable performance hit.
 consvar_t cv_homremoval = {"homremoval", "Off", CV_SAVE, CV_OnOff, NULL, 0, NULL, NULL, 0, 0, NULL};
 
+// Uncapped framerate
+consvar_t cv_capframerate = {"capframerate", "On", CV_SAVE, CV_OnOff, NULL, 0, NULL, NULL, 0, 0, NULL};
+
 consvar_t cv_moviemodeinfo = {"moviemodeinfo", "Yes", CV_SAVE, CV_YesNo, NULL, 0, NULL, NULL, 0, 0, NULL};
 
 void SplitScreen_OnChange(void)
@@ -964,6 +967,9 @@ void R_RegisterEngineStuff(void)
 	CV_RegisterVar(&cv_viewheight);
 	CV_RegisterVar (&cv_limitdraw);
 	CV_RegisterVar(&cv_grtranslucenthud);
+
+	// Uncapped
+	CV_RegisterVar(&cv_capframerate);
 
 	CV_RegisterVar(&cv_moviemodeinfo);
 
