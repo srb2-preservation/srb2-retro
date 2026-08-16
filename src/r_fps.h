@@ -45,6 +45,11 @@ void R_InterpolateView(fixed_t frac);
 void R_UpdateViewInterpolation();
 void R_SetViewContext(enum viewcontext_e _viewcontext);
 
+void R_SetThinkerOldStates(void);
+void R_SetThinkerNewStates(void);
+void R_DoThinkerLerp(fixed_t frac);
+void R_ResetThinkerLerp(void);
+
 fixed_t R_LerpFixed(fixed_t from, fixed_t to, fixed_t frac);
 INT32 R_LerpInt32(INT32 from, INT32 to, fixed_t frac);
 UINT32 R_LerpUInt32(UINT32 from, UINT32 to, fixed_t frac);
