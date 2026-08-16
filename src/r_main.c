@@ -35,6 +35,8 @@
 #include "d_main.h"
 #include "v_video.h"
 #include "dstrings.h"
+#include "r_fps.h" // Uncapped framerate -- Fury
+#include "i_system.h"
 
 #ifdef HWRENDER
 #include "hardware/hw_main.h"
@@ -101,6 +103,9 @@ fixed_t *finecosine = &finesine[FINEANGLES/4];
 lighttable_t *scalelight[LIGHTLEVELS][MAXLIGHTSCALE];
 lighttable_t *scalelightfixed[MAXLIGHTSCALE];
 lighttable_t *zlight[LIGHTLEVELS][MAXLIGHTZ];
+
+// Uncapped Framerate
+tic_t prev_tics;
 
 // Hack to support extra boom colormaps.
 size_t num_extra_colormaps;
@@ -748,9 +753,9 @@ void R_SetupFrame(player_t *player)
 	{
 		// cut-away view stuff
 		viewmobj = player->awayviewmobj; // should be a MT_ALTVIEWMAN
-		viewz = viewmobj->z + 20*FRACUNIT;
-		aimingangle = player->awayviewaiming;
-		viewangle = viewmobj->angle;
+		newview.z = viewmobj->z + 20*FRACUNIT;
+		newview.aim = player->awayviewaiming;
+		newview.angle = viewmobj->angle;
 	}
 	else if ((cv_chasecam.value && thiscam == &camera)
 		|| (cv_chasecam2.value && thiscam == &camera2))
@@ -758,31 +763,31 @@ void R_SetupFrame(player_t *player)
 	{
 		viewmobj = player->mo; // LIES! FILTHY STINKING LIES!!!
 		I_Assert(viewmobj != NULL);
-		viewz = thiscam->z + (thiscam->height>>1);
-		aimingangle = thiscam->aiming;
-		viewangle = thiscam->angle;
+		newview.z = thiscam->z + (thiscam->height>>1);
+		newview.aim = thiscam->aiming;
+		newview.angle = thiscam->angle;
 	}
 	else
 	// use the player's eyes view
 	{
-		viewz = player->viewz;
+		newview.z = player->viewz;
 
 		viewmobj = player->mo;
 
-		aimingangle = player->aiming;
-		viewangle = viewmobj->angle;
+		newview.aim = player->aiming;
+		newview.angle = viewmobj->angle;
 
 		if (!demoplayback && player->playerstate != PST_DEAD)
 		{
 			if (player == &players[consoleplayer])
 			{
-				viewangle = localangle; // WARNING: camera uses this
-				aimingangle = localaiming;
+				newview.angle = localangle; // WARNING: camera uses this
+				newview.aim = localaiming;
 			}
 			else if (player == &players[secondarydisplayplayer])
 			{
-				viewangle = localangle2;
-				aimingangle = localaiming2;
+				newview.angle = localangle2;
+				newview.aim = localaiming2;
 			}
 		}
 	}
@@ -802,8 +807,8 @@ void R_SetupFrame(player_t *player)
 	if (((cv_chasecam.value && thiscam == &camera) || (cv_chasecam2.value && thiscam == &camera2))
 		&& !player->awayviewtics)
 	{
-		viewx = thiscam->x;
-		viewy = thiscam->y;
+		newview.x = thiscam->x;
+		newview.y = thiscam->y;
 
 		if (thiscam->subsector)
 			viewsector = thiscam->subsector->sector;
@@ -812,8 +817,8 @@ void R_SetupFrame(player_t *player)
 	}
 	else
 	{
-		viewx = viewmobj->x;
-		viewy = viewmobj->y;
+		newview.x = viewmobj->x;
+		newview.y = viewmobj->y;
 
 		if (viewmobj->subsector)
 			viewsector = viewmobj->subsector->sector;
@@ -821,8 +826,8 @@ void R_SetupFrame(player_t *player)
 			viewsector = R_PointInSubsector(viewx, viewy)->sector;
 	}
 
-	viewsin = FINESINE(viewangle>>ANGLETOFINESHIFT);
-	viewcos = FINECOSINE(viewangle>>ANGLETOFINESHIFT);
+	//viewsin = FINESINE(viewangle>>ANGLETOFINESHIFT);
+	//viewcos = FINECOSINE(viewangle>>ANGLETOFINESHIFT);
 
 	sscount = 0;
 

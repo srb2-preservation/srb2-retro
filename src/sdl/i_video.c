@@ -1048,7 +1048,7 @@ void I_FinishUpdate(void)
 	}
 
 #ifdef HWRENDER
-	else
+	else if (rendermode == render_opengl)
 	{
 		OglSdlFinishUpdate(cv_vidwait.value);
 	}

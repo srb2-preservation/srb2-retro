@@ -263,6 +263,7 @@ static char returnWadPath[256];
 #include "../i_joy.h"
 
 #include "../m_argv.h"
+#include "../r_main.h" // Uncapped
 
 #include "../d_main.h"
 
@@ -2120,7 +2121,7 @@ ticcmd_t *I_BaseTiccmd2(void)
 	return &emptycmd2;
 }
 
-#if (defined (_WIN32) && !defined (_WIN32_WCE)) && !defined (_XBOX)
+#if 0// (defined (_WIN32) && !defined (_WIN32_WCE)) && !defined (_XBOX)
 static HMODULE winmm = NULL;
 static DWORD starttickcount = 0; // hack for win2k time bug
 static p_timeGetTime pfntimeGetTime = NULL;
@@ -2219,30 +2220,27 @@ static void I_ShutdownTimer(void)
 #else
 static struct timespec basetime;
 
+static Uint32 basetime2 = 0;
+
 //
 // I_GetTime
 // returns time in 1/TICRATE second tics
 //
 tic_t I_GetTime (void)
 {
-	struct timespec ts;
-	uint64_t ticks;
-	clock_gettime(CLOCK_MONOTONIC, &ts);
+	Uint32 ticks = SDL_GetTicks();
+	tic_t tics = 0;
 
-	if (basetime.tv_sec == 0)
-		basetime = ts;
+	if (!basetime2)
+		basetime2 = ticks;
 
-	ts.tv_sec -= basetime.tv_sec;
-	ts.tv_nsec -= basetime.tv_nsec;
-	if (ts.tv_nsec < 0)
-	{
-		ts.tv_sec--;
-		ts.tv_nsec += 1000000000;
-	}
-	ticks = ((uint64_t)ts.tv_sec * 1000000000) + ts.tv_nsec;
-	ticks = ticks * TICRATE / 1000000000;
+	tics = ticks;
+	tics -= basetime2;
 
-	return (tic_t)ticks;
+	tics = (tics*TICRATE);
+	tics = (tics/1000);
+
+	return tics;
 }
 
 void I_SleepToTic(tic_t tic)
@@ -2278,6 +2276,22 @@ void I_SleepToTic(tic_t tic)
 #endif
 }
 #endif
+
+fixed_t I_GetTimeFrac (void)
+{
+	Uint32 ticks;
+	Uint32 prevticks;
+	Uint32 nextticks;
+	fixed_t frac;
+
+	ticks = SDL_GetTicks() - basetime2;
+	//if (ticks > tics * 1000 / TICRATE) return 1 * FRACUNIT;
+	prevticks = prev_tics * 1000 / TICRATE;
+	nextticks = prevticks + (int)roundf((1.f/TICRATE)*1000);
+
+	frac = FixedDiv((ticks - prevticks) * FRACUNIT, (int)roundf((1.f/TICRATE)*1000 * FRACUNIT));
+	return frac > FRACUNIT ? FRACUNIT : frac;
+}
 
 //
 //I_StartupTimer

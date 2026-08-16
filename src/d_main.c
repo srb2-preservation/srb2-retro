@@ -81,6 +81,7 @@ int	snprintf(char *str, size_t n, const char *fmt, ...);
 #include "dehacked.h" // Dehacked list test
 #include "keys.h"
 #include "filesrch.h" // refreshdirmenu, mainwadstally
+#include "r_fps.h" // Uncapped
 
 #ifdef CMAKECONFIG
 #include "config.h"
@@ -605,13 +606,13 @@ static void D_RunFrame(void)
 				debugload--;
 #endif
 
-		if (!realtics && !singletics)
+		/*if (!realtics && !singletics)
 		{
 			entertic++;
 			I_SleepToTic(entertic);
 			oldentertics++;
 			realtics++;
-		}
+		}*/
 
 #ifdef HW3SOUND
 		HW3S_BeginFrameUpdate();
@@ -620,13 +621,15 @@ static void D_RunFrame(void)
 		// process tics (but maybe not if realtic == 0)
 		TryRunTics(realtics);
 
+		R_InterpolateView(I_GetTimeFrac());
+		D_Display();
 		if (lastdraw || singletics || gametic > rendergametic)
 		{
 			rendergametic = gametic;
 			rendertimeout = entertic+TICRATE/17;
 
 			// Update display, next frame, with current state.
-			D_Display();
+			//D_Display();
 			supdate = false;
 
 			if (moviemode)
@@ -648,7 +651,7 @@ static void D_RunFrame(void)
 				if (camera.chase)
 					P_MoveChaseCamera(&players[displayplayer], &camera, true);
 			}
-			D_Display();
+			//D_Display();
 		}
 
 		// consoleplayer -> displayplayer (hear sounds from viewpoint)

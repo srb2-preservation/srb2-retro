@@ -56,6 +56,10 @@ size_t I_GetFreeMem(size_t *total);
 */
 tic_t I_GetTime(void);
 
+/** \brief  Get the current time as a fraction of a tic since the last tic.
+*/
+fixed_t I_GetTimeFrac(void);
+
 /** \brief  Sleep until the next tic occurs.
 */
 void I_SleepToTic(tic_t tic);
