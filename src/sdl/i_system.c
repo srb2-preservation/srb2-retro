@@ -2121,103 +2121,6 @@ ticcmd_t *I_BaseTiccmd2(void)
 	return &emptycmd2;
 }
 
-#if 0// (defined (_WIN32) && !defined (_WIN32_WCE)) && !defined (_XBOX)
-static HMODULE winmm = NULL;
-static DWORD starttickcount = 0; // hack for win2k time bug
-static p_timeGetTime pfntimeGetTime = NULL;
-
-static LARGE_INTEGER basetime = {{0, 0}};
-
-// use this if High Resolution timer is found
-static LARGE_INTEGER frequency;
-
-// ---------
-// I_GetTime
-// Use the High Resolution Timer if available,
-// else use the multimedia timer which has 1 millisecond precision on Windowz 95,
-// but lower precision on Windows NT
-// ---------
-
-tic_t I_GetTime(void)
-{
-	tic_t newtics = 0;
-
-	if (!starttickcount) // high precision timer
-	{
-		LARGE_INTEGER currtime; // use only LowPart if high resolution counter is not available
-
-		if (!basetime.LowPart)
-		{
-			if (!QueryPerformanceFrequency(&frequency))
-				frequency.QuadPart = 0;
-			else
-				QueryPerformanceCounter(&basetime);
-		}
-
-		if (frequency.LowPart && QueryPerformanceCounter(&currtime))
-		{
-			newtics = (INT32)((currtime.QuadPart - basetime.QuadPart) * TICRATE
-				/ frequency.QuadPart);
-		}
-		else if (pfntimeGetTime)
-		{
-			currtime.LowPart = pfntimeGetTime();
-			if (!basetime.LowPart)
-				basetime.LowPart = currtime.LowPart;
-			newtics = ((currtime.LowPart - basetime.LowPart)/(1000/TICRATE));
-		}
-	}
-	else
-		newtics = (GetTickCount() - starttickcount)/(1000/TICRATE);
-
-	return newtics;
-}
-
-void I_SleepToTic(tic_t tic)
-{
-	tic_t untilnexttic = 0;
-
-	if (!starttickcount) // high precision timer
-	{
-		LARGE_INTEGER currtime; // use only LowPart if high resolution counter is not available
-		if (frequency.LowPart && QueryPerformanceCounter(&currtime))
-		{
-			untilnexttic = (INT32)((currtime.QuadPart - basetime.QuadPart) * 1000
-				/ frequency.QuadPart % TICRATE);
-		}
-		else if (pfntimeGetTime)
-		{
-			currtime.LowPart = pfntimeGetTime();
-			if (!basetime.LowPart)
-				basetime.LowPart = currtime.LowPart;
-			untilnexttic = ((currtime.LowPart - basetime.LowPart)%(1000/TICRATE));
-		}
-	}
-	else
-	{
-		untilnexttic = (GetTickCount() - starttickcount)%(1000/TICRATE);
-		untilnexttic = (1000/TICRATE) - untilnexttic;
-	}
-
-	// give some extra slack then busy-wait on windows, since windows' sleep is garbage
-	if (untilnexttic > 2)
-		SDL_Delay(untilnexttic - 2);
-	while (tic > I_GetTime());
-}
-
-static void I_ShutdownTimer(void)
-{
-	pfntimeGetTime = NULL;
-	if (winmm)
-	{
-		p_timeEndPeriod pfntimeEndPeriod = (p_timeEndPeriod)GetProcAddress(winmm, "timeEndPeriod");
-		if (pfntimeEndPeriod)
-			pfntimeEndPeriod(1);
-		FreeLibrary(winmm);
-		winmm = NULL;
-	}
-}
-#else
 static struct timespec basetime;
 
 static Uint32 basetime2 = 0;
@@ -2275,19 +2178,15 @@ void I_SleepToTic(tic_t tic)
 	I_Assert(status == 0);
 #endif
 }
-#endif
 
 fixed_t I_GetTimeFrac (void)
 {
 	Uint32 ticks;
 	Uint32 prevticks;
-	Uint32 nextticks;
 	fixed_t frac;
 
 	ticks = SDL_GetTicks() - basetime2;
-	//if (ticks > tics * 1000 / TICRATE) return 1 * FRACUNIT;
 	prevticks = prev_tics * 1000 / TICRATE;
-	nextticks = prevticks + (int)roundf((1.f/TICRATE)*1000);
 
 	frac = FixedDiv((ticks - prevticks) * FRACUNIT, (int)roundf((1.f/TICRATE)*1000 * FRACUNIT));
 	return frac > FRACUNIT ? FRACUNIT : frac;
@@ -2298,29 +2197,9 @@ fixed_t I_GetTimeFrac (void)
 //
 void I_StartupTimer(void)
 {
-#if (defined (_WIN32) && !defined (_WIN32_WCE)) && !defined (_XBOX)
-	// for win2k time bug
-	if (M_CheckParm("-gettickcount"))
-	{
-		starttickcount = GetTickCount();
-		CONS_Printf("%s", M_GetText("Using GetTickCount()\n"));
-	}
-	winmm = LoadLibraryA("winmm.dll");
-	if (winmm)
-	{
-		p_timeEndPeriod pfntimeBeginPeriod = (p_timeEndPeriod)GetProcAddress(winmm, "timeBeginPeriod");
-		if (pfntimeBeginPeriod)
-			pfntimeBeginPeriod(1);
-		pfntimeGetTime = (p_timeGetTime)GetProcAddress(winmm, "timeGetTime");
-	}
-	I_AddExitFunc(I_ShutdownTimer);
-#elif 0 //#elif !defined (_arch_dreamcast) && !defined(GP2X) // the DC have it own timer and GP2X have broken pthreads?
 	if (SDL_InitSubSystem(SDL_INIT_TIMER) < 0)
 		I_Error("SRB2: Needs SDL_Timer, Error: %s", SDL_GetError());
-#endif
 }
-
-
 
 void I_Sleep(void)
 {
