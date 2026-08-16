@@ -5952,6 +5952,7 @@ static menuitem_t VideoOptionsMenu[] =
 	{IT_STRING | IT_CVAR,    NULL, "Rain/Snow Density",   &cv_precipdensity, 70}, // Changed all to normal string Tails 11-30-2000
 	{IT_STRING | IT_CVAR,    NULL, "Rain/Snow Draw Dist", &cv_precipdist,    80}, // Changed all to normal string Tails 11-30-2000
 	{IT_STRING | IT_CVAR,    NULL, "FPS Meter",           &cv_ticrate,       90},
+	{IT_STRING | IT_CVAR,    NULL, "Cap Framerate",       &cv_capframerate, 100},
 };
 
 menu_t VideoOptionsDef =
