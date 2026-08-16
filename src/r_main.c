@@ -726,7 +726,7 @@ static mobj_t *viewmobj;
 
 void R_SetupFrame(player_t *player)
 {
-	INT32 dy = 0;
+	//INT32 dy = 0;
 	camera_t *thiscam;
 
 	if (splitscreen && player == &players[secondarydisplayplayer]

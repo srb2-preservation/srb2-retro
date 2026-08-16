@@ -5489,12 +5489,13 @@ void HWR_DoPostProcessor(void)
 			}
 		}
 		HWD.pfnPostImgRedraw(v);
+        float fractime = I_GetTimeFrac();
 		if (tic_happened)
-			disStart = disStart - last_fractime + 1 + FIXED_TO_FLOAT(I_GetTimeFrac());
+			disStart = disStart - last_fractime + 1 + FIXED_TO_FLOAT(fractime);
 		else
-			disStart = disStart - last_fractime + FIXED_TO_FLOAT(I_GetTimeFrac());
+			disStart = disStart - last_fractime + FIXED_TO_FLOAT(fractime);
 
-		last_fractime = FIXED_TO_FLOAT(I_GetTimeFrac());
+		last_fractime = FIXED_TO_FLOAT(fractime);
 	}
 	else if (postimgtype == postimg_flip) //We like our screens inverted.
 	{
