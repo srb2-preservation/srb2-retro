@@ -27,6 +27,7 @@
 ///	Does palette indicators as well (red pain/berserk, bright pickup)
 
 #include "doomdef.h"
+#include "d_main.h"
 #include "g_game.h"
 #include "r_local.h"
 #include "p_local.h"

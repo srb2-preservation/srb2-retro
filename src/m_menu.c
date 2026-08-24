@@ -69,8 +69,6 @@
 #include "hardware/hw_main.h"
 #endif
 
-#include "d_net.h"
-#include "mserv.h"
 #include "m_misc.h"
 
 #include "byteptr.h"
@@ -2737,6 +2735,11 @@ static void M_PatchSkinNameTable(void)
 	return;
 }
 
+static void M_DrawSetupChoosePlayerMenu(void);
+static boolean M_QuitChoosePlayerMenu(void);
+static void M_ChoosePlayer(INT32 choice);
+INT32 ultmode;
+
 menuitem_t PlayerMenu[] =
 {
 	{IT_CALL | IT_STRING, NULL, "SONIC", M_ChoosePlayer,  0},
@@ -3915,7 +3918,6 @@ static menuitem_t OptionsMenu[] =
 	{IT_SUBMENU | IT_STRING, NULL, "Setup Controls...",     &ControlsDef,      10},
 	{IT_CALL    | IT_STRING, NULL, "Game Options...",       M_GameOption,      30},
 	{IT_CALL    | IT_STRING, NULL, "Gametype Options...",   M_GametypeOptions, 40},
-	{IT_SUBMENU | IT_STRING, NULL, "Server Options...",     &ServerOptionsDef, 50},
 	{IT_SUBMENU | IT_STRING, NULL, "Sound Options...",      &SoundDef,         70},
 	{IT_SUBMENU | IT_STRING, NULL, "Video Options...",      &VideoOptionsDef,  80},
 
@@ -5002,36 +5004,6 @@ static void M_GametypeOptions(INT32 choice)
 
 	M_SetupNextMenu(&GametypeOptionsDef);
 }
-
-//===========================================================================
-//                        Server OPTIONS MENU
-//===========================================================================
-static menuitem_t ServerOptionsMenu[] =
-{
-	{IT_STRING | IT_CVAR, NULL, "Internet server",        &cv_internetserver,   10},
-	{IT_STRING | IT_CVAR | IT_CV_STRING,
-	                      NULL, "Master server",          &cv_masterserver,     30},
-	{IT_STRING | IT_CVAR | IT_CV_STRING,
-	                      NULL, "Server name",            &cv_servername,       60},
-
-	{IT_STRING | IT_CVAR, NULL, "Allow join player",      &cv_allownewplayer , 100},
-	{IT_STRING | IT_CVAR, NULL, "Allow WAD Downloading",  &cv_downloading,     110},
-	{IT_STRING | IT_CVAR, NULL, "Max Players",            &cv_maxplayers,      120},
-	{IT_STRING | IT_CVAR, NULL, "Consistency Protection", &cv_consfailprotect, 130},
-};
-
-menu_t ServerOptionsDef =
-{
-	"M_OPTTTL",
-	"OPTIONS",
-	sizeof (ServerOptionsMenu)/sizeof (menuitem_t),
-	&OptionsDef,
-	ServerOptionsMenu,
-	M_DrawGenericMenu,
-	28, 40,
-	0,
-	NULL
-};
 
 //===========================================================================
 //                          Read This! MENU 1
@@ -7122,14 +7094,6 @@ boolean M_Responder(event_t *ev)
 			currentMenu->lastOn = itemOn;
 			if (currentMenu->prevMenu)
 			{
-				//If we entered the game search menu, but didn't enter a game,
-				//make sure the game doesn't still think we're in a netgame.
-				if (!Playing() && netgame && multiplayer)
-				{
-					MSCloseUDPSocket();		// Clean up so we can re-open the connection later.
-					netgame = false;
-					multiplayer = false;
-				}
 				// Catch Switch Map option in case we quit a game using the menu somewhere...
 				if (!(netgame || multiplayer) || !Playing()
 					|| !(server || adminplayer == consoleplayer))

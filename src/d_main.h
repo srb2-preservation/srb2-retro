@@ -25,6 +25,7 @@
 
 extern boolean supdate;
 extern boolean advancedemo;
+extern boolean dedicated; // for dedicated server
 
 // make sure not to write back the config until it's been correctly loaded
 extern tic_t rendergametic;

@@ -24,7 +24,6 @@
 #include "doomdef.h"
 #include "i_system.h"
 #include "d_event.h"
-#include "d_net.h"
 #include "g_game.h"
 #include "p_local.h"
 #include "r_main.h"
@@ -42,6 +41,7 @@
 #include "w_wad.h"
 #include "dstrings.h"
 #include "hu_stuff.h"
+#include "d_clisrv.h"
 
 #ifdef HW3SOUND
 #include "hardware/hw3sound.h"

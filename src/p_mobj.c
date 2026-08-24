@@ -18,6 +18,7 @@
 /// \brief Moving object handling. Spawn functions
 
 #include "doomdef.h"
+#include "d_main.h"
 #include "g_game.h"
 #include "g_input.h"
 #include "st_stuff.h"

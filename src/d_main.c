@@ -51,7 +51,6 @@ int	snprintf(char *str, size_t n, const char *fmt, ...);
 #include "doomdef.h"
 #include "am_map.h"
 #include "console.h"
-#include "d_net.h"
 #include "dstrings.h"
 #include "f_finale.h"
 #include "g_game.h"
@@ -76,7 +75,6 @@ int	snprintf(char *str, size_t n, const char *fmt, ...);
 #include "m_cheat.h"
 #include "y_inter.h"
 #include "p_local.h" // chasecam
-#include "mserv.h" // cv_internetserver
 #include "m_misc.h" // screenshot functionality
 #include "dehacked.h" // Dehacked list test
 #include "keys.h"
@@ -486,23 +484,6 @@ static void D_Display(void)
 	//
 	if (!wipe)
 	{
-		if (cv_netstat.value)
-		{
-			char s[50];
-			Net_GetNetStat();
-
-			s[sizeof s - 1] = '\0';
-
-			snprintf(s, sizeof s - 1, "get %d b/s", getbps);
-			V_DrawString(BASEVIDWIDTH - V_StringWidth(s), BASEVIDHEIGHT-ST_HEIGHT-40, V_YELLOWMAP, s);
-			snprintf(s, sizeof s - 1, "send %d b/s", sendbps);
-			V_DrawString(BASEVIDWIDTH - V_StringWidth(s), BASEVIDHEIGHT-ST_HEIGHT-30, V_YELLOWMAP, s);
-			snprintf(s, sizeof s - 1, "GameMiss %.2f%%", gamelostpercent);
-			V_DrawString(BASEVIDWIDTH - V_StringWidth(s), BASEVIDHEIGHT-ST_HEIGHT-20, V_YELLOWMAP, s);
-			snprintf(s, sizeof s - 1, "SysMiss %.2f%%", lostpercent);
-			V_DrawString(BASEVIDWIDTH - V_StringWidth(s), BASEVIDHEIGHT-ST_HEIGHT-10, V_YELLOWMAP, s);
-		}
-
 		I_FinishUpdate(); // page flip or blit buffer
 
 		// Only take screenshots after drawing.
@@ -1269,13 +1250,7 @@ void D_SRB2Main(void)
 	CONS_Printf("%s",text[ST_INIT]);
 	ST_Init();
 
-	if (M_CheckParm("-internetserver"))
-		CV_SetValue(&cv_internetserver, 1);
-
-	// init all NETWORK
-	CONS_Printf("%s",text[D_CHECKNET]);
-	if (D_CheckNetGame())
-		autostart = true;
+	server = true;
 
 	// check for a driver that wants intermission stats
 	// start the apropriate game based on parms

@@ -47,7 +47,6 @@
 #include "m_random.h"
 #include "f_finale.h"
 #include "filesrch.h"
-#include "mserv.h"
 #include "md5.h"
 #include "z_zone.h"
 
@@ -62,6 +61,23 @@
 // ------
 // protos
 // ------
+
+static void Got_NameAndColor(UINT8 **cp, INT32 playernum);
+static void Got_WeaponPref(UINT8 **cp, INT32 playernum);
+static void Got_Mapcmd(UINT8 **cp, INT32 playernum);
+static void Got_ExitLevelcmd(UINT8 **cp, INT32 playernum);
+static void Got_RequestAddfilecmd(UINT8 **cp, INT32 playernum);
+#ifdef DELFILE
+static void Got_Delfilecmd(UINT8 **cp, INT32 playernum);
+#endif
+static void Got_Addfilecmd(UINT8 **cp, INT32 playernum);
+static void Got_Pause(UINT8 **cp, INT32 playernum);
+static void Got_RandomSeed(UINT8 **cp, INT32 playernum);
+static void Got_PizzaOrder(UINT8 **cp, INT32 playernum);
+static void Got_RunSOCcmd(UINT8 **cp, INT32 playernum);
+static void Got_Teamchange(UINT8 **cp, INT32 playernum);
+static void Got_Clearscores(UINT8 **cp, INT32 playernum);
+static void SetPlayerName(INT32 playernum, char *newname);
 
 static void PointLimit_OnChange(void);
 static void TimeLimit_OnChange(void);
@@ -384,6 +400,823 @@ boolean splitscreen = false;
 boolean circuitmap = false;
 INT32 adminplayer = -1;
 
+static INT32 snacpending = 0, snac2pending = 0, chmappending = 0;
+
+static void Got_NameAndColor(UINT8 **cp, INT32 playernum)
+{
+	player_t *p = &players[playernum];
+	INT32 i;
+	char *str;
+	UINT8 extrainfo;
+
+#ifdef PARANOIA
+	if (playernum < 0 || playernum > MAXPLAYERS)
+		I_Error("There is no player %d!", playernum);
+#endif
+
+	if (netgame && !server && !addedtogame)
+	{
+		// A bogus change from a player on the server.
+		// There's a one-tic delay on XD_ messages. Here's how
+		// this happens: on tic 1, server sends an XD_NAMEANDCOLOR
+		// message, starting the server; on tic 2, we join and
+		// receive the XD_NAMEANDCOLOR and the server sends our
+		// XD_ADDPLAYER message, so we haven't gotten it yet.
+		// So we get the name and color message first, and think
+		// it means us, since it refers to player 0, which we think
+		// we are, having not received an XD_ADDPLAYER message
+		// telling us otherwise.
+		// FIXME: What a mess.
+
+		// Skip the message, ignoring it. The server will send
+		// another later.
+		extrainfo = READUINT8(*cp);
+		SKIPSTRING(*cp); // name
+		SKIPSTRING(*cp); // skin
+		return;
+	}
+
+	if (playernum == consoleplayer)
+		snacpending--;
+	else if (playernum == secondarydisplayplayer)
+		snac2pending--;
+
+#ifdef PARANOIA
+	if (snacpending < 0 || snac2pending < 0)
+		I_Error("snacpending negative!");
+#endif
+
+	extrainfo = READUINT8(*cp);
+
+	if (playernum == consoleplayer && ((extrainfo&31) % MAXSKINCOLORS) != cv_playercolor.value
+		&& !snacpending && !chmappending)
+	{
+		I_Error("consoleplayer color received as %d, cv_playercolor.value is %d",
+			(extrainfo&31) % MAXSKINCOLORS, cv_playercolor.value);
+	}
+	if (splitscreen && playernum == secondarydisplayplayer
+		&& ((extrainfo&31) % MAXSKINCOLORS) != cv_playercolor2.value && !snac2pending
+		&& !chmappending)
+	{
+		I_Error("secondarydisplayplayer color received as %d, cv_playercolor2.value is %d",
+			(extrainfo&31) % MAXSKINCOLORS, cv_playercolor2.value);
+	}
+
+	str = (char *)*cp; // name
+	SKIPSTRING(*cp);
+	if (strcasecmp(player_names[playernum], str) != 0)
+		SetPlayerName(playernum, str);
+
+	// moving players cannot change colors
+	if (P_PlayerMoving(playernum) && p->skincolor != (extrainfo&31))
+	{
+		if (playernum == consoleplayer)
+			CV_StealthSetValue(&cv_playercolor, p->skincolor);
+		else if (splitscreen && playernum == secondarydisplayplayer)
+			CV_StealthSetValue(&cv_playercolor2, p->skincolor);
+	}
+	else
+	{
+		p->skincolor = (extrainfo&31) % MAXSKINCOLORS;
+
+		// a copy of color
+		if (p->mo)
+		{
+			p->mo->flags |= MF_TRANSLATION;
+			p->mo->color = (UINT8)p->skincolor;
+		}
+	}
+
+	// normal player colors
+	if (server && (gametype == GT_MATCH || gametype == GT_TAG || gametype == GT_CTF) &&
+		(p != &players[consoleplayer] && p != &players[secondarydisplayplayer]))
+	{
+		boolean kick = false;
+
+		// team colors
+		if (gametype == GT_CTF || (gametype == GT_MATCH && cv_matchtype.value))
+		{
+			if (p->ctfteam == 1 && p->skincolor != 6)
+				kick = true;
+			else if (p->ctfteam == 2 && p->skincolor != 7)
+				kick = true;
+		}
+
+		// disallow the use of yellow in Match/Team Match/CTF
+		if (gametype == GT_MATCH || gametype == GT_CTF)
+		{
+			if (p->skincolor == 15) //yellow
+				kick = true;
+		}
+
+		// don't allow color "none"
+		if (!p->skincolor)
+			kick = true;
+
+		if (kick)
+		{
+			XBOXSTATIC UINT8 buf[2];
+			CONS_Printf(text[ILLEGALCOLORCMD], player_names[playernum], p->ctfteam, p->skincolor);
+
+			buf[0] = (UINT8)playernum;
+			buf[1] = KICK_MSG_CON_FAIL;
+			SendNetXCmd(XD_KICK, &buf, 2);
+			return;
+		}
+	}
+
+	str = (char *)*cp; // moving players cannot change skins
+	SKIPSTRING(*cp);
+	if ((P_PlayerMoving(playernum) && strcasecmp(skins[players[playernum].skin].name, str) != 0))
+	{
+		if (playernum == consoleplayer)
+			CV_StealthSet(&cv_skin, skins[players[consoleplayer].skin].name);
+		else if (splitscreen && playernum == secondarydisplayplayer)
+			CV_StealthSet(&cv_skin2, skins[players[secondarydisplayplayer].skin].name);
+		return;
+	}
+
+	// skin
+	if (cv_forceskin.value >= 0 && (netgame || multiplayer)) // Server wants everyone to use the same player
+	{
+		const INT32 forcedskin = cv_forceskin.value;
+
+		if (triggerforcedskin)
+		{
+			for (i = 0; i < MAXPLAYERS; i++)
+			{
+				if (playeringame[i])
+				{
+					SetPlayerSkinByNum(i, forcedskin);
+
+					// If it's me (or my brother), set appropriate skin value in cv_skin/cv_skin2
+					if (i == consoleplayer)
+						CV_StealthSet(&cv_skin, skins[forcedskin].name);
+					else if (i == secondarydisplayplayer)
+						CV_StealthSet(&cv_skin2, skins[forcedskin].name);
+				}
+			}
+			triggerforcedskin = false;
+		}
+		else
+		{
+			SetPlayerSkinByNum(playernum, forcedskin);
+
+			if (playernum == consoleplayer)
+				CV_StealthSet(&cv_skin, skins[forcedskin].name);
+			else if (playernum == secondarydisplayplayer)
+				CV_StealthSet(&cv_skin2, skins[forcedskin].name);
+		}
+	}
+	else
+	{
+		SetPlayerSkin(playernum, str);
+	}
+}
+static void Got_WeaponPref(UINT8 **cp,INT32 playernum)
+{
+	if (READSINT8(*cp))
+		players[playernum].pflags |= PF_AUTOAIM;
+	else
+		players[playernum].pflags &= ~PF_AUTOAIM;
+}
+static void Got_Mapcmd(UINT8 **cp, INT32 playernum)
+{
+	char mapname[MAX_WADPATH+1];
+	INT32 resetplayer = 1, lastgametype;
+	UINT8 skipprecutscene, FLS;
+
+	if (playernum != serverplayer && playernum != adminplayer)
+	{
+		CONS_Printf(text[ILLEGALMAPCMD], player_names[playernum]);
+		if (server)
+		{
+			XBOXSTATIC UINT8 buf[2];
+
+			buf[0] = (UINT8)playernum;
+			buf[1] = KICK_MSG_CON_FAIL;
+			SendNetXCmd(XD_KICK, &buf, 2);
+		}
+		return;
+	}
+
+	if (chmappending)
+		chmappending--;
+
+	ultimatemode = READUINT8(*cp);
+
+	if (netgame || multiplayer)
+		ultimatemode = false;
+
+	resetplayer = ((READUINT8(*cp) & 2) == 0);
+
+	lastgametype = gametype;
+	gametype = READUINT8(*cp);
+
+	// Base Gametypes
+	if (gametype == GT_MATCH)
+	{
+		if (server)
+			CV_SetValue(&cv_matchtype, 0);
+	}
+	else if (gametype == GT_RACE)
+	{
+		if (server)
+			CV_SetValue(&cv_racetype, 0);
+	}
+	else if (gametype == GT_TAG)
+	{
+		if (server)
+			CV_SetValue(&cv_tagtype, 0);
+	}
+	// Special Cases
+	else if (gametype == GTF_TEAMMATCH)
+	{
+		gametype = GT_MATCH;
+
+		if (server)
+			CV_SetValue(&cv_matchtype, 1);
+	}
+	else if (gametype == GTF_CLASSICRACE)
+	{
+		gametype = GT_RACE;
+
+		if (server)
+			CV_SetValue(&cv_racetype, 1);
+	}
+	else if (gametype == GTF_HIDEANDSEEK)
+	{
+		gametype = GT_TAG;
+
+		if (server)
+			CV_SetValue(&cv_tagtype, 1);
+	}
+
+	if (gametype != lastgametype)
+		D_GameTypeChanged(lastgametype); // emulate consvar_t behavior for gametype
+
+	skipprecutscene = READUINT8(*cp);
+
+	FLS = READUINT8(*cp);
+
+	READSTRINGN(*cp, mapname, MAX_WADPATH);
+
+	if (!skipprecutscene)
+	{
+		DEBFILE(va("Warping to %s [resetplayer=%d lastgametype=%d gametype=%d cpnd=%d]\n",
+			mapname, resetplayer, lastgametype, gametype, chmappending));
+		CONS_Printf(text[STSTR_CLEV], devparm ? mapname:"level");
+	}
+	if (demoplayback && !timingdemo)
+		precache = false;
+
+	if (resetplayer)
+	{
+		if (!FLS || (netgame || multiplayer))
+			emeralds = 0;
+	}
+
+	// why here? because, this is only called the first time a level is loaded.
+	// also, this needs to be done before the level is loaded, duh :p
+	mapmusic = mapheaderinfo[gamemap-1].musicslot;
+
+	G_InitNew(ultimatemode, mapname, resetplayer, skipprecutscene);
+	if (demoplayback && !timingdemo)
+		precache = true;
+	CON_ToggleOff();
+	if (timingdemo)
+		G_DoneLevelLoad();
+
+	if (timeattacking)
+	{
+		SetPlayerSkinByNum(0, cv_chooseskin.value-1);
+		players[0].skincolor = (atoi(skins[cv_chooseskin.value-1].prefcolor)) % MAXSKINCOLORS;
+		CV_StealthSetValue(&cv_playercolor, players[0].skincolor);
+
+		// a copy of color
+		if (players[0].mo)
+		{
+			players[0].mo->flags |= MF_TRANSLATION;
+			players[0].mo->color = (UINT8)players[0].skincolor;
+		}
+	}
+}
+static void Got_ExitLevelcmd(UINT8 **cp, INT32 playernum)
+{
+	cp = NULL;
+
+	// Ignore duplicate XD_EXITLEVEL commands.
+	if (gameaction == ga_completed)
+		return;
+
+	if (playernum != serverplayer && playernum != adminplayer)
+	{
+		CONS_Printf(text[ILLEGALEXITLVLCMD], player_names[playernum]);
+		if (server)
+		{
+			XBOXSTATIC UINT8 buf[2];
+
+			buf[0] = (UINT8)playernum;
+			buf[1] = KICK_MSG_CON_FAIL;
+			SendNetXCmd(XD_KICK, &buf, 2);
+		}
+		return;
+	}
+
+	G_ExitLevel();
+}
+static void Got_RequestAddfilecmd(UINT8 **cp, INT32 playernum)
+{
+	char filename[256];
+	filestatus_t ncs = FS_NOTFOUND;
+	UINT8 md5sum[16+1];
+	boolean kick = false;
+	INT32 i;
+
+	READSTRINGN(*cp, filename, 255);
+	(void)READUINT8(*cp);
+	READMEM(*cp, md5sum, 17);
+
+	// Only the server processes this message.
+	if (!server)
+		return;
+
+	// Disallow non-printing characters and semicolons.
+	for (i = 0; filename[i] != '\0'; i++)
+		if (!isprint(filename[i]) || filename[i] == ';')
+			kick = true;
+
+	if ((playernum != serverplayer && playernum != adminplayer) || kick)
+	{
+		XBOXSTATIC UINT8 buf[2];
+
+		CONS_Printf(text[ILLEGALADDFILECMD], player_names[playernum]);
+
+		buf[0] = (UINT8)playernum;
+		buf[1] = KICK_MSG_CON_FAIL;
+		SendNetXCmd(XD_KICK, &buf, 2);
+		return;
+	}
+
+	ncs = findfile(filename,md5sum,true);
+
+	if (ncs != FS_FOUND)
+	{
+		char message[256];
+
+		if (ncs == FS_NOTFOUND)
+			sprintf(message, "The server doesn't have %s\n", filename);
+		else if (ncs == FS_MD5SUMBAD)
+			sprintf(message, "Checksum mismatch on %s\n", filename);
+		else
+			sprintf(message, "Unknown error finding wad file (%s)\n", filename);
+
+		CONS_Printf("%s",message);
+
+		if (adminplayer)
+			COM_BufAddText(va("sayto %d %s", adminplayer, message));
+
+		return;
+	}
+
+	COM_BufAddText(va("addfile %s\n", filename));
+}
+#ifdef DELFILE
+static void Got_Delfilecmd(UINT8 **cp, INT32 playernum)
+{
+	if (playernum != serverplayer && playernum != adminplayer)
+	{
+		CONS_Printf(text[ILLEGALDELFILECMD], player_names[playernum]);
+		if (server)
+		{
+			XBOXSTATIC UINT8 buf[2];
+
+			buf[0] = (UINT8)playernum;
+			buf[1] = KICK_MSG_CON_FAIL;
+			SendNetXCmd(XD_KICK, &buf, 2);
+		}
+		return;
+	}
+	(void)cp;
+
+	P_DelWadFile();
+	if (mainwads == numwadfiles && modifiedgame)
+	{
+		modifiedgame = false;
+	}
+}
+#endif
+static void Got_Addfilecmd(UINT8 **cp, INT32 playernum)
+{
+	char filename[256];
+	filestatus_t ncs = FS_NOTFOUND;
+	UINT8 md5sum[16+1];
+
+	READSTRINGN(*cp, filename, 255);
+	(void)READUINT8(*cp);
+	READMEM(*cp, md5sum, 17);
+
+	if (playernum != serverplayer)
+	{
+		CONS_Printf(text[ILLEGALADDFILECMD], player_names[playernum]);
+		if (server)
+		{
+			XBOXSTATIC UINT8 buf[2];
+
+			buf[0] = (UINT8)playernum;
+			buf[1] = KICK_MSG_CON_FAIL;
+			SendNetXCmd(XD_KICK, &buf, 2);
+		}
+		return;
+	}
+
+	ncs = findfile(filename,md5sum,true);
+
+	if (ncs != FS_FOUND)
+	{
+		Command_ExitGame_f();
+		if (ncs == FS_NOTFOUND)
+		{
+			CONS_Printf(text[CLIENT_NEEDFILE], filename);
+			M_StartMessage(va("The server added a file \n(%s)\nthat you do not have.\n\nPress ESC\n",filename), NULL, MM_NOTHING);
+		}
+		else if (ncs == FS_MD5SUMBAD)
+		{
+			CONS_Printf(text[CHECKSUM_MISMATCH], filename);
+			M_StartMessage(va("Checksum mismatch while loading \n%s.\nThe server seems to have a\ndifferent version of this file.\n\nPress ESC\n",filename), NULL, MM_NOTHING);
+		}
+		else
+		{
+			CONS_Printf(text[WAD_NOTFOUND], filename);
+			M_StartMessage(va("Unknown error trying to load a file\nthat the server added \n(%s).\n\nPress ESC\n",filename), NULL, MM_NOTHING);
+		}
+		return;
+	}
+
+	P_AddWadFile(filename, NULL);
+	modifiedgame = true;
+}
+static void Got_Pause(UINT8 **cp, INT32 playernum)
+{
+	UINT8 dedicatedpause = false;
+	const char *playername;
+
+	if (netgame && !cv_pause.value && playernum != serverplayer && playernum != adminplayer)
+	{
+		CONS_Printf(text[ILLEGALPAUSECMD], player_names[playernum]);
+		if (server)
+		{
+			XBOXSTATIC UINT8 buf[2];
+
+			buf[0] = (UINT8)playernum;
+			buf[1] = KICK_MSG_CON_FAIL;
+			SendNetXCmd(XD_KICK, &buf, 2);
+		}
+		return;
+	}
+
+	paused = READUINT8(*cp);
+	dedicatedpause = READUINT8(*cp);
+
+	if (!demoplayback)
+	{
+		if (netgame)
+		{
+			if (dedicatedpause)
+				playername = "SERVER";
+			else
+				playername = player_names[playernum];
+
+			if (paused)
+				CONS_Printf(text[GAME_PAUSED],playername);
+			else
+				CONS_Printf(text[GAME_UNPAUSED],playername);
+		}
+
+		if (paused)
+		{
+			if (!menuactive || netgame)
+				S_PauseSound();
+		}
+		else
+			S_ResumeSound();
+	}
+
+	I_UpdateMouseGrab();
+}
+static void Got_RandomSeed(UINT8 **cp, INT32 playernum)
+{
+	UINT8 seed;
+
+	seed = READUINT8(*cp);
+	if (playernum != serverplayer) // it's not from the server, wtf?
+		return;
+
+	P_SetRandIndex(seed);
+}
+static void Got_PizzaOrder(UINT8 **cp, INT32 playernum)
+{
+	cp = NULL;
+	CONS_Printf(text[ORDEREDPIZZA], player_names[playernum]);
+}
+static void Got_RunSOCcmd(UINT8 **cp, INT32 playernum)
+{
+	char filename[256];
+	filestatus_t ncs = FS_NOTFOUND;
+
+	if (playernum != serverplayer && playernum != adminplayer)
+	{
+		CONS_Printf(text[ILLEGALRUNSOCCMD], player_names[playernum]);
+		if (server)
+		{
+			XBOXSTATIC UINT8 buf[2];
+
+			buf[0] = (UINT8)playernum;
+			buf[1] = KICK_MSG_CON_FAIL;
+			SendNetXCmd(XD_KICK, &buf, 2);
+		}
+		return;
+	}
+
+	READSTRINGN(*cp, filename, 255);
+
+	// Maybe add md5 support?
+	if (strstr(filename, ".soc") != NULL)
+	{
+		ncs = findfile(filename,NULL,true);
+
+		if (ncs != FS_FOUND)
+		{
+			Command_ExitGame_f();
+			if (ncs == FS_NOTFOUND)
+			{
+				CONS_Printf(text[CLIENT_NEEDFILE], filename);
+				M_StartMessage(va("The server added a file\n(%s)\nthat you do not have.\n\nPress ESC\n",filename), NULL, MM_NOTHING);
+			}
+			else
+			{
+				CONS_Printf(text[SOC_NOTFOUND], filename);
+				M_StartMessage(va("Unknown error trying to load a file\nthat the server added\n(%s).\n\nPress ESC\n",filename), NULL, MM_NOTHING);
+			}
+			return;
+		}
+	}
+
+	P_RunSOC(filename);
+	modifiedgame = true;
+}
+static void Got_Teamchange(UINT8 **cp, INT32 playernum)
+{
+	changeteam_union NetPacket;
+	boolean error = false;
+	NetPacket.value.l = NetPacket.value.b = READINT16(*cp);
+
+	if (!(gametype == GT_MATCH || gametype == GT_TAG || gametype == GT_CTF)) //Make sure you're in the right gametype.
+	{
+		// this should never happen unless the client is hacked/buggy
+		CONS_Printf(text[ILLEGALTEAMCHANGECMD], player_names[playernum]);
+		if (server)
+		{
+			XBOXSTATIC UINT8 buf[2];
+
+			buf[0] = (UINT8)playernum;
+			buf[1] = KICK_MSG_CON_FAIL;
+			SendNetXCmd(XD_KICK, &buf, 2);
+		}
+	}
+
+	if (NetPacket.packet.verification) // Special marker that the server sent the request
+	{
+		if (playernum != serverplayer && (playernum != adminplayer))
+		{
+			CONS_Printf(text[ILLEGALTEAMCHANGECMD], player_names[playernum]);
+			if (server)
+			{
+				XBOXSTATIC UINT8 buf[2];
+
+				buf[0] = (UINT8)playernum;
+				buf[1] = KICK_MSG_CON_FAIL;
+				SendNetXCmd(XD_KICK, &buf, 2);
+			}
+			return;
+		}
+		playernum = NetPacket.packet.playernum;
+	}
+
+	// Prevent multiple changes in one go.
+	if (gametype == GT_MATCH && !cv_matchtype.value)
+	{
+		if ((players[playernum].spectator && !NetPacket.packet.newteam) ||
+			(!players[playernum].spectator && NetPacket.packet.newteam == 3))
+			return;
+	}
+	else if (gametype == GT_TAG)
+	{
+		if (((players[playernum].pflags & PF_TAGIT) && NetPacket.packet.newteam == 1) ||
+			(!(players[playernum].pflags & PF_TAGIT) && NetPacket.packet.newteam == 2) ||
+			(players[playernum].spectator && NetPacket.packet.newteam == 0) ||
+			(!players[playernum].spectator && NetPacket.packet.newteam == 3))
+			return;
+	}
+	else if ((gametype == GT_MATCH && cv_matchtype.value) || gametype == GT_CTF)
+	{
+		if ((NetPacket.packet.newteam && (NetPacket.packet.newteam == (unsigned)players[playernum].ctfteam)) ||
+			(players[playernum].spectator && !NetPacket.packet.newteam))
+			return;
+	}
+	else
+	{
+		if (playernum != serverplayer && (playernum != adminplayer))
+		{
+			CONS_Printf(text[ILLEGALTEAMCHANGECMD], player_names[playernum]);
+			if (server)
+			{
+				XBOXSTATIC UINT8 buf[2];
+
+				buf[0] = (UINT8)playernum;
+				buf[1] = KICK_MSG_CON_FAIL;
+				SendNetXCmd(XD_KICK, &buf, 2);
+			}
+		}
+		return;
+	}
+
+	//Make sure that the right team number is sent. Keep in mind that normal clients cannot change to certain teams in certain gametypes.
+	switch (gametype)
+	{
+	case GT_MATCH: case GT_CTF:
+		if (!cv_allowteamchange.value)
+		{
+			if (!NetPacket.packet.verification && NetPacket.packet.newteam)
+				error = true; //Only admin can change status, unless changing to spectator.
+		}
+		break; //Otherwise, you don't need special permissions.
+	case GT_TAG:
+		switch (NetPacket.packet.newteam)
+		{
+		case 0:
+			break;
+		case 1: case 2:
+			if (!NetPacket.packet.verification || leveltime >= (hidetime * TICRATE)) //no status changes after hidetime
+				error = true; //Only admin can change player's IT status' in tag.
+			break;
+		case 3: //Join game via console.
+			//no status changes after hidetime in hide and seek.
+			if (!cv_allowteamchange.value || (cv_tagtype.value && (leveltime >= (hidetime * TICRATE))))
+				error = true;
+			break;
+		}
+
+		break;
+	default:
+		I_Error("Invalid gametype after initial checks!");
+	}
+
+	if (server && ((NetPacket.packet.newteam < 0 || NetPacket.packet.newteam > 3) || error))
+	{
+		XBOXSTATIC UINT8 buf[2];
+
+		buf[0] = (UINT8)playernum;
+		buf[1] = KICK_MSG_CON_FAIL;
+		CONS_Printf(text[SENTILLEGALTEAMCHANGE], player_names[playernum], NetPacket.packet.newteam);
+		SendNetXCmd(XD_KICK, &buf, 2);
+	}
+
+	//Safety first!
+	//Mega hack. P_DamageMobj needs cleaning, badly.
+	players[playernum].spectator = true;
+	if (players[playernum].mo)
+		P_DamageMobj(players[playernum].mo, NULL, NULL, 42000);
+
+	//Now that we've done our error checking and killed the player
+	//if necessary, put the player on the correct team/status.
+	if (gametype == GT_CTF || (gametype == GT_MATCH && cv_matchtype.value))
+	{
+		if (!NetPacket.packet.newteam)
+		{
+			players[playernum].ctfteam = 0;
+			players[playernum].spectator = true;
+		}
+		else
+		{
+			players[playernum].ctfteam = NetPacket.packet.newteam;
+			players[playernum].spectator = false;
+		}
+	}
+	else if (gametype == GT_MATCH && !cv_matchtype.value)
+	{
+		if (!NetPacket.packet.newteam)
+			players[playernum].spectator = true;
+		else
+			players[playernum].spectator = false;
+	}
+	else if (gametype == GT_TAG)
+	{
+		if (!NetPacket.packet.newteam)
+		{
+			players[playernum].spectator = true;
+			players[playernum].pflags &= ~PF_TAGIT;
+			players[playernum].pflags &= ~PF_TAGGED;
+		}
+		else if (NetPacket.packet.newteam != 3) // .newteam == 1 or 2.
+		{
+			players[playernum].spectator = false;
+			players[playernum].pflags &= ~PF_TAGGED;//Just in case.
+
+			if (NetPacket.packet.newteam == 1) //Make the player IT.
+				players[playernum].pflags |= PF_TAGIT;
+			else
+				players[playernum].pflags &= ~PF_TAGIT;
+		}
+		else // Just join the game.
+		{
+			players[playernum].spectator = false;
+
+			//If joining after hidetime in normal tag, default to being IT.
+			if (!cv_tagtype.value && (leveltime > (hidetime * TICRATE)))
+			{
+				NetPacket.packet.newteam = 1; //minor hack, causes the "is it" message to be printed later.
+				players[playernum].pflags |= PF_TAGIT; //make the player IT.
+			}
+		}
+	}
+
+	if (NetPacket.packet.autobalance)
+		CONS_Printf(text[AUTOBALANCE_SWITCH], player_names[playernum]);
+	else if (NetPacket.packet.scrambled)
+		CONS_Printf(text[SCRAMBLE_SWITCH], player_names[playernum]);
+	else if (NetPacket.packet.newteam == 1)
+	{
+		if (gametype == GT_TAG)
+			CONS_Printf(text[NOW_IT], player_names[playernum]);
+		else
+			CONS_Printf(text[REDTEAM_SWITCH], player_names[playernum]);
+	}
+	else if (NetPacket.packet.newteam == 2)
+	{
+		if (gametype == GT_TAG)
+			CONS_Printf(text[NO_LONGER_IT], player_names[playernum]);
+		else
+			CONS_Printf(text[BLUETEAM_SWITCH], player_names[playernum]);
+	}
+	else if (NetPacket.packet.newteam == 3)
+		CONS_Printf(text[INGAME_SWITCH], player_names[playernum]);
+	else
+		CONS_Printf(text[SPECTATOR_SWITCH], player_names[playernum]);
+
+	//reset view if you are changed, or viewing someone who was changed.
+	if (playernum == consoleplayer || displayplayer == playernum)
+		displayplayer = consoleplayer;
+
+	if (gametype == GT_CTF || (gametype == GT_MATCH && cv_matchtype.value))
+	{
+		if (NetPacket.packet.newteam)
+		{
+			if (playernum == consoleplayer) //CTF and Team Match colors.
+				CV_SetValue(&cv_playercolor, NetPacket.packet.newteam + 5);
+			else if (playernum == secondarydisplayplayer)
+				CV_SetValue(&cv_playercolor2, NetPacket.packet.newteam + 5);
+		}
+	}
+
+	// Clear player score and rings if a spectator.
+	if (players[playernum].spectator)
+	{
+		players[playernum].score = 0;
+		players[playernum].health = 1;
+		if (players[playernum].mo)
+			players[playernum].mo->health = 1;
+	}
+
+	// In tag, check to see if you still have a game.
+	if (gametype == GT_TAG)
+		P_CheckSurvivors();
+}
+static void Got_Clearscores(UINT8 **cp, INT32 playernum)
+{
+	INT32 i;
+
+	(void)cp;
+	if (playernum != serverplayer && playernum != adminplayer)
+	{
+		CONS_Printf(text[ILLEGALCLRSCRCMD], player_names[playernum]);
+		if (server)
+		{
+			XBOXSTATIC UINT8 buf[2];
+
+			buf[0] = (UINT8)playernum;
+			buf[1] = KICK_MSG_CON_FAIL;
+			SendNetXCmd(XD_KICK, &buf, 2);
+		}
+		return;
+	}
+
+	for (i = 0; i < MAXPLAYERS; i++)
+		players[i].score = 0;
+
+	CONS_Printf("%s", text[SCORESRESET]);
+}
+
 // =========================================================================
 //                           SERVER STARTUP
 // =========================================================================
@@ -395,6 +1228,22 @@ INT32 adminplayer = -1;
   */
 void D_RegisterServerCommands(void)
 {
+	RegisterNetXCmd(XD_NAMEANDCOLOR, Got_NameAndColor);
+	RegisterNetXCmd(XD_WEAPONPREF, Got_WeaponPref);
+	RegisterNetXCmd(XD_MAP, Got_Mapcmd);
+	RegisterNetXCmd(XD_EXITLEVEL, Got_ExitLevelcmd);
+	RegisterNetXCmd(XD_ADDFILE, Got_Addfilecmd);
+	RegisterNetXCmd(XD_REQADDFILE, Got_RequestAddfilecmd);
+#ifdef DELFILE
+	RegisterNetXCmd(XD_DELFILE, Got_Delfilecmd);
+#endif
+	RegisterNetXCmd(XD_PAUSE, Got_Pause);
+	RegisterNetXCmd(XD_RUNSOC, Got_RunSOCcmd);
+	RegisterNetXCmd(XD_TEAMCHANGE, Got_Teamchange);
+	RegisterNetXCmd(XD_CLEARSCORES, Got_Clearscores);
+	RegisterNetXCmd(XD_RANDOMSEED, Got_RandomSeed);
+	RegisterNetXCmd(XD_ORDERPIZZA, Got_PizzaOrder);
+
 	COM_AddCommand("clearscores", Command_Clearscores_f);
 	COM_AddCommand("map", Command_Map_f);
 
@@ -519,9 +1368,6 @@ void D_RegisterServerCommands(void)
 	CV_RegisterVar(&cv_skipmapcheck);
 
 	CV_RegisterVar(&cv_sleep);
-#ifdef NEWPING
-	CV_RegisterVar(&cv_maxping);
-#endif
 
 #ifdef SEENAMES
 	 CV_RegisterVar(&cv_allowseenames);
@@ -609,7 +1455,6 @@ void D_RegisterClientCommands(void)
 	CV_RegisterVar(&cv_seenames);
 #endif
 	CV_RegisterVar(&cv_realnames);
-	CV_RegisterVar(&cv_netstat);
 
 #ifdef FISHCAKE
 	CV_RegisterVar(&cv_fishcake);
@@ -1010,8 +1855,6 @@ static void SetPlayerName(INT32 playernum, char *newname)
 		}
 	}
 }
-
-static INT32 snacpending = 0, snac2pending = 0, chmappending = 0;
 
 // name, color, or skin has changed
 //

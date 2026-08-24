@@ -401,9 +401,9 @@ extern boolean singletics;
 
 extern consvar_t cv_timetic; // display high resolution timer
 extern consvar_t cv_forceskin; // force clients to use the server's skin
-extern consvar_t cv_downloading; // allow clients to downloading WADs.
 extern ticcmd_t netcmds[BACKUPTICS][MAXPLAYERS];
 extern INT32 adminplayer, serverplayer;
+extern INT32 mapchangepending;
 
 /// \note put these in d_clisrv outright?
 

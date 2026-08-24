@@ -18,6 +18,7 @@
 /// \brief Preparation of data for rendering,generation of lookups, caching, retrieval by name
 
 #include "doomdef.h"
+#include "d_main.h"
 #include "g_game.h"
 #include "i_video.h"
 #include "r_local.h"

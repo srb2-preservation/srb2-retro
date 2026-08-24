@@ -212,11 +212,7 @@ UINT16 W_LoadWadFile(const char *filename)
 #endif
 	INT32 compressed = 0;
 	size_t packetsize = 0;
-	serverinfo_pak *dummycheck = NULL;
 	boolean important;
-
-	// Shut the compiler up.
-	(void)dummycheck;
 
 	if (!(refreshdirmenu & REFRESHDIR_ADDFILE))
 		refreshdirmenu = REFRESHDIR_NORMAL|REFRESHDIR_ADDFILE; // clean out cons_alerts that happened earlier
@@ -281,7 +277,7 @@ UINT16 W_LoadWadFile(const char *filename)
 	packetsize += nameonlylength(filename);
 	packetsize += 22;
 
-	if (packetsize > sizeof(dummycheck->fileneeded))
+	if (packetsize > MAXFILENEEDED)
 	{
 		CONS_Printf("Maximum wad files reached\n");
 		refreshdirmenu |= REFRESHDIR_MAX;
