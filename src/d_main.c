@@ -1013,11 +1013,6 @@ void D_SRB2Main(void)
 	devparm = M_CheckParm("-debug");
 #endif
 
-	// for dedicated server
-#if !defined (_WINDOWS) //already check in win_main.c
-	dedicated = M_CheckParm("-dedicated") != 0;
-#endif
-
 	strcpy(title, "Sonic Robo Blast 2");
 	strcpy(srb2, "Sonic Robo Blast 2");
 	D_MakeTitleString(srb2);

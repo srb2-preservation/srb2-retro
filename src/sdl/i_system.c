@@ -681,7 +681,6 @@ void I_GetConsoleEvents(void)
 static void I_StartupConsole(void)
 {
 	HANDLE ci, co;
-	const INT32 ded = M_CheckParm("-dedicated");
 #ifdef SDLMAIN
 	BOOL gotConsole = FALSE;
 	if (M_CheckParm("-console") || ded)
@@ -2483,10 +2482,9 @@ void I_Error(const char *error, ...)
 			// Implement message box with SDL_ShowSimpleMessageBox,
 			// which should fail gracefully if it can't put a message box up
 			// on the target system
-			if (!M_CheckParm("-dedicated"))
-				SDL_ShowSimpleMessageBox(SDL_MESSAGEBOX_ERROR,
-					"SRB2 "VERSIONSTRING" Recursive Error",
-					buffer, NULL);
+			SDL_ShowSimpleMessageBox(SDL_MESSAGEBOX_ERROR,
+				"SRB2 "VERSIONSTRING" Recursive Error",
+				buffer, NULL);
 
 			W_Shutdown();
 			exit(-1); // recursive errors detected
@@ -2526,10 +2524,9 @@ void I_Error(const char *error, ...)
 	// Implement message box with SDL_ShowSimpleMessageBox,
 	// which should fail gracefully if it can't put a message box up
 	// on the target system
-	if (!M_CheckParm("-dedicated"))
-		SDL_ShowSimpleMessageBox(SDL_MESSAGEBOX_ERROR,
-			"SRB2 "VERSIONSTRING" Error",
-			buffer, NULL);
+	SDL_ShowSimpleMessageBox(SDL_MESSAGEBOX_ERROR,
+		"SRB2 "VERSIONSTRING" Error",
+		buffer, NULL);
 	// Note that SDL_ShowSimpleMessageBox does *not* require SDL to be
 	// initialized at the time, so calling it after SDL_Quit() is
 	// perfectly okay! In addition, we do this on purpose so the

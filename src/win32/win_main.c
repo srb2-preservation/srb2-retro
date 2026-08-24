@@ -317,8 +317,6 @@ static inline VOID OpenTextConsole(VOID)
 	console = M_CheckParm("-console") != 0;
 #endif
 
-	dedicated = M_CheckParm("-dedicated") != 0;
-
 	if (M_CheckParm("-detachconsole"))
 	{
 		if (FreeConsole())
