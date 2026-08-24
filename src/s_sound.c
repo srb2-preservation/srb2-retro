@@ -456,13 +456,11 @@ void S_StartSoundAtVolume(const void *origin_p, sfxenum_t sfx_id, INT32 volume)
 		return;
 
 	// In space, no one can hear you spin, unless you die.
-	if (!splitscreen && players[displayplayer].powers[pw_spacetime] &&
+	if (players[displayplayer].powers[pw_spacetime] &&
 		!(sfx_id == sfx_altdi1 || sfx_id == sfx_altdi2 || sfx_id == sfx_altdi3 || sfx_id == sfx_altdi4))
 
 	if (oncontinuescreen)
 		return;
-
-	if (splitscreen) listenmobj2 = players[secondarydisplayplayer].mo;
 
 	if (nosound)
 		return;
@@ -530,56 +528,6 @@ void S_StartSoundAtVolume(const void *origin_p, sfxenum_t sfx_id, INT32 volume)
 	// Initialize sound parameters
 	pitch = NORM_PITCH;
 	priority = NORM_PRIORITY;
-
-	if (splitscreen && listenmobj2) // Copy the sound for the split player
-	{
-		// Check to see if it is audible, and if not, modify the params
-		if (origin && origin != listenmobj2)
-		{
-			INT32 rc;
-			rc = S_AdjustSoundParams(listenmobj2, origin, &volume, &sep, &pitch, sfx);
-
-			if (!rc)
-				goto dontplay; // Maybe the other player can hear it...
-
-			if (origin->x == listener2.x && origin->y == listener2.y)
-				sep = NORM_SEP;
-		}
-		else
-			sep = NORM_SEP;
-
-		// try to find a channel
-		cnum = S_getChannel(origin, sfx);
-
-		if (cnum < 0)
-			return; // If there's no free channels, it's not gonna be free for player 1, either.
-
-		// This is supposed to handle the loading/caching.
-		// For some odd reason, the caching is done nearly
-		// each time the sound is needed?
-
-		// cache data if necessary
-		// NOTE: set sfx->data NULL sfx->lump -1 to force a reload
-		if (!sfx->data)
-			sfx->data = I_GetSfx(sfx);
-
-		// increase the usefulness
-		if (sfx->usefulness++ < 0)
-			sfx->usefulness = -1;
-
-#ifdef SURROUND
-		// Avoid channel reverse if surround
-		if (stereoreverse.value && sep != SURROUND_SEP)
-			sep = (~sep) & 255;
-#else
-		if (stereoreverse.value)
-			sep = (~sep) & 255;
-#endif
-
-		// Assigns the handle to one of the channels in the
-		// mix/output buffer.
-		channels[cnum].handle = I_StartSound(sfx_id, volume, sep, pitch, priority);
-	}
 
 dontplay:
 
@@ -757,7 +705,6 @@ void S_UpdateSounds(void)
 
 	mobj_t *listenmobj = players[displayplayer].mo;
 	mobj_t *listenmobj2 = NULL;
-	if (splitscreen) listenmobj2 = players[secondarydisplayplayer].mo;
 
 	memset(&listener, 0, sizeof(listener_t));
 	memset(&listener2, 0, sizeof(listener_t));
@@ -872,37 +819,10 @@ void S_UpdateSounds(void)
 
 				// check non-local sounds for distance clipping
 				//  or modify their params
-				if (c->origin && ((c->origin != players[consoleplayer].mo) ||
-					(splitscreen && c->origin != players[secondarydisplayplayer].mo)))
+				if (c->origin && ((c->origin != players[consoleplayer].mo)))
 				{
 					// Whomever is closer gets the sound, but only in splitscreen.
-					if (listenmobj && listenmobj2 && splitscreen)
-					{
-						const mobj_t *soundmobj = c->origin;
-
-						fixed_t dist1, dist2;
-						dist1 = P_AproxDistance(listener.x-soundmobj->x, listener.y-soundmobj->y);
-						dist2 = P_AproxDistance(listener2.x-soundmobj->x, listener2.y-soundmobj->y);
-
-						if (dist1 <= dist2)
-						{
-							// Player 1 gets the sound
-							audible = S_AdjustSoundParams(listenmobj, c->origin, &volume, &sep, &pitch,
-								c->sfxinfo);
-						}
-						else
-						{
-							// Player 2 gets the sound
-							audible = S_AdjustSoundParams(listenmobj2, c->origin, &volume, &sep, &pitch,
-								c->sfxinfo);
-						}
-
-						if (audible)
-							I_UpdateSoundParams(c->handle, volume, sep, pitch);
-						else
-							S_StopChannel(cnum);
-					}
-					else if (listenmobj && !splitscreen)
+					if (listenmobj)
 					{
 						// In the case of a single player, he or she always should get updated sound.
 						audible = S_AdjustSoundParams(listenmobj, c->origin, &volume, &sep, &pitch,
@@ -1183,13 +1103,6 @@ INT32 S_AdjustSoundParams(const mobj_t *listener, const mobj_t *source, INT32 *v
 		listensource.y = camera.y;
 		listensource.z = camera.z;
 		listensource.angle = camera.angle;
-	}
-	else if (splitscreen && listener == players[secondarydisplayplayer].mo && cv_chasecam2.value)
-	{
-		listensource.x = camera2.x;
-		listensource.y = camera2.y;
-		listensource.z = camera2.z;
-		listensource.angle = camera2.angle;
 	}
 	else
 	{

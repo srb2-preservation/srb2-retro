@@ -1690,12 +1690,6 @@ void A_1upThinker(void *thing)
 {
 	mobj_t *actor = thing;
 	#ifdef LIVESBOXDISPLAYPLAYER
-	if (!splitscreen)
-	{
-		actor->frame = states[S_PLAY_BOX1A].frame;
-		actor->skin = &skins[players[displayplayer].skin];
-	}
-	else
 	{
 		INT32 i;
 		fixed_t dist = INT32_MAX;

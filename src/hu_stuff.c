@@ -937,18 +937,6 @@ static inline void HU_DrawCrosshair2(void)
 	else
 #endif
 		y = viewwindowy + (viewheight>>1);
-
-	if (splitscreen)
-	{
-#ifdef HWRENDER
-		if (rendermode != render_soft)
-			y += (INT32)gr_viewheight;
-		else
-#endif
-			y += viewheight;
-
-		V_DrawTranslucentPatch(vid.width>>1, y, V_NOSCALESTART, crosshair[i - 1]);
-	}
 }
 
 static void HU_drawGametype(void)
@@ -981,10 +969,7 @@ static void HU_drawGametype(void)
 	else if (gametype == GT_CTF)
 		i = 7;
 
-	if (splitscreen)
-		V_DrawString(4, 184, 0, gametype_cons_t[i].strvalue);
-	else
-		V_DrawString(4, 192, 0, gametype_cons_t[i].strvalue);
+	V_DrawString(4, 192, 0, gametype_cons_t[i].strvalue);
 }
 
 #define MAXCECHOLINES 16
@@ -1646,7 +1631,7 @@ static void HU_DrawRankings(void)
 		HU_DrawDualTabRankings(32, 32, tab, scorelines, whiteplayer);
 
 	// draw spectators in a ticker across the bottom
-	if (!splitscreen && (gametype == GT_MATCH || gametype == GT_TAG || gametype == GT_CTF))
+	if ((gametype == GT_MATCH || gametype == GT_TAG || gametype == GT_CTF))
 		HU_DrawSpectatorTicker();
 }
 

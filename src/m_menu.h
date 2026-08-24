@@ -48,8 +48,6 @@ void M_StartControlPanel(void);
 
 // Draws a box with a texture inside as background for messages
 void M_DrawTextBox(INT32 x, INT32 y, INT32 width, INT32 boxlines);
-// show or hide the setup for player 2 (called at splitscreen change)
-void M_SwitchSplitscreen(void);
 
 // the function to show a message box typing with the string inside
 // string must be static (not in the stack)
@@ -158,11 +156,11 @@ boolean M_MouseNeeded(void);
 
 extern menu_t *currentMenu;
 
-extern menu_t MainDef, SinglePlayerDef, MultiPlayerDef, SetupMultiPlayerDef;
+extern menu_t MainDef, SinglePlayerDef;
 extern menu_t OptionsDef, VidModeDef, ControlDef, SoundDef;
 extern menu_t ReadDef2, ReadDef1, SaveDef, LoadDef, ControlDef2, GameOptionDef;
-extern menu_t NetOptionDef, EnemyToggleDef, MonitorToggleDef, SecretsDef, CustomSecretsDef;
-extern menu_t VideoOptionsDef, MouseOptionsDef, ServerOptionsDef, RetroDef;
+extern menu_t EnemyToggleDef, MonitorToggleDef, SecretsDef, CustomSecretsDef;
+extern menu_t VideoOptionsDef, MouseOptionsDef, RetroDef;
 extern menu_t RewardDef, LevelSelectDef, JoystickDef, TimeAttackDef;
 extern menu_t StatsDef, Stats2Def, Stats3Def, Stats4Def, PlayerDef;
 extern menu_t CoopOptionsDef, RaceOptionsDef, MatchOptionsDef, TagOptionsDef, CTFOptionsDef;
@@ -204,7 +202,7 @@ boolean M_GotEnoughEmblems(INT32 number);
 
 extern description_t description[15];
 
-extern consvar_t cv_newgametype, cv_nextmap, cv_chooseskin, cv_serversort;
+extern consvar_t cv_newgametype, cv_nextmap, cv_chooseskin;
 #ifndef NONET
 extern consvar_t cv_chooseroom;
 #endif
@@ -212,8 +210,6 @@ extern CV_PossibleValue_t gametype_cons_t[];
 
 extern INT16 startmap;
 extern INT32 ultmode;
-
-extern boolean StartSplitScreenGame;
 
 void M_CheatActivationResponder(INT32 ch);
 void Moviemode_mode_Onchange(void);

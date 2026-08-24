@@ -3446,10 +3446,7 @@ static void HWR_DrawSpriteShadow(gr_vissprite_t *spr, GLPatch_t *gpatch, float t
 		angle_t shadowdir;
 
 		// Set direction
-		if (splitscreen && stplyr != &players[displayplayer])
-			shadowdir = localangle2 + FixedAngle(cv_cam2_rotate.value);
-		else
-			shadowdir = localangle + FixedAngle(cv_cam_rotate.value);
+		shadowdir = localangle + FixedAngle(cv_cam_rotate.value);
 
 		// Find floorheight
 		floorheight = HWR_OpaqueFloorAtPos(
@@ -4354,17 +4351,6 @@ static void HWR_AddSprites(sector_t *sec)
 
 				if (approx_dist < LIMIT_DRAW_DIST)
 					HWR_ProjectSprite(thing);
-				else if (splitscreen && players[secondarydisplayplayer].mo)
-				{
-					adx = abs(players[secondarydisplayplayer].mo->x - thing->x);
-					ady = abs(players[secondarydisplayplayer].mo->y - thing->y);
-
-					// From _GG1_ p.428. Approx. eucledian distance fast.
-					approx_dist = adx + ady - ((adx < ady ? adx : ady)>>1);
-
-					if (approx_dist < LIMIT_DRAW_DIST)
-						HWR_ProjectSprite(thing);
-				}
 			}
 		}
 	}
@@ -4408,17 +4394,6 @@ static void HWR_AddSprites(sector_t *sec)
 			// Only draw the precipitation oh-so-far from the player.
 			if (approx_dist < (cv_precipdist.value << FRACBITS))
 				HWR_ProjectPrecipitationSprite(precipthing);
-			else if (splitscreen && players[secondarydisplayplayer].mo)
-			{
-				adx = abs(players[secondarydisplayplayer].mo->x - precipthing->x);
-				ady = abs(players[secondarydisplayplayer].mo->y - precipthing->y);
-
-				// From _GG1_ p.428. Approx. eucledian distance fast.
-				approx_dist = adx + ady - ((adx < ady ? adx : ady)>>1);
-
-				if (approx_dist < (cv_precipdist.value << FRACBITS))
-					HWR_ProjectPrecipitationSprite(precipthing);
-			}
 		}
 	}
 #endif
@@ -4785,9 +4760,6 @@ void HWR_SetViewSize(void)
 	gr_viewwidth = (float)vid.width;
 	gr_viewheight = (float)vid.height;
 
-	if (splitscreen)
-		gr_viewheight /= 2;
-
 	gr_centerx = gr_viewwidth / 2;
 	gr_basecentery = gr_viewheight / 2; //note: this is (gr_centerx * gr_viewheight / gr_viewwidth)
 
@@ -4849,11 +4821,6 @@ void HWR_RenderPlayerView(INT32 viewnumber, player_t *player)
 	gr_centery = gr_basecentery;
 	gr_viewwindowy = gr_baseviewwindowy;
 	gr_windowcentery = gr_basewindowcentery;
-	if (splitscreen && viewnumber == 1)
-	{
-		gr_viewwindowy += (vid.height/2);
-		gr_windowcentery += (vid.height/2);
-	}
 
 	// check for new console commands.
 	NetUpdate();
@@ -4879,7 +4846,7 @@ void HWR_RenderPlayerView(INT32 viewnumber, player_t *player)
 	atransform.scalez = 1;
 	atransform.fovxangle = fpov; // Tails
 	atransform.fovyangle = fpov; // Tails
-	atransform.splitscreen = splitscreen;
+	atransform.splitscreen = false;
 	gr_fovlud = (float)(1.0l/tan((double)(fpov*M_PIl/360l)));
 
 	//------------------------------------------------------------------------
@@ -4892,10 +4859,7 @@ void HWR_RenderPlayerView(INT32 viewnumber, player_t *player)
 
 		HWR_FoggingOn(); // First of all, turn it on, set the default user settings too
 
-		if (splitscreen && player == &players[secondarydisplayplayer])
-			camview = &camera2;
-		else
-			camview = &camera;
+		camview = &camera;
 
 		if (viewsector)// && player->mo->subsector->sector->extra_colormap)
 		{
@@ -4951,7 +4915,7 @@ void HWR_RenderPlayerView(INT32 viewnumber, player_t *player)
 		HWR_DrawSkyBackground(player);
 
 	//Hurdler: it doesn't work in splitscreen mode
-	drawsky = splitscreen;
+	drawsky = false;
 
 	HWR_ClearSprites();
 
@@ -4971,8 +4935,6 @@ void HWR_RenderPlayerView(INT32 viewnumber, player_t *player)
 	// Make a viewangle int so we can render things based on mouselook
 	if (player == &players[consoleplayer])
 		viewangle = localaiming;
-	else if (splitscreen && player == &players[secondarydisplayplayer])
-		viewangle = localaiming2;
 
 	// Handle stuff when you are looking farther up or down.
 	if ((aimingangle || cv_grfov.value+player->fovadd > 90*FRACUNIT))

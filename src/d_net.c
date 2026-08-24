@@ -33,7 +33,6 @@
 #include "d_netfil.h"
 #include "d_clisrv.h"
 #include "z_zone.h"
-#include "i_tcp.h"
 
 //
 // NETWORKING
@@ -1035,7 +1034,7 @@ boolean D_CheckNetGame(void)
 	if (!netgame && !I_NetOpenSocket)
 	{
 		D_SetDoomcom();
-		netgame = I_InitTcpNetwork();
+		netgame = false;
 	}
 
 	if (netgame)

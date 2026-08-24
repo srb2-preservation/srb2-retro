@@ -256,13 +256,7 @@ sector_t *R_FakeFlat(sector_t *sec, sector_t *tempsec, INT32 *floorlightlevel,
 		const sector_t *s = &sectors[sec->heightsec];
 		INT32 heightsec = R_PointInSubsector(viewmobj->x, viewmobj->y)->sector->heightsec;
 		INT32 underwater = heightsec != -1 && viewz <= sectors[heightsec].floorheight;
-
-		if (splitscreen && viewplayer == &players[secondarydisplayplayer]
-			&& camera2.chase)
-		{
-			heightsec = R_PointInSubsector(camera2.x, camera2.y)->sector->heightsec;
-		}
-		else if (camera.chase && viewplayer == &players[displayplayer])
+		if (camera.chase && viewplayer == &players[displayplayer])
 			heightsec = R_PointInSubsector(camera.x, camera.y)->sector->heightsec;
 
 		// Replace sector being drawn, with a copy to be hacked

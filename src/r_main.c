@@ -130,48 +130,6 @@ consvar_t cv_homremoval = {"homremoval", "Off", CV_SAVE, CV_OnOff, NULL, 0, NULL
 
 consvar_t cv_moviemodeinfo = {"moviemodeinfo", "Yes", CV_SAVE, CV_YesNo, NULL, 0, NULL, NULL, 0, 0, NULL};
 
-void SplitScreen_OnChange(void)
-{
-	if (!cv_debug && netgame)
-	{
-		if (splitscreen)
-		{
-			CONS_Printf("Splitscreen not supported in netplay, "
-				"sorry!\n");
-			splitscreen = false;
-		}
-		return;
-	}
-
-	// recompute screen size
-	R_ExecuteSetViewSize();
-
-	// change the menu
-	M_SwitchSplitscreen();
-
-	if (!demoplayback)
-	{
-		if (splitscreen)
-			CL_AddSplitscreenPlayer();
-		else
-			CL_RemoveSplitscreenPlayer();
-
-		if (server && !netgame)
-			multiplayer = splitscreen;
-	}
-	else
-	{
-		INT32 i;
-		secondarydisplayplayer = consoleplayer;
-		for (i = 0; i < MAXPLAYERS; i++)
-			if (playeringame[i] && i != consoleplayer)
-			{
-				secondarydisplayplayer = i;
-				break;
-			}
-	}
-}
-
 static void ChaseCam_OnChange(void)
 {
 	if (!cv_chasecam.value || !cv_useranalog.value)
@@ -550,9 +508,6 @@ void R_ExecuteSetViewSize(void)
 	scaledviewwidth = vid.width;
 	viewheight = vid.height;
 
-	if (splitscreen)
-		viewheight >>= 1;
-
 	viewwidth = scaledviewwidth;
 
 	centery = viewheight/2;
@@ -721,13 +676,7 @@ void R_SetupFrame(player_t *player)
 	INT32 dy = 0;
 	camera_t *thiscam;
 
-	if (splitscreen && player == &players[secondarydisplayplayer]
-		&& player != &players[consoleplayer])
-	{
-		thiscam = &camera2;
-	}
-	else
-		thiscam = &camera;
+	thiscam = &camera;
 
 	if (cv_chasecam.value && thiscam == &camera && !thiscam->chase)
 	{
@@ -835,10 +784,7 @@ void R_SetupFrame(player_t *player)
 		// (lmps, network and use F12...)
 		G_ClipAimingPitch((INT32 *)&aimingangle);
 
-		if (!splitscreen)
-			dy = AIMINGTODY(aimingangle) * viewheight/BASEVIDHEIGHT;
-		else
-			dy = AIMINGTODY(aimingangle) * viewheight*2/BASEVIDHEIGHT;
+		dy = AIMINGTODY(aimingangle) * viewheight*2/BASEVIDHEIGHT;
 
 		yslope = &yslopetab[(3*viewheight/2) - dy];
 	}

@@ -42,7 +42,6 @@
 #include "m_misc.h"
 #include "am_map.h"
 #include "m_random.h"
-#include "mserv.h"
 #include "y_inter.h"
 #include "r_local.h"
 #include "m_argv.h"
@@ -381,7 +380,7 @@ static boolean CL_SendJoin(void)
 	CONS_Printf("%s",text[JOINREQUEST]);
 	netbuffer->packettype = PT_CLIENTJOIN;
 
-	netbuffer->u.clientcfg.localplayers = (UINT8)((UINT8)splitscreen + 1);
+	netbuffer->u.clientcfg.localplayers = (UINT8)((UINT8)false + 1);
 	netbuffer->u.clientcfg.version = VERSION;
 	netbuffer->u.clientcfg.subversion = SUBVERSION;
 
@@ -405,7 +404,7 @@ static void SV_SendServerInfo(INT32 node, tic_t servertime)
 	netbuffer->u.serverinfo.modifiedgame = (UINT8)modifiedgame;
 	netbuffer->u.serverinfo.cheatsenabled = (UINT8)cv_cheats.value;
 	netbuffer->u.serverinfo.isdedicated = (UINT8)dedicated;
-	strncpy(netbuffer->u.serverinfo.servername, cv_servername.string,
+	strncpy(netbuffer->u.serverinfo.servername, "",
 		MAXSERVERNAME);
 	strncpy(netbuffer->u.serverinfo.mapname, G_BuildMapName(gamemap), 7);
 
@@ -709,10 +708,6 @@ static void SendAskInfo(INT32 node, boolean viams)
 	// now allowed traffic from the host to us in, so once the MS relays
 	// our address to the host, it'll be able to speak to us.
 	HSendPacket(node, false, 0, sizeof (askinfo_pak));
-
-	// Also speak to the MS.
-	if (viams && node != 0 && node != BROADCASTADDR)
-		SendAskInfoViaMS(node, asktime);
 }
 
 serverelem_t serverlist[MAXSERVERLIST];
@@ -770,24 +765,6 @@ static void SL_InsertServer(serverinfo_pak* info, SINT8 node)
 	do
 	{
 		INT32 keycurr = 0, keyprev = 0, keynext = 0;
-		switch(cv_serversort.value)
-		{
-		case 0:		// Ping.
-			keycurr = (tic_t)LONG(serverlist[i].info.time);
-			if (i > 0) keyprev = (tic_t)LONG(serverlist[i-1].info.time);
-			if (i < serverlistcount - 1) keynext = (tic_t)LONG(serverlist[i+1].info.time);
-			break;
-		case 1:		// Players.
-			keycurr = serverlist[i].info.numberofplayer;
-			if (i > 0) keyprev = serverlist[i-1].info.numberofplayer;
-			if (i < serverlistcount - 1) keynext = serverlist[i+1].info.numberofplayer;
-			break;
-		case 2:		// Gametype.
-			keycurr = serverlist[i].info.gametype;
-			if (i > 0) keyprev = serverlist[i-1].info.gametype;
-			if (i < serverlistcount - 1) keynext = serverlist[i+1].info.gametype;
-			break;
-		}
 
 		moved = false;
 		if (i > 0 && keycurr < keyprev)
@@ -809,63 +786,6 @@ static void SL_InsertServer(serverinfo_pak* info, SINT8 node)
 			moved = true;
 		}
 	} while (moved);
-}
-
-void CL_UpdateServerList(boolean internetsearch, INT32 room)
-{
-	SL_ClearServerList(0);
-
-	if (!netgame && I_NetOpenSocket)
-	{
-		MSCloseUDPSocket();		// Tidy up before wiping the slate.
-		if (I_NetOpenSocket())
-		{
-			netgame = true;
-			multiplayer = true;
-		}
-	}
-
-	// search for local servers
-	if (netgame)
-		SendAskInfo(BROADCASTADDR, false);
-
-	if (internetsearch)
-	{
-		const msg_server_t *server_list;
-		INT32 i = -1;
-		server_list = GetShortServersList(room);
-		if (server_list)
-		{
-			char version[8] = "";
-			snprintf(version, sizeof (version), "%d.%d.%d", VERSION/100, VERSION%100, SUBVERSION);
-			version[sizeof (version) - 1] = '\0';
-
-			for (i = 0; server_list[i].header.buffer[0]; i++)
-			{
-				// Make sure MS version matches our own, to
-				// thwart nefarious servers who lie to the MS.
-
-				if(strcmp(version, server_list[i].version) == 0)
-				{
-					INT32 node;
-					XBOXSTATIC char addr_str[24];
-
-					// insert ip (and optionally port) in node list
-					sprintf(addr_str, "%s:%s", server_list[i].ip, server_list[i].port);
-					node = I_NetMakeNode(addr_str);
-					if (node == -1)
-						break; // no more node free
-					SendAskInfo(node, true);
-				}
-			}
-		}
-
-		//no server list?(-1) or no servers?(0)
-		if (!i)
-		{
-			; /// TODO: display error or warning?
-		}
-	}
 }
 
 // use adaptive send using net_bandwidth and stat.sendbytes
@@ -1286,7 +1206,6 @@ static void Command_connect(void)
 		}
 		else if (I_NetOpenSocket)
 		{
-			MSCloseUDPSocket();		// Tidy up before wiping the slate.
 			I_NetOpenSocket();
 			netgame = true;
 			multiplayer = true;
@@ -1306,8 +1225,6 @@ static void Command_connect(void)
 			CONS_Printf("There is no network driver\n");
 	}
 
-	splitscreen = false;
-	SplitScreen_OnChange();
 	CL_ConnectToServer(viams);
 }
 #endif
@@ -1926,8 +1843,6 @@ void D_QuitNetGame(void)
 		for (i = 0; i < MAXNETNODES; i++)
 			if (nodeingame[i])
 				HSendPacket(i, true, 0, 0);
-		if (serverrunning && cv_internetserver.value)
-			UnregisterServer();
 	}
 	else if (servernode > 0 && servernode < MAXNETNODES && nodeingame[(UINT8)servernode]!=0)
 	{
@@ -2134,10 +2049,7 @@ boolean SV_SpawnServer(void)
 		SV_ResetServer();
 		if (netgame && I_NetOpenSocket)
 		{
-			MSCloseUDPSocket();		// Tidy up before wiping the slate.
 			I_NetOpenSocket();
-			if (cv_internetserver.value)
-				RegisterServer();
 		}
 
 		// non dedicated server just connect to itself
@@ -2180,9 +2092,6 @@ void SV_StartSinglePlayerServer(void)
 
 	// no more tic the game with this settings!
 	SV_StopServer();
-
-	if (splitscreen)
-		multiplayer = true;
 }
 
 static void SV_SendRefuse(INT32 node, const char *reason)
@@ -3179,16 +3088,7 @@ static void CL_SendClientCmd(void)
 	{
 		G_MoveTiccmd(&netbuffer->u.clientpak.cmd, &localcmds, 1);
 		netbuffer->u.clientpak.consistancy = SHORT(consistancy[gametic%BACKUPTICS]);
-
-		// send a special packet with 2 cmd for splitscreen
-		if (splitscreen)
-		{
-			netbuffer->packettype += 2;
-			G_MoveTiccmd(&netbuffer->u.client2pak.cmd2, &localcmds2, 1);
-			packetsize = sizeof (client2cmd_pak);
-		}
-		else
-			packetsize = sizeof (clientcmd_pak);
+		packetsize = sizeof (clientcmd_pak);
 
 		HSendPacket(servernode, false, 0, packetsize);
 	}
@@ -3344,8 +3244,6 @@ static void Local_Maketic(INT32 realtics)
 	if (!dedicated) rendergametic = gametic;
 	// translate inputs (keyboard/mouse/joystick) into game controls
 	G_BuildTiccmd(&localcmds, realtics);
-	if (splitscreen)
-		G_BuildTiccmd2(&localcmds2, realtics);
 
 	localcmds.angleturn |= TICCMD_RECEIVED;
 }
@@ -3570,8 +3468,6 @@ FILESTAMP
 FILESTAMP
 	// client send the command after a receive of the server
 	// the server send before because in single player is beter
-
-	MasterClient_Ticker(); // acking the master server
 
 	if (!server)
 		CL_SendClientCmd(); // send tic cmd

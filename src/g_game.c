@@ -1435,8 +1435,6 @@ void G_DoLoadLevel(boolean resetplayer)
 		P_FindEmerald();
 
 	displayplayer = consoleplayer; // view the guy you are playing
-	if (!splitscreen)
-		secondarydisplayplayer = consoleplayer;
 
 	gameaction = ga_nothing;
 #ifdef PARANOIA
@@ -1445,8 +1443,6 @@ void G_DoLoadLevel(boolean resetplayer)
 
 	if (cv_chasecam.value)
 		P_ResetCamera(&players[displayplayer], &camera);
-	if (cv_chasecam2.value && splitscreen)
-		P_ResetCamera(&players[secondarydisplayplayer], &camera2);
 
 	// clear cmd building stuff
 	memset(gamekeydown, 0, sizeof (gamekeydown));
@@ -1489,8 +1485,7 @@ boolean G_Responder(event_t *ev)
 				if (displayplayer == MAXPLAYERS)
 					displayplayer = 0;
 
-				if (displayplayer != consoleplayer && (!playeringame[displayplayer]
-					|| (splitscreen && displayplayer == secondarydisplayplayer)))
+				if (displayplayer != consoleplayer && (!playeringame[displayplayer]))
 					continue;
 
 				if ((gametype == GT_CTF || (gametype == GT_MATCH && cv_matchtype.value)) && players[consoleplayer].ctfteam
@@ -1971,7 +1966,7 @@ void G_PlayerReborn(INT32 player)
 	if (netgame || multiplayer)
 		p->powers[pw_flashing] = flashingtics-1; // Babysitting deterrent
 
-	if (P_IsLocalPlayer(p) && !(splitscreen && p == &players[secondarydisplayplayer]))
+	if (P_IsLocalPlayer(p))
 	{
 		if (!(mapmusic & 2048)) // TODO: Might not need this here
 			mapmusic = mapheaderinfo[gamemap-1].musicslot;
@@ -1998,15 +1993,11 @@ void G_PlayerReborn(INT32 player)
 		{
 			if (p == &players[consoleplayer])
 				CV_SetValue(&cv_playercolor, 6);
-			else if (p == &players[secondarydisplayplayer])
-				CV_SetValue(&cv_playercolor2, 6);
 		}
 		else if (p->ctfteam == 2 && p->skincolor != 7)
 		{
 			if (p == &players[consoleplayer])
 				CV_SetValue(&cv_playercolor, 7);
-			else if (p == &players[secondarydisplayplayer])
-				CV_SetValue(&cv_playercolor2, 7);
 		}
 	}
 }
@@ -2204,8 +2195,6 @@ void G_DoReborn(INT32 playernum)
 
 			if (cv_chasecam.value)
 				P_ResetCamera(&players[displayplayer], &camera);
-			if (cv_chasecam2.value && splitscreen)
-				P_ResetCamera(&players[secondarydisplayplayer], &camera2);
 
 			// clear cmd building stuff
 			memset(gamekeydown, 0, sizeof (gamekeydown));
@@ -2794,7 +2783,7 @@ void G_LoadGame(UINT32 slot, INT16 mapoverride)
 //	gameaction = ga_nothing;
 //	G_SetGamestate(GS_LEVEL);
 	displayplayer = consoleplayer;
-	multiplayer = splitscreen = false;
+	multiplayer = false;
 
 //	G_DeferedInitNew(sk_medium, G_BuildMapName(1), 0, 0, 1);
 	if (setsizeneeded)
@@ -2865,12 +2854,6 @@ void G_DeferedInitNew(boolean pultmode, const char *mapname, INT32 pickedchar, b
 
 	// this leave the actual game if needed
 	SV_StartSinglePlayerServer();
-
-	if (splitscreen != SSSG)
-	{
-		splitscreen = SSSG;
-		SplitScreen_OnChange();
-	}
 
 	SetSavedSkin(0, pickedchar, atoi(skins[pickedchar].prefcolor));
 

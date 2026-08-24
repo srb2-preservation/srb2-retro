@@ -30,8 +30,6 @@
 
 #include "../z_zone.h"
 
-#include "../i_tcp.h"
-
 #ifdef SDL
 
 #ifdef HAVE_SDLNET

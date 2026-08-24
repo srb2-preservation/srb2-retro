@@ -2728,9 +2728,9 @@ void P_CameraThinker(player_t *player, camera_t *thiscam)
 	}
 
 	// Are we in water?
-	if (!splitscreen && P_CameraCheckWater(thiscam))
+	if (P_CameraCheckWater(thiscam))
 		postimgtype = postimg_water;
-	else if (!splitscreen && P_CameraCheckHeat(thiscam))
+	else if (P_CameraCheckHeat(thiscam))
 		postimgtype = postimg_heat;
 }
 
@@ -4750,7 +4750,7 @@ static boolean P_ShieldLook(mobj_t *thing, powertype_t power)
 		return false;
 	}
 
-	if (!splitscreen && rendermode != render_soft)
+	if (rendermode != render_soft)
 	{
 		angle_t viewingangle;
 
@@ -4761,11 +4761,6 @@ static boolean P_ShieldLook(mobj_t *thing, powertype_t power)
 
 		destx = thing->target->x + P_ReturnThrustX(thing->target, viewingangle, FRACUNIT);
 		desty = thing->target->y + P_ReturnThrustY(thing->target, viewingangle, FRACUNIT);
-	}
-	else
-	{
-		destx = thing->target->x;
-		desty = thing->target->y;
 	}
 
 	if (power == pw_forceshield)
@@ -7088,8 +7083,6 @@ void P_SpawnPlayer(mapthing_t *mthing, INT32 playernum)
 	mobj->angle = FixedAngle(mthing->angle*FRACUNIT);
 	if (playernum == consoleplayer)
 		localangle = mobj->angle;
-	else if (splitscreen && playernum == secondarydisplayplayer)
-		localangle2 = mobj->angle;
 	mobj->player = p;
 	mobj->health = p->health;
 
@@ -7124,11 +7117,6 @@ void P_SpawnPlayer(mapthing_t *mthing, INT32 playernum)
 	{
 		if (displayplayer == playernum)
 			P_ResetCamera(p, &camera);
-	}
-	if (cv_chasecam2.value && splitscreen)
-	{
-		if (secondarydisplayplayer == playernum)
-			P_ResetCamera(p, &camera2);
 	}
 
 	// set the scale to the mobj's destscale so settings get correctly set.  if we don't, they sometimes don't.
@@ -7177,8 +7165,6 @@ void P_SpawnStarpostPlayer(mobj_t *mobj, INT32 playernum)
 	mobj->angle = angle;
 	if (playernum == consoleplayer)
 		localangle = mobj->angle;
-	else if (splitscreen && playernum == secondarydisplayplayer)
-		localangle2 = mobj->angle;
 
 	mobj->player = p;
 	mobj->health = p->health;
@@ -7207,11 +7193,6 @@ void P_SpawnStarpostPlayer(mobj_t *mobj, INT32 playernum)
 	{
 		if (displayplayer == playernum)
 			P_ResetCamera(p, &camera);
-	}
-	if (cv_chasecam2.value && splitscreen)
-	{
-		if (secondarydisplayplayer == playernum)
-			P_ResetCamera(p, &camera2);
 	}
 
 	if (!(netgame || multiplayer))

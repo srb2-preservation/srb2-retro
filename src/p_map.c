@@ -166,8 +166,6 @@ static void P_DoSpring(mobj_t *spring, mobj_t *object)
 
 			if (object->player == &players[consoleplayer])
 				localangle = spring->angle;
-			else if (splitscreen && object->player == &players[secondarydisplayplayer])
-				localangle2 = spring->angle;
 		}
 
 		P_ResetPlayer(object->player);
@@ -1801,9 +1799,7 @@ static boolean P_ThingHeightClip(mobj_t *thing)
 
 		if (thing->player)
 		{
-			if (splitscreen && cv_chasecam2.value && thing->player == &players[secondarydisplayplayer])
-				camera2.z += thing->pmomz;
-			else if (cv_chasecam.value && thing->player == &players[displayplayer])
+			if (cv_chasecam.value && thing->player == &players[displayplayer])
 				camera.z += thing->pmomz;
 		}
 
@@ -2266,11 +2262,6 @@ isblocking:
 				slidemo->angle = climbangle;
 				if (slidemo->player == &players[consoleplayer])
 					localangle = slidemo->angle;
-				else if (splitscreen && slidemo->player ==
-					&players[secondarydisplayplayer])
-				{
-					localangle2 = slidemo->angle;
-				}
 
 				if (!slidemo->player->climbing)
 					slidemo->player->climbing = 5;

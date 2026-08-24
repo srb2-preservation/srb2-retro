@@ -2288,34 +2288,6 @@ void T_CameraScanner(elevator_t *elevator)
 			t_cam_dist = t_cam_height = t_cam_rotate = -42;
 		}
 	}
-
-	if (splitscreen && players[secondarydisplayplayer].mo)
-	{
-		if (players[secondarydisplayplayer].mo->subsector->sector == elevator->actionsector)
-		{
-			if (t_cam2_rotate == -42)
-				t_cam2_dist = cv_cam2_dist.value;
-			if (t_cam2_rotate == -42)
-				t_cam2_height = cv_cam2_height.value;
-			if (t_cam2_rotate == -42)
-				t_cam2_rotate = cv_cam2_rotate.value;
-			CV_SetValue(&cv_cam2_height, FixedInt(elevator->sector->floorheight));
-			CV_SetValue(&cv_cam2_dist, FixedInt(elevator->sector->ceilingheight));
-			CV_SetValue(&cv_cam2_rotate, elevator->distance);
-			camerascanned2 = true;
-		}
-		else if (!camerascanned2)
-		{
-			if (t_cam2_height != -42 && cv_cam2_height.value != t_cam2_height)
-				CV_Set(&cv_cam2_height, va("%f", (double)FIXED_TO_FLOAT(t_cam2_height)));
-			if (t_cam2_dist != -42 && cv_cam2_dist.value != t_cam2_dist)
-				CV_Set(&cv_cam2_dist, va("%f", (double)FIXED_TO_FLOAT(t_cam2_dist)));
-			if (t_cam2_rotate != -42 && cv_cam2_rotate.value != t_cam2_rotate)
-				CV_Set(&cv_cam2_rotate, va("%f", (double)t_cam2_rotate));
-
-			t_cam2_dist = t_cam2_height = t_cam2_rotate = -42;
-		}
-	}
 }
 
 //

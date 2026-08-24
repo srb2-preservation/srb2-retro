@@ -2075,11 +2075,6 @@ noscript:
 	if (mapheaderinfo[gamemap-1].forcecharacter != 255)
 	{
 		char skincmd[33];
-		if (splitscreen)
-		{
-			sprintf(skincmd, "skin2 %s\n", skins[mapheaderinfo[gamemap-1].forcecharacter].name);
-			CV_Set(&cv_skin2, skins[mapheaderinfo[gamemap-1].forcecharacter].name);
-		}
 
 		sprintf(skincmd, "skin %s\n", skins[mapheaderinfo[gamemap-1].forcecharacter].name);
 
@@ -2087,23 +2082,6 @@ noscript:
 
 		if (!netgame)
 		{
-			if (splitscreen)
-			{
-				SetPlayerSkinByNum(secondarydisplayplayer, mapheaderinfo[gamemap-1].forcecharacter);
-				if (cv_playercolor2.value != players[secondarydisplayplayer].prefcolor)
-				{
-					CV_StealthSetValue(&cv_playercolor2, players[secondarydisplayplayer].prefcolor);
-					players[secondarydisplayplayer].skincolor = players[secondarydisplayplayer].prefcolor;
-
-					// a copy of color
-					if (players[secondarydisplayplayer].mo)
-					{
-						players[secondarydisplayplayer].mo->flags |= MF_TRANSLATION;
-						players[secondarydisplayplayer].mo->color = (UINT8)players[secondarydisplayplayer].skincolor;
-					}
-				}
-			}
-
 			SetPlayerSkinByNum(consoleplayer, mapheaderinfo[gamemap-1].forcecharacter);
 			// normal player colors in single player
 			if (cv_playercolor.value != players[consoleplayer].prefcolor)
@@ -2383,9 +2361,6 @@ noscript:
 
 	if (cv_useranalog.value)
 		CV_SetValue(&cv_analog, true);
-
-	if (splitscreen && cv_useranalog2.value)
-		CV_SetValue(&cv_analog2, true);
 
 	if (twodlevel)
 	{

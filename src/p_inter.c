@@ -55,8 +55,6 @@ void P_ForceConstant(const BasicFF_t *FFInfo)
 	ConstantQuake.Magnitude = FFInfo->Magnitude;
 	if (FFInfo->player == &players[consoleplayer])
 		I_Tactile(ConstantForce, &ConstantQuake);
-	else if (splitscreen && FFInfo->player == &players[secondarydisplayplayer])
-		I_Tactile2(ConstantForce, &ConstantQuake);
 }
 void P_RampConstant(const BasicFF_t *FFInfo, INT32 Start, INT32 End)
 {
@@ -72,8 +70,6 @@ void P_RampConstant(const BasicFF_t *FFInfo, INT32 Start, INT32 End)
 	RampQuake.End       = End;
 	if (FFInfo->player == &players[consoleplayer])
 		I_Tactile(ConstantForce, &RampQuake);
-	else if (splitscreen && FFInfo->player == &players[secondarydisplayplayer])
-		I_Tactile2(ConstantForce, &RampQuake);
 }
 
 
@@ -537,8 +533,6 @@ void P_TouchSpecialThing(mobj_t *special, mobj_t *toucher, boolean heightcheck)
 
 					if (player == &players[consoleplayer])
 						localangle = player->mo->angle;
-					else if (splitscreen && player == &players[secondarydisplayplayer])
-						localangle2 = player->mo->angle;
 
 					P_ResetPlayer(player);
 
@@ -2114,11 +2108,6 @@ void P_KillMobj(mobj_t *target, mobj_t *inflictor, mobj_t *source)
 
 			//added : 22-02-98: recenter view for next life...
 			localaiming = 0;
-		}
-		if (splitscreen && target->player == &players[secondarydisplayplayer])
-		{
-			// added : 22-02-98: recenter view for next life...
-			localaiming2 = 0;
 		}
 
 		//tag deaths handled differently in suicide cases. Don't count spectators!

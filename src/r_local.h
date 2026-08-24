@@ -42,6 +42,4 @@
 
 extern drawseg_t *firstseg;
 
-void SplitScreen_OnChange(void);
-
 #endif // __R_LOCAL__

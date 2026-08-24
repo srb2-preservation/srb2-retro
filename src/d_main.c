@@ -76,7 +76,6 @@ int	snprintf(char *str, size_t n, const char *fmt, ...);
 #include "m_cheat.h"
 #include "y_inter.h"
 #include "p_local.h" // chasecam
-#include "mserv.h" // cv_internetserver
 #include "m_misc.h" // screenshot functionality
 #include "dehacked.h" // Dehacked list test
 #include "keys.h"
@@ -643,8 +642,6 @@ static void D_RunFrame(void)
 			// Lagless camera! Yay!
 			if (gamestate == GS_LEVEL && netgame)
 			{
-				if (splitscreen && camera2.chase)
-					P_MoveChaseCamera(&players[secondarydisplayplayer], &camera2, true);
 				if (camera.chase)
 					P_MoveChaseCamera(&players[displayplayer], &camera, true);
 			}
@@ -1279,9 +1276,6 @@ void D_SRB2Main(void)
 
 	CONS_Printf("%s",text[ST_INIT]);
 	ST_Init();
-
-	if (M_CheckParm("-internetserver"))
-		CV_SetValue(&cv_internetserver, 1);
 
 	// init all NETWORK
 	CONS_Printf("%s",text[D_CHECKNET]);

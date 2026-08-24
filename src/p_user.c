@@ -646,14 +646,7 @@ static void P_DeNightserizePlayer(player_t *player)
 
 	player->mo->flags2 &= ~MF2_DONTDRAW;
 
-	if (splitscreen && player == &players[secondarydisplayplayer])
-	{
-		if (cv_analog2.value)
-			CV_SetValue(&cv_cam2_dist, 192);
-		else
-			CV_SetValue(&cv_cam2_dist, atoi(cv_cam2_dist.defaultvalue));
-	}
-	else if (player == &players[displayplayer])
+	if (player == &players[displayplayer])
 	{
 		if (cv_analog.value)
 			CV_SetValue(&cv_cam_dist, 192);
@@ -664,8 +657,6 @@ static void P_DeNightserizePlayer(player_t *player)
 	// Restore aiming angle
 	if (player == &players[consoleplayer])
 		localaiming = 0;
-	else if (splitscreen && player == &players[secondarydisplayplayer])
-		localaiming2 = 0;
 
 	if (player->mo->tracer)
 		P_SetMobjState(player->mo->tracer, S_DISS);
@@ -731,9 +722,7 @@ void P_NightserizePlayer(player_t *player, INT32 nighttime)
 
 	player->mo->flags2 |= MF2_DONTDRAW;
 
-	if (splitscreen && player == &players[secondarydisplayplayer])
-		CV_SetValue(&cv_cam2_dist, 320);
-	else if (player == &players[displayplayer])
+	if (player == &players[displayplayer])
 		CV_SetValue(&cv_cam_dist, 320);
 
 	player->nightstime = nighttime;
@@ -1139,7 +1128,7 @@ fixed_t P_GetPlayerSpinHeight(player_t *player)
 //
 boolean P_IsLocalPlayer(player_t *player)
 {
-	return ((splitscreen && player == &players[secondarydisplayplayer]) || player == &players[consoleplayer]);
+	return ((player == &players[secondarydisplayplayer]) || player == &players[consoleplayer]);
 }
 
 //
@@ -1686,8 +1675,6 @@ void P_DoJump(player_t *player, boolean soundandstate)
 
 		if (player == &players[consoleplayer])
 			localangle = player->mo->angle; // Adjust the local control angle.
-		else if (splitscreen && player == &players[secondarydisplayplayer])
-			localangle2 = player->mo->angle;
 
 		player->climbing = 0; // Stop climbing, duh!
 		P_InstaThrust(player->mo, player->mo->angle, FIXEDSCALE(6*FRACUNIT, player->mo->scale)); // Jump off the wall.
@@ -2213,15 +2200,9 @@ INT32 P_GetPlayerControlDirection(player_t *player)
 	ticcmd_t *cmd = &player->cmd;
 	angle_t controldirection, controllerdirection, controlplayerdirection;
 	camera_t *thiscam;
+	thiscam = &camera;
 
-	if (splitscreen && player == &players[secondarydisplayplayer])
-		thiscam = &camera2;
-	else
-		thiscam = &camera;
-
-	if (!netgame && ((player == &players[consoleplayer] && cv_analog.value)
-		|| (splitscreen && player == &players[secondarydisplayplayer]
-		&& cv_analog2.value)) && thiscam->chase)
+	if (!netgame && ((player == &players[consoleplayer] && cv_analog.value)) && thiscam->chase)
 	{
 		fixed_t tempx, tempy;
 		angle_t tempangle;
@@ -2376,8 +2357,6 @@ static void P_2dMovement(player_t *player)
 
 	if (player == &players[consoleplayer])
 		localangle = player->mo->angle;
-	else if (splitscreen && player == &players[secondarydisplayplayer])
-		localangle2 = player->mo->angle;
 
 	if (player->pflags & PF_GLIDING)
 		movepushangle = player->mo->angle;
@@ -2484,11 +2463,7 @@ static void P_3dMovement(player_t *player)
 	INT32 mforward = 0, mbackward = 0;
 	camera_t *thiscam;
 	fixed_t normalspd = player->normalspeed;
-
-	if (splitscreen && player == &players[secondarydisplayplayer])
-		thiscam = &camera2;
-	else
-		thiscam = &camera;
+	thiscam = &camera;
 
 	cmd = &player->cmd;
 
@@ -2506,7 +2481,7 @@ static void P_3dMovement(player_t *player)
 		}
 	}
 
-	if (!netgame && ((player == &players[consoleplayer] && cv_analog.value) || (splitscreen && player == &players[secondarydisplayplayer] && cv_analog2.value)))
+	if (!netgame && ((player == &players[consoleplayer] && cv_analog.value)))
 	{
 		movepushangle = thiscam->angle;
 		movepushsideangle = thiscam->angle-ANGLE_90;
@@ -2627,8 +2602,7 @@ static void P_3dMovement(player_t *player)
 		acceleration = player->accelstart + player->speed*player->acceleration;
 	}
 
-	if ((netgame || (player == &players[consoleplayer] && !cv_analog.value)
-		|| (splitscreen && player == &players[secondarydisplayplayer] && !cv_analog2.value))
+	if ((netgame || (player == &players[consoleplayer] && !cv_analog.value))
 		&& cmd->forwardmove != 0 && !((player->pflags & PF_GLIDING) || player->exiting
 		|| (!(player->pflags & PF_SLIDING) && player->mo->state == &states[player->mo->info->painstate] && player->powers[pw_flashing]
 		&& !onground)))
@@ -2672,9 +2646,7 @@ static void P_3dMovement(player_t *player)
 			P_Thrust(player->mo, movepushangle, movepushforward);
 	}
 	// Analog movement control
-	if (!netgame && ((player == &players[consoleplayer] && cv_analog.value)
-		|| (splitscreen && player == &players[secondarydisplayplayer]
-		&& cv_analog2.value)) && thiscam->chase)
+	if (!netgame && ((player == &players[consoleplayer] && cv_analog.value)) && thiscam->chase)
 	{
 		if (!((player->pflags & PF_GLIDING) || player->exiting || (!(player->pflags & PF_SLIDING) && player->mo->state == &states[player->mo->info->painstate]
 			&& player->powers[pw_flashing])))
@@ -2777,9 +2749,7 @@ static void P_3dMovement(player_t *player)
 				P_Thrust(player->mo, controldirection, movepushforward);
 		}
 	}
-	else if (netgame || (player == &players[consoleplayer] && !cv_analog.value)
-		|| (splitscreen && player == &players[secondarydisplayplayer]
-		&& !cv_analog2.value))
+	else if (netgame || (player == &players[consoleplayer] && !cv_analog.value))
 	{
 		if (player->climbing)
 		{
@@ -4742,8 +4712,6 @@ static void P_NiGHTSMovement(player_t *player)
 
 	if (player == &players[consoleplayer])
 		localangle = player->mo->angle;
-	else if (splitscreen && player == &players[secondarydisplayplayer])
-		localangle2 = player->mo->angle;
 
 	if (still)
 	{
@@ -4782,8 +4750,6 @@ static void P_NiGHTSMovement(player_t *player)
 
 	if (player == &players[consoleplayer])
 		localaiming = movingangle;
-	else if (splitscreen && player == &players[secondarydisplayplayer])
-		localaiming2 = movingangle;
 
 	player->mo->tracer->angle = player->mo->angle;
 
@@ -5083,9 +5049,7 @@ static void P_ObjectplaceMovement(player_t *player)
 	mobj_t *currentitem;
 
 	if (!player->climbing && (netgame || (player == &players[consoleplayer]
-		&& !cv_analog.value) || (splitscreen
-		&& player == &players[secondarydisplayplayer] && !cv_analog2.value)
-		|| (player->pflags & PF_SPINNING)))
+		&& !cv_analog.value) || (player->pflags & PF_SPINNING)))
 	{
 		player->mo->angle = (cmd->angleturn<<16 /* not FRACBITS */);
 	}
@@ -5495,10 +5459,7 @@ static void P_MovePlayer(player_t *player)
 	if (countdowntimeup)
 		return;
 
-	if (splitscreen && player == &players[secondarydisplayplayer])
-		thiscam = &camera2;
-	else
-		thiscam = &camera;
+	thiscam = &camera;
 
 	if (player->mo->state >= &states[S_PLAY_SUPERTRANS1] && player->mo->state <= &states[S_PLAY_SUPERTRANS9])
 	{
@@ -5527,7 +5488,7 @@ static void P_MovePlayer(player_t *player)
 
 	//Only allow this style of joining the game in normal match and tag.
 	//CTF and team match spectators have to join the game in another method.
-	if ((netgame || splitscreen) && player->spectator && (cmd->buttons & BT_ATTACK) && !player->powers[pw_flashing] &&
+	if ((netgame) && player->spectator && (cmd->buttons & BT_ATTACK) && !player->powers[pw_flashing] &&
 		((gametype == GT_MATCH && !cv_matchtype.value) || gametype == GT_TAG))
 	{
 		if (cv_allowteamchange.value)
@@ -5575,7 +5536,7 @@ static void P_MovePlayer(player_t *player)
 	// Team changing in Team Match and CTF
 	// Pressing fire assigns you to a team that needs players if allowed.
 	// Partial code reproduction from p_tick.c autobalance code.
-	if ((netgame || splitscreen) && player->spectator && (cmd->buttons & BT_ATTACK) && !player->powers[pw_flashing] &&
+	if ((netgame) && player->spectator && (cmd->buttons & BT_ATTACK) && !player->powers[pw_flashing] &&
 		((gametype == GT_MATCH && cv_matchtype.value) || gametype == GT_CTF))
 	{
 		if (cv_allowteamchange.value)
@@ -5637,20 +5598,12 @@ static void P_MovePlayer(player_t *player)
 				{
 					COM_ImmedExecute("changeteam red");
 				}
-				else if (splitscreen && player == &players[secondarydisplayplayer])
-				{
-					COM_ImmedExecute("changeteam2 red");
-				}
 			}
 			else if (changeto == 2)
 			{
 				if (player == &players[consoleplayer])
 				{
 					COM_ImmedExecute("changeteam blue");
-				}
-				else if (splitscreen && player == &players[secondarydisplayplayer])
-				{
-					COM_ImmedExecute("changeteam2 blue");
 				}
 			}
 		}
@@ -5907,9 +5860,7 @@ static void P_MovePlayer(player_t *player)
 	else
 	{
 		if (!player->climbing && (netgame || (player == &players[consoleplayer]
-			&& !cv_analog.value) || (splitscreen
-			&& player == &players[secondarydisplayplayer] && !cv_analog2.value)
-			|| (player->pflags & PF_SPINNING)))
+			&& !cv_analog.value) || (player->pflags & PF_SPINNING)))
 		{
 			player->mo->angle = (cmd->angleturn<<16 /* not FRACBITS */);
 		}
@@ -6318,7 +6269,7 @@ static void P_MovePlayer(player_t *player)
 			fixed_t destx, desty;
 			mobj_t *sparkle;
 
-			if (!splitscreen && rendermode != render_soft)
+			if (rendermode != render_soft)
 			{
 				angle_t viewingangle;
 
@@ -6329,11 +6280,6 @@ static void P_MovePlayer(player_t *player)
 
 				destx = player->mo->x + P_ReturnThrustX(player->mo, viewingangle, FRACUNIT);
 				desty = player->mo->y + P_ReturnThrustY(player->mo, viewingangle, FRACUNIT);
-			}
-			else
-			{
-				destx = player->mo->x;
-				desty = player->mo->y;
 			}
 
 			sparkle = P_SpawnMobj(destx, desty, player->mo->z, MT_IVSP);
@@ -6529,24 +6475,7 @@ if (gametype == GT_TAG)
 		{
 			// Spawn a got-flag message over the head of the player that
 			// has it (but not on your own screen if you have the flag).
-			if (splitscreen)
-			{
-				if (player->gotflag & MF_REDFLAG)
-				{
-					if (!(player->mo->eflags & MFE_VERTICALFLIP))
-						P_SpawnMobj(player->mo->x+player->mo->momx, player->mo->y+player->mo->momy, player->mo->z + P_GetPlayerHeight(player)+16*FRACUNIT+ player->mo->momz, MT_GOTFLAG);
-					else
-						P_SpawnMobj(player->mo->x+player->mo->momx, player->mo->y+player->mo->momy, player->mo->z - P_GetPlayerHeight(player)+24*FRACUNIT+ player->mo->momz, MT_GOTFLAG)->eflags |= MFE_VERTICALFLIP;
-				}
-				if (player->gotflag & MF_BLUEFLAG)
-				{
-					if (!(player->mo->eflags & MFE_VERTICALFLIP))
-						P_SpawnMobj(player->mo->x+player->mo->momx, player->mo->y+player->mo->momy, player->mo->z + P_GetPlayerHeight(player)+16*FRACUNIT+ player->mo->momz, MT_GOTFLAG2);
-					else
-						P_SpawnMobj(player->mo->x+player->mo->momx, player->mo->y+player->mo->momy, player->mo->z - P_GetPlayerHeight(player)+24*FRACUNIT+ player->mo->momz, MT_GOTFLAG2)->eflags |= MFE_VERTICALFLIP;
-				}
-			}
-			else if ((player != &players[consoleplayer]))
+			if ((player != &players[consoleplayer]))
 			{
 				if (player->gotflag & MF_REDFLAG)
 				{
@@ -6571,7 +6500,7 @@ if (gametype == GT_TAG)
 //ANALOG CONTROL//
 //////////////////
 
-	if (!netgame && ((player == &players[consoleplayer] && cv_analog.value) || (splitscreen && player == &players[secondarydisplayplayer] && cv_analog2.value))
+	if (!netgame && ((player == &players[consoleplayer] && cv_analog.value))
 		&& (cmd->forwardmove != 0 || cmd->sidemove != 0) && !player->climbing && !twodlevel && !(player->mo && (player->mo->flags2 & MF2_TWOD)))
 	{
 		// If travelling slow enough, face the way the controls
@@ -6602,8 +6531,6 @@ if (gametype == GT_TAG)
 		// Update the local angle control.
 		if (player == &players[consoleplayer])
 			localangle = player->mo->angle;
-		else if (splitscreen && player == &players[secondarydisplayplayer])
-			localangle2 = player->mo->angle;
 	}
 
 	///////////////////////////
@@ -7153,8 +7080,6 @@ if (gametype == GT_TAG)
 
 		if (player == &players[consoleplayer])
 			localangle = player->mo->angle;
-		else if (splitscreen && player == &players[secondarydisplayplayer])
-			localangle2 = player->mo->angle;
 
 		if (player->climbing == 0)
 			P_SetPlayerMobjState(player->mo, S_PLAY_ATK1);
@@ -8438,8 +8363,6 @@ static void P_DoZoomTube(player_t *player)
 
 			if (player == &players[consoleplayer])
 				localangle = player->mo->angle;
-			else if (splitscreen && player == &players[secondarydisplayplayer])
-				localangle2 = player->mo->angle;
 
 			// change slope
 			dist = P_AproxDistance(P_AproxDistance(player->mo->tracer->x - player->mo->x, player->mo->tracer->y - player->mo->y), player->mo->tracer->z - player->mo->z);
@@ -8475,8 +8398,6 @@ static void P_DoZoomTube(player_t *player)
 
 		if (player == &players[consoleplayer])
 			localangle = player->mo->angle;
-		else if (splitscreen && player == &players[secondarydisplayplayer])
-			localangle2 = player->mo->angle;
 	}
 }
 
@@ -8841,8 +8762,6 @@ void P_HomingAttack(mobj_t *source, mobj_t *enemy) // Home in on your target
 	{
 		if (source->player == &players[consoleplayer])
 			localangle = source->angle;
-		else if (splitscreen && source->player == &players[secondarydisplayplayer])
-			localangle2 = source->angle;
 	}
 
 	// change slope
@@ -8947,7 +8866,7 @@ static void P_DeathThink(player_t *player)
 		player->deadtimer = gameovertics+2;
 
 	// Respawn as spectator?
-	if ((splitscreen || netgame) && (cmd->buttons & BT_TOSSFLAG) && (!player->spectator))
+	if ((netgame) && (cmd->buttons & BT_TOSSFLAG) && (!player->spectator))
 	{
 		if ((gametype == GT_MATCH && !cv_matchtype.value) || gametype == GT_TAG)
 		{
@@ -9255,8 +9174,7 @@ void P_MoveChaseCamera(player_t *player, camera_t *thiscam, boolean netcalled)
 				angle = R_PointToAngle2(player->mo->x, player->mo->y, player->mo->target->x, player->mo->target->y);
 		}
 	}
-	else if (((player == &players[consoleplayer] && cv_analog.value)
-		|| (splitscreen && player == &players[secondarydisplayplayer] && cv_analog2.value))) // Analog
+	else if (((player == &players[consoleplayer] && cv_analog.value))) // Analog
 	{
 		angle = R_PointToAngle2(thiscam->x, thiscam->y, mo->x, mo->y);
 	}
@@ -9316,13 +9234,6 @@ void P_MoveChaseCamera(player_t *player, camera_t *thiscam, boolean netcalled)
 	else
 	{
 		dist = camdist;
-
-		// x1.5 dist for splitscreen
-		if (splitscreen)
-		{
-			dist = FixedMul(dist, 3*FRACUNIT/2);
-			camheight = FixedMul(camheight, 3*FRACUNIT/2);
-		}
 
 		// x1.2 dist for analog
 		if (cv_analog.value)
@@ -9613,8 +9524,7 @@ void P_MoveChaseCamera(player_t *player, camera_t *thiscam, boolean netcalled)
 	}
 
 	// Make player translucent if camera is too close (only in single player).
-	if (!(multiplayer || netgame) && !splitscreen
-		&& P_AproxDistance(thiscam->x - player->mo->x, thiscam->y - player->mo->y) < FIXEDSCALE(48*FRACUNIT, mo->scale))
+	if (!(multiplayer || netgame) && P_AproxDistance(thiscam->x - player->mo->x, thiscam->y - player->mo->y) < FIXEDSCALE(48*FRACUNIT, mo->scale))
 	{
 		player->mo->flags2 |= MF2_SHADOW;
 	}
@@ -9873,9 +9783,7 @@ void P_PlayerThink(player_t *player)
 	{
 		if (player->pflags & PF_ROPEHANG)
 		{
-			if ((netgame || (player == &players[consoleplayer]
-				&& !cv_analog.value) || (splitscreen
-				&& player == &players[secondarydisplayplayer] && !cv_analog2.value)))
+			if ((netgame || (player == &players[consoleplayer] && !cv_analog.value)))
 			{
 				player->mo->angle = (cmd->angleturn<<16 /* not FRACBITS */);
 			}
@@ -9890,9 +9798,7 @@ void P_PlayerThink(player_t *player)
 		}
 		else if (player->pflags & PF_MINECART)
 		{
-			if ((netgame || (player == &players[consoleplayer]
-				&& !cv_analog.value) || (splitscreen
-				&& player == &players[secondarydisplayplayer] && !cv_analog2.value)))
+			if ((netgame || (player == &players[consoleplayer] && !cv_analog.value)))
 			{
 				player->mo->angle = (cmd->angleturn<<16 /* not FRACBITS */);
 			}
@@ -10154,9 +10060,7 @@ void P_PlayerAfterThink(player_t *player)
 		// camera may still move when guy is dead
 		//if (!netgame)
 		{
-			if (splitscreen && player == &players[secondarydisplayplayer] && camera2.chase)
-				P_MoveChaseCamera(player, &camera2, false);
-			else if (camera.chase && player == &players[displayplayer])
+			if (camera.chase && player == &players[displayplayer])
 				P_MoveChaseCamera(player, &camera, false);
 		}
 
@@ -10343,8 +10247,6 @@ void P_PlayerAfterThink(player_t *player)
 
 			if (player == &players[consoleplayer])
 				localangle = player->mo->angle;
-			else if (splitscreen && player == &players[secondarydisplayplayer])
-				localangle2 = player->mo->angle;
 		}
 
 		if (P_AproxDistance(player->mo->x - player->mo->tracer->x, player->mo->y - player->mo->tracer->y) > player->mo->radius)
@@ -10411,17 +10313,13 @@ void P_PlayerAfterThink(player_t *player)
 	}
 
 	// bob view only if looking through the player's eyes
-	if (splitscreen && player == &players[secondarydisplayplayer] && !camera2.chase)
-		P_CalcHeight(player);
-	else if (!camera.chase)
+	if (!camera.chase)
 		P_CalcHeight(player);
 
 	// calculate the camera movement
 	//if (!netgame)
 	{
-		if (splitscreen && player == &players[secondarydisplayplayer] && camera2.chase)
-			P_MoveChaseCamera(player, &camera2, false);
-		else if (camera.chase && player == &players[displayplayer])
+		if (camera.chase && player == &players[displayplayer])
 			P_MoveChaseCamera(player, &camera, false);
 	}
 
@@ -10432,7 +10330,6 @@ void P_PlayerAfterThink(player_t *player)
 		player->mo->flags |= MF_NOGRAVITY;
 	}
 
-	if (!splitscreen)
 	{
 		if (!cv_chasecam.value)
 		{

@@ -381,8 +381,6 @@ INT32 HW3S_I_StartSound(const void *origin_p, source3D_data_t *source_parm, chan
 	listener_t listener  = {0,0,0,0};
 	listener_t listener2 = {0,0,0,0};
 
-	if (splitscreen) listenmobj2 = players[secondarydisplayplayer].mo;
-
 	if (nosound)
 		return -1;
 
@@ -458,102 +456,6 @@ INT32 HW3S_I_StartSound(const void *origin_p, source3D_data_t *source_parm, chan
 
 	if (sep < 0)
 		sep = 128;
-
-	if (splitscreen && listenmobj2) // Copy the sound for the split player
-	{
-		if (c_type != CT_NORMAL && origin && (origin == listenmobj2))
-		{
-			if (c_type == CT_ATTACK)
-			{
-				if (origin == listenmobj2)
-					source = &p_attack_source;
-				else
-					source = &p_attack_source2;
-			}
-			else
-			{
-				if (origin == listenmobj2)
-					source = &p_scream_source;
-				else
-					source = &p_scream_source2;
-			}
-
-			if (source->sfxinfo != sfx)
-			{
-				HW3DS.pfnStopSource(source->handle);
-				source->handle = HW3DS.pfnReloadSource(source->handle, sfx->volume);
-				//CONS_Printf("PlayerSound data reloaded\n");
-			}
-		}
-		else if (c_type == CT_AMBIENT)
-		{
-	//        sfx_data_t  outphased_sfx;
-
-			if (ambient_source.left.sfxinfo != sfx)
-			{
-				HW3DS.pfnStopSource(ambient_source.left.handle);
-				HW3DS.pfnStopSource(ambient_source.right.handle);
-
-				// judgecutor:
-				// Outphased sfx's temporarily not used!!!
-	/*
-					outphased_sfx.data = Z_Malloc(sfx_data.length, PU_STATIC, 0);
-					make_outphase_sfx(outphased_sfx.data, sfx_data.data, sfx_data.length);
-					outphased_sfx.length = sfx_data.length;
-					outphased_sfx.id = sfx_data.id;
-	*/
-				ambient_source.left.handle = HW3DS.pfnReloadSource(ambient_source.left.handle, (u_int)sfx->length);
-				//ambient_source.right.handle = HW3DS.pfnReloadSource(ambient_source.right.handle, &outphased_sfx);
-				ambient_source.right.handle = HW3DS.pfnReloadSource(ambient_source.right.handle, (u_int)sfx->length);
-				ambient_source.left.sfxinfo = ambient_source.right.sfxinfo = sfx;
-				//Z_Free(outphased_sfx.data);
-			}
-
-			HW3DS.pfnUpdateSourceParms(ambient_source.left.handle, volume, -1);
-			HW3DS.pfnUpdateSourceParms(ambient_source.right.handle, volume, -1);
-
-			if (sfx->usefulness++ < 0)
-				sfx->usefulness = -1;
-
-			// Ambient sound is special case
-			HW3DS.pfnStartSource(ambient_source.left.handle);
-			HW3DS.pfnStartSource(ambient_source.right.handle);
-		}
-		else
-		{
-			s_num = HW3S_GetSource(origin, sfx, true);
-
-			if (s_num  < 0)
-			{
-				//CONS_Printf("No free source, aborting\n");
-				return -1;
-			}
-
-			source = &sources[s_num];
-
-			if (origin && c_type == CT_NORMAL)
-			{
-				if (!source_parm)
-				{
-					source_parm = &source3d_data;
-					source3d_data.permanent = 0;
-					HW3S_FillSourceParameters(origin, source_parm, c_type);
-				}
-
-				source->handle = HW3DS.pfnAddSource(source_parm, (u_int)sfx->length);
-			}
-			else
-				source->handle = HW3DS.pfnAddSource(NULL, (u_int)sfx->length);
-		}
-
-		// increase the usefulness
-		if (sfx->usefulness++ < 0)
-			sfx->usefulness = -1;
-
-		source->sfxinfo = sfx;
-		source->origin = origin;
-		HW3DS.pfnStartSource(source->handle);
-	}
 
 	if (c_type != CT_NORMAL && origin && (origin == listenmobj))
 	{
@@ -914,8 +816,6 @@ void HW3S_UpdateSources(void)
 	mobj_t *listener2 = NULL;
 	source_t    *src;
 	INT32 audible, snum, volume, sep, pitch;
-
-	if (splitscreen) listener2 = players[secondarydisplayplayer].mo;
 
 	HW3S_UpdateListener2(listener2);
 	HW3S_UpdateListener(listener);

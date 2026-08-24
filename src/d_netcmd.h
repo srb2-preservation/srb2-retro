@@ -61,11 +61,6 @@ extern consvar_t cv_suddendeath;
 
 extern consvar_t cv_skin;
 
-// secondary splitscreen player
-extern consvar_t cv_playername2;
-extern consvar_t cv_playercolor2;
-extern consvar_t cv_skin2;
-
 extern consvar_t cv_tagtype;
 extern consvar_t cv_touchtag;
 extern consvar_t cv_hidetime;

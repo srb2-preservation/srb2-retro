@@ -1990,14 +1990,7 @@ static void P_ProcessLineSpecial(line_t *line, mobj_t *mo)
 
 					if (mo->player)
 					{
-						if (splitscreen && mo->player == &players[secondarydisplayplayer] && camera2.chase)
-						{
-							camera2.x += x;
-							camera2.y += y;
-							camera2.z += z;
-							camera2.subsector = R_PointInSubsector(camera2.x, camera2.y);
-						}
-						else if (camera.chase && mo->player == &players[displayplayer])
+						if (camera.chase && mo->player == &players[displayplayer])
 						{
 							camera.x += x;
 							camera.y += y;
@@ -2387,11 +2380,6 @@ static void P_ProcessLineSpecial(line_t *line, mobj_t *mo)
 
 			if (mo->player)
 			{
-/*				if (splitscreen && cv_chasecam2.value && mo->player == &players[secondarydisplayplayer])
-					P_ResetCamera(mo->player, &camera2);
-				else if (cv_chasecam.value && mo->player == &players[displayplayer])
-					P_ResetCamera(mo->player, &camera);*/
-
 				mo->player->rmomx = mo->player->rmomy = 1;
 				mo->player->cmomx = mo->player->cmomy = 0;
 				P_ResetPlayer(mo->player);
@@ -3127,10 +3115,6 @@ DoneSection2:
 					{
 						COM_ImmedExecute("changeteam red");
 					}
-					else if (splitscreen && player == &players[secondarydisplayplayer])
-					{
-						COM_ImmedExecute("changeteam2 red");
-					}
 					break;
 				}
 
@@ -3215,10 +3199,6 @@ DoneSection2:
 					if (player == &players[consoleplayer])
 					{
 						COM_ImmedExecute("changeteam blue");
-					}
-					else if (splitscreen && player == &players[secondarydisplayplayer])
-					{
-						COM_ImmedExecute("changeteam2 blue");
 					}
 					break;
 				}
@@ -7049,8 +7029,6 @@ void T_Pusher(pusher_t *p)
 
 				if (thing->player == &players[consoleplayer])
 					localangle = thing->angle;
-				else if (splitscreen && thing->player == &players[secondarydisplayplayer])
-					localangle2 = thing->angle;
 			}
 
 			if (p->exclusive)
