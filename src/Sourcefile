@@ -1,8 +1,5 @@
 string.c
 d_main.c
-d_clisrv.c
-d_net.c
-d_netfil.c
 d_netcmd.c
 dehacked.c
 dstrings.c
@@ -60,7 +57,5 @@ s_sound.c
 sounds.c
 w_wad.c
 filesrch.c
-mserv.c
-i_tcp.c
 lzf.c
 vid_copy.s

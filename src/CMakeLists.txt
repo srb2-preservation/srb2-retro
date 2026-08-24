@@ -6,11 +6,8 @@ set(SRB2_CORE_SOURCES
 	command.c
 	comptime.c
 	console.c
-	d_clisrv.c
 	d_main.c
-	d_net.c
 	d_netcmd.c
-	d_netfil.c
 	dehacked.c
     dstrings.c
 	f_finale.c
@@ -19,7 +16,6 @@ set(SRB2_CORE_SOURCES
 	g_game.c
 	g_input.c
 	hu_stuff.c
-	i_tcp.c
 	info.c
     lzf.c
 	m_argv.c
@@ -32,7 +28,6 @@ set(SRB2_CORE_SOURCES
 	m_queue.c
 	m_random.c
 	md5.c
-	mserv.c
 
 	s_sound.c
 	screen.c
@@ -50,11 +45,8 @@ set(SRB2_CORE_HEADERS
 	am_map.h
 	command.h
 	console.h
-	d_clisrv.h
 	d_main.h
-	d_net.h
 	d_netcmd.h
-	d_netfil.h
 	dehacked.h
     dstrings.h
 	f_finale.h
@@ -62,7 +54,6 @@ set(SRB2_CORE_HEADERS
 	g_game.h
 	g_input.h
 	hu_stuff.h
-	i_tcp.h
 	info.h
     lzf.h
 	m_argv.h
@@ -75,7 +66,6 @@ set(SRB2_CORE_HEADERS
 	m_queue.h
 	m_random.h
 	md5.h
-	mserv.h
 	s_sound.h
 	screen.h
 	sounds.h

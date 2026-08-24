@@ -326,8 +326,6 @@ static void signal_handler(INT32 num)
 	char *      sigmsg;
 	char        sigdef[32];
 
-	D_QuitNetGame(); // Fix server freezes
-
 	switch (num)
 	{
 	case SIGINT:
@@ -2375,9 +2373,6 @@ void I_Quit(void)
 	quiting = SDL_FALSE;
 	//I_ShutdownConsole();
 	M_SaveConfig(NULL); //save game config, cvars..
-#ifndef NONET
-	D_SaveBan(); // save the ban list
-#endif
 	G_SaveGameData(); // Tails 12-08-2002
 	//added:16-02-98: when recording a demo, should exit using 'q' key,
 	//        but sometimes we forget and use 'F10'.. so save here too.
@@ -2387,7 +2382,6 @@ void I_Quit(void)
 	if (moviemode)
 		M_StopMovie();
 
-	D_QuitNetGame();
 	I_ShutdownMusic();
 	I_ShutdownSound();
 	// use this for 1.28 19990220 by Kin
@@ -2503,9 +2497,6 @@ void I_Error(const char *error, ...)
 	// ---
 
 	M_SaveConfig(NULL); // save game config, cvars..
-#ifndef NONET
-	D_SaveBan(); // save the ban list
-#endif
 	G_SaveGameData(); // Tails 12-08-2002
 
 	// Shutdown. Here might be other errors.
@@ -2514,7 +2505,6 @@ void I_Error(const char *error, ...)
 	if (moviemode)
 		M_StopMovie();
 
-	D_QuitNetGame();
 	I_ShutdownMusic();
 	I_ShutdownSound();
 	// use this for 1.28 19990220 by Kin

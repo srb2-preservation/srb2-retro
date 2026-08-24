@@ -1016,11 +1016,6 @@ void D_SRB2Main(void)
 	devparm = M_CheckParm("-debug");
 #endif
 
-	// for dedicated server
-#if !defined (_WINDOWS) //already check in win_main.c
-	dedicated = M_CheckParm("-dedicated") != 0;
-#endif
-
 	strcpy(title, "Sonic Robo Blast 2");
 	strcpy(srb2, "Sonic Robo Blast 2");
 	D_MakeTitleString(srb2);
@@ -1120,30 +1115,24 @@ void D_SRB2Main(void)
 
 	// add any files specified on the command line with -file wadfile
 	// to the wad list
-	if (!(M_CheckParm("-connect")))
+	if (M_CheckParm("-file"))
 	{
-		if (M_CheckParm("-file"))
+		// the parms after p are wadfile/lump names,
+		// until end of parms or another - preceded parm
+		while (M_IsNextParm())
 		{
-			// the parms after p are wadfile/lump names,
-			// until end of parms or another - preceded parm
-			while (M_IsNextParm())
-			{
-				const char *s = M_GetNextParm();
+			const char *s = M_GetNextParm();
 
-				if (s) // Check for NULL?
-				{
-					if (!W_VerifyNMUSlumps(s))
-						modifiedgame = true;
-					D_AddFile(s);
-				}
+			if (s) // Check for NULL?
+			{
+				if (!W_VerifyNMUSlumps(s))
+					modifiedgame = true;
+				D_AddFile(s);
 			}
 		}
 	}
 
 	// get map from parms
-
-	if (M_CheckParm("-server") || dedicated)
-		netgame = server = true;
 
 	if (M_CheckParm("-warp") && M_IsNextParm())
 	{
@@ -1344,7 +1333,7 @@ void D_SRB2Main(void)
 		autostart = ultimatemode = true;
 	}
 
-	if (autostart || netgame || M_CheckParm("+connect") || M_CheckParm("-connect"))
+	if (autostart || netgame)
 	{
 		gameaction = ga_nothing;
 
@@ -1399,23 +1388,13 @@ void D_SRB2Main(void)
 			}
 		}
 
-		if (server && !M_CheckParm("+map") && !M_CheckParm("+connect")
-			&& !M_CheckParm("-connect"))
+		if (server && !M_CheckParm("+map"))
 		{
 			D_MapChange(pstartmap, gametype, ultimatemode, 1, 0, false, false);
 		}
 	}
 	else
 		F_StartIntro(); // Tails 03-03-2002
-
-	if (dedicated && server)
-	{
-		pagename = "TITLESKY";
-		levelstarttic = gametic;
-		G_SetGamestate(GS_LEVEL);
-		if (!P_SetupLevel(gamemap, false))
-			I_Quit(); // fail so reset game stuff
-	}
 }
 
 const char *D_Home(void)

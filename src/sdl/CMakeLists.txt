@@ -26,7 +26,6 @@ set(SRB2_SDL2_SOURCES
 	endtxt.c
 	hwsym_sdl.c
 	i_main.c
-	i_net.c
 	i_system.c
 	i_video.c
 	ogl_sdl.c

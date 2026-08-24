@@ -70,7 +70,6 @@ patch_t *cred_font[CRED_FONTSIZE];
 
 static player_t *plr;
 boolean chat_on; // entering a chat message?
-static char w_chat[HU_MAXMSGLEN];
 static boolean headsupactive = false;
 boolean hu_showscores; // draw rankings
 static char hu_tick;
@@ -158,14 +157,6 @@ static INT32 cechoflags = 0;
 //                          HEADS UP INIT
 //======================================================================
 
-#ifndef NONET
-// just after
-static void Command_Say_f(void);
-static void Command_Sayto_f(void);
-static void Command_Sayteam_f(void);
-static void Command_CSay_f(void);
-static void Got_Saycmd(UINT8 **p, INT32 playernum);
-#endif
 
 void HU_LoadGraphics(void)
 {
@@ -255,13 +246,6 @@ void HU_LoadGraphics(void)
 //
 void HU_Init(void)
 {
-#ifndef NONET
-	COM_AddCommand("say", Command_Say_f);
-	COM_AddCommand("sayto", Command_Sayto_f);
-	COM_AddCommand("sayteam", Command_Sayteam_f);
-	COM_AddCommand("csay", Command_CSay_f);
-	RegisterNetXCmd(XD_SAY, Got_Saycmd);
-#endif
 
 	// set shift translation table
 	shiftxform = english_shiftxform;
@@ -342,341 +326,6 @@ void MatchType_OnChange(void)
 	matchtype = cv_matchtype.value;
 }
 
-#ifndef NONET
-/** Runs a say command, sending an ::XD_SAY message.
-  * A say command consists of a signed 8-bit integer for the target, an
-  * unsigned 8-bit flag variable, and then the message itself.
-  *
-  * The target is 0 to say to everyone, 1 to 32 to say to that player, or -1
-  * to -32 to say to everyone on that player's team. Note: This means you
-  * have to add 1 to the player number, since they are 0 to 31 internally.
-  *
-  * The flag HU_SERVER_SAY will be set if it is the dedicated server speaking.
-  *
-  * This function obtains the message using COM_Argc() and COM_Argv().
-  *
-  * \param target    Target to send message to.
-  * \param usedargs  Number of arguments to ignore.
-  * \param flags     Set HU_CSAY for server/admin to CECHO everyone.
-  * \sa Command_Say_f, Command_Sayteam_f, Command_Sayto_f, Got_Saycmd
-  * \author Graue <graue@oceanbase.org>
-  */
-static void DoSayCommand(SINT8 target, size_t usedargs, UINT8 flags)
-{
-	XBOXSTATIC char buf[254];
-	size_t numwords, ix;
-	char *msg = &buf[2];
-	const size_t msgspace = sizeof buf - 2;
-
-	numwords = COM_Argc() - usedargs;
-	I_Assert(numwords > 0);
-
-	if (cv_mute.value && !(server || adminplayer == consoleplayer))
-	{
-		CONS_Printf("The chat is muted. You can't say anything at the moment.\n");
-		return;
-	}
-
-	// Only servers/admins can CSAY.
-	if(!server && adminplayer != consoleplayer)
-		flags &= ~HU_CSAY;
-
-	// We handle HU_SERVER_SAY, not the caller.
-	flags &= ~HU_SERVER_SAY;
-	if(dedicated && !(flags & HU_CSAY))
-		flags |= HU_SERVER_SAY;
-
-	buf[0] = target;
-	buf[1] = flags;
-	msg[0] = '\0';
-
-	for (ix = 0; ix < numwords; ix++)
-	{
-		if (ix > 0)
-			strlcat(msg, " ", msgspace);
-		strlcat(msg, COM_Argv(ix + usedargs), msgspace);
-	}
-
-	SendNetXCmd(XD_SAY, buf, strlen(msg) + 1 + msg-buf);
-}
-
-/** Send a message to everyone.
-  * \sa DoSayCommand, Command_Sayteam_f, Command_Sayto_f
-  * \author Graue <graue@oceanbase.org>
-  */
-static void Command_Say_f(void)
-{
-	if (COM_Argc() < 2)
-	{
-		CONS_Printf("say <message>: send a message\n");
-		return;
-	}
-
-	DoSayCommand(0, 1, 0);
-}
-
-/** Send a message to a particular person.
-  * \sa DoSayCommand, Command_Sayteam_f, Command_Say_f
-  * \author Graue <graue@oceanbase.org>
-  */
-static void Command_Sayto_f(void)
-{
-	INT32 target;
-
-	if (COM_Argc() < 3)
-	{
-		CONS_Printf("sayto <playername|playernum> <message>: send a message to a player\n");
-		return;
-	}
-
-	target = nametonum(COM_Argv(1));
-	if (target == -1)
-	{
-		CONS_Printf("sayto: No player with that name!\n");
-		return;
-	}
-	target++; // Internally we use 0 to 31, but say command uses 1 to 32.
-
-	DoSayCommand((SINT8)target, 2, 0);
-}
-
-/** Send a message to members of the player's team.
-  * \sa DoSayCommand, Command_Say_f, Command_Sayto_f
-  * \author Graue <graue@oceanbase.org>
-  */
-static void Command_Sayteam_f(void)
-{
-	if (COM_Argc() < 2)
-	{
-		CONS_Printf("sayteam <message>: send a message to your team\n");
-		return;
-	}
-
-	if (dedicated)
-	{
-		CONS_Printf("Dedicated servers can't send team messages. Use \"say\".\n");
-		return;
-	}
-
-	DoSayCommand((SINT8)(-(consoleplayer+1)), 1, 0);
-}
-
-/** Send a message to everyone, to be displayed by CECHO. Only
-  * permitted to servers and admins.
-  */
-static void Command_CSay_f(void)
-{
-	if (COM_Argc() < 2)
-	{
-		CONS_Printf("csay <message>: send a message to be shown in the middle of the screen\n");
-		return;
-	}
-
-	if(!server && adminplayer != consoleplayer)
-	{
-		CONS_Printf("Only servers and admins can use csay.\n");
-		return;
-	}
-
-	DoSayCommand(0, 1, HU_CSAY);
-}
-
-/** Receives a message, processing an ::XD_SAY command.
-  * \sa DoSayCommand
-  * \author Graue <graue@oceanbase.org>
-  */
-static void Got_Saycmd(UINT8 **p, INT32 playernum)
-{
-	SINT8 target;
-	UINT8 flags;
-	const char *dispname;
-	char *msg;
-	boolean action = false;
-	char *ptr;
-
-	target = READSINT8(*p);
-	flags = READUINT8(*p);
-
-	if ((cv_mute.value || (flags & HU_CSAY)) && playernum != serverplayer && playernum != adminplayer)
-	{
-		CONS_Printf(cv_mute.value ?
-			"Illegal say command received from %s while muted\n" :
-			"Illegal csay command received from non-admin %s\n",
-			player_names[playernum]);
-		if (server)
-		{
-			XBOXSTATIC UINT8 buf[2];
-
-			buf[0] = (UINT8)playernum;
-			buf[1] = KICK_MSG_CON_FAIL;
-			SendNetXCmd(XD_KICK, &buf, 2);
-		}
-		return;
-	}
-
-	msg = (char *)*p;
-	SKIPSTRING(*p);
-
-	//check for invalid characters (0x80 or above)
-	{
-		size_t i;
-		const size_t j = strlen(msg);
-		for (i = 0; i < j; i++)
-		{
-			if (msg[i] & 0x80)
-			{
-				CONS_Printf("Illegal say command received from %s containing invalid characters\n",
-					player_names[playernum]);
-				if (server)
-				{
-					XBOXSTATIC char buf[2];
-
-					buf[0] = (char)playernum;
-					buf[1] = KICK_MSG_CON_FAIL;
-					SendNetXCmd(XD_KICK, &buf, 2);
-				}
-				return;
-			}
-		}
-	}
-
-	// If it's a CSAY, just CECHO and be done with it.
-	if(flags & HU_CSAY)
-	{
-		HU_SetCEchoDuration(5);
-		I_OutputMsg("Server message: %s\n", msg);
-		HU_DoCEcho(msg);
-		return;
-	}
-
-	// Handle "/me" actions, but only in messages to everyone.
-	if (target == 0 && strlen(msg) > 4 && strnicmp(msg, "/me ", 4) == 0)
-	{
-		msg += 4;
-		action = true;
-	}
-
-	if (flags & HU_SERVER_SAY)
-	{
-		if (playernum == 0)
-			dispname = "SERVER";
-		else // HAX!
-			return;
-	}
-	else
-		dispname = player_names[playernum];
-
-	// Clean up message a bit
-	// If you use a \r character, you can remove your name
-	// from before the text and then pretend to be someone else!
-	ptr = msg;
-	while (*ptr != '\0')
-	{
-		if (*ptr == '\r')
-			*ptr = ' ';
-
-		ptr++;
-	}
-
-	// Show messages sent by you, to you, to your team, or to everyone:
-	if (consoleplayer == playernum // By you
-		|| consoleplayer == target-1 // To you
-		|| (target < 0 && ST_SameTeam(&players[consoleplayer],
-			&players[-target - 1])) // To your team
-		|| target == 0) // To everyone
-	{
-		const char *cstart = "", *cend = "", *adminchar = "~", *remotechar = "@", *fmt;
-		char *tempchar = NULL;
-
-		// In CTF and team match, color the player's name.
-		if (gametype == GT_CTF || (gametype == GT_MATCH && cv_matchtype.value))
-		{
-			cend = "\x80";
-			if (players[playernum].ctfteam == 1) // red
-				cstart = "\x85";
-			else if (players[playernum].ctfteam == 2) // blue
-				cstart = "\x84";
-		}
-
-		// Give admins and remote admins their symbols.
-		if (playernum == serverplayer || playernum == adminplayer)
-		{
-			// Give the admin his special character ala SRB2Live.
-			if (playernum == serverplayer)
-				tempchar = (char *)calloc(strlen(cstart) + strlen(adminchar) + 1, sizeof(char));
-			else
-				tempchar = (char *)calloc(strlen(cstart) + strlen(remotechar) + 1, sizeof(char));
-
-			if (tempchar)
-			{
-				strcat(tempchar, cstart);
-
-				if (playernum == serverplayer)
-					strcat(tempchar, adminchar);
-				else
-					strcat(tempchar, remotechar);
-
-				cstart = tempchar;
-			}
-		}
-
-		// Choose the proper format string for display.
-		// Each format includes four strings: color start, display
-		// name, color end, and the message itself.
-		// '\4' makes the message yellow and beeps; '\3' just beeps.
-		if (action)
-			fmt = "\4* %s%s%s \x82%s\n";
-		else if (target == 0) // To everyone
-			fmt = "\3<%s%s%s> %s\n";
-		else if (target-1 == consoleplayer) // To you
-			fmt = "\3*%s%s%s* %s\n";
-		else if (target > 0) // By you, to another player
-		{
-			// Use target's name.
-			dispname = player_names[target-1];
-			fmt = "\3->*%s%s%s* %s\n";
-		}
-		else // To your team
-			fmt = "\3>>%s%s%s<< (team) %s\n";
-
-		CONS_Printf(fmt, cstart, dispname, cend, msg);
-
-		if (tempchar)
-			free(tempchar);
-	}
-}
-#endif
-
-// Handles key input and string input
-//
-static inline boolean HU_keyInChatString(char *s, char ch)
-{
-	size_t l;
-
-	if (ch >= ' ' && (ch <= 'z' || ch == '~' || ch == '`')) /// \note font end hack
-	{
-		l = strlen(s);
-		if (l < HU_MAXMSGLEN - 1)
-		{
-			s[l++] = ch;
-			s[l]=0;
-			return true;
-		}
-		return false;
-	}
-	else if (ch == KEY_BACKSPACE)
-	{
-		l = strlen(s);
-		if (l)
-			s[--l] = 0;
-		else
-			return false;
-	}
-	else if (ch != KEY_ENTER)
-		return false; // did not eat key
-
-	return true; // ate the key
-}
 
 //
 //
@@ -694,79 +343,17 @@ void HU_Ticker(void)
 		hu_showscores = false;
 }
 
-#define QUEUESIZE 256
-
-static boolean teamtalk = false;
-static char chatchars[QUEUESIZE];
-static INT32 head = 0, tail = 0;
-
 //
 // HU_dequeueChatChar
 //
 char HU_dequeueChatChar(void)
 {
-	char c;
-
-	if (head != tail)
-	{
-		c = chatchars[tail];
-		tail = (tail + 1) & (QUEUESIZE-1);
-	}
-	else
-		c = 0;
-
-	return c;
-}
-
-//
-//
-static void HU_queueChatChar(char c)
-{
-	if (((head + 1) & (QUEUESIZE-1)) == tail)
-		CONS_Printf("%s", text[HUSTR_MSGU]); // message not sent
-	else
-	{
-		if (c == KEY_BACKSPACE)
-		{
-			if (tail != head)
-				head = (head - 1) & (QUEUESIZE-1);
-		}
-		else
-		{
-			chatchars[head] = c;
-			head = (head + 1) & (QUEUESIZE-1);
-		}
-	}
-
-	// send automaticly the message (no more chat char)
-	if (c == KEY_ENTER)
-	{
-		char buf[255];
-		size_t ci = 0;
-
-		do {
-			c = HU_dequeueChatChar();
-			if (c != 13) // Graue 07-04-2004: don't know why this has to be done
-				buf[ci++]=c;
-		} while (c);
-		// Graue 09-04-2004: 1 not 2, hell if I know why
-		if (ci > 1) // Graue 07-02-2004: 2 not 3, with HU_BROADCAST disposed of
-		{
-			if (teamtalk)
-				COM_BufInsertText(va("sayteam \"%s\"", buf)); // Graue 07-04-2004: quote it!
-			else
-				COM_BufInsertText(va("say \"%s\"", buf)); // Graue 07-04-2004: quote it!
-		}
-	}
+	return 0;
 }
 
 void HU_clearChatChars(void)
 {
-	while (tail != head)
-		HU_queueChatChar(KEY_BACKSPACE);
 	chat_on = false;
-
-	I_UpdateMouseGrab();
 }
 
 //
@@ -774,126 +361,13 @@ void HU_clearChatChars(void)
 //
 boolean HU_Responder(event_t *ev)
 {
-	static boolean shiftdown = false, altdown = false;
-	boolean eatkey = false;
-	UINT8 c;
-
-	if (ev->data1 == KEY_LSHIFT || ev->data1 == KEY_RSHIFT)
-	{
-		shiftdown = (ev->type == ev_keydown);
-		return chat_on;
-	}
-	else if (ev->data1 == KEY_LALT || ev->data1 == KEY_RALT)
-	{
-		altdown = (ev->type == ev_keydown);
-		return false;
-	}
-
-	if (ev->type != ev_keydown)
-		return false;
-
-	// only KeyDown events now...
-
-	if (!chat_on)
-	{
-		// enter chat mode
-		if ((ev->data1 == gamecontrol[gc_talkkey][0] || ev->data1 == gamecontrol[gc_talkkey][1])
-			&& netgame && (!cv_mute.value || server || (adminplayer == consoleplayer)))
-		{
-			eatkey = chat_on = true;
-			w_chat[0] = 0;
-			teamtalk = false;
-		}
-		if ((ev->data1 == gamecontrol[gc_teamkey][0] || ev->data1 == gamecontrol[gc_teamkey][1])
-			&& netgame && (!cv_mute.value || server || (adminplayer == consoleplayer)))
-		{
-			eatkey = chat_on = true;
-			w_chat[0] = 0;
-			teamtalk = true;
-		}
-	}
-	else
-	{
-		c = (UINT8)ev->data1;
-
-		// use console translations
-		if (shiftdown)
-			c = shiftxform[c];
-
-		if (c == '"') // Graue 07-04-2004: quote marks mess it up
-			c = '\'';
-
-		eatkey = HU_keyInChatString(w_chat,c);
-		if (eatkey)
-			HU_queueChatChar(c);
-		if (c == KEY_ENTER)
-		{
-			chat_on = false;
-			I_UpdateMouseGrab();
-		}
-		else if (c == KEY_ESCAPE)
-		{
-			chat_on = false;
-			I_UpdateMouseGrab();
-		}
-
-		eatkey = true;
-	}
-
-	return eatkey;
+	(void)ev;
+	return false;
 }
 
 //======================================================================
 //                         HEADS UP DRAWING
 //======================================================================
-
-//
-// HU_DrawChat
-//
-// Draw chat input
-//
-static void HU_DrawChat(void)
-{
-	INT32 t = 0, c = 0, y = HU_INPUTY;
-	size_t i = 0;
-	const char *ntalk = "Say: ", *ttalk = "Say-Team: ";
-	const char *talk = ntalk;
-
-	if (teamtalk)
-	{
-		talk = ttalk;
-#if 0
-		     if (players[consoleplayer].ctfteam == 1)
-			t = 0x500;  // Red
-		else if (players[consoleplayer].ctfteam == 2)
-			t = 0x400; // Blue
-#endif
-	}
-
-	while (talk[i])
-	{
-		V_DrawCharacter(HU_INPUTX + (c<<3), y, talk[i++] | V_NOSCALEPATCH|V_NOSCALESTART, !cv_allcaps.value);
-		c++;
-	}
-
-	i = 0;
-	while (w_chat[i])
-	{
-		//Hurdler: isn't it better like that?
-		V_DrawCharacter(HU_INPUTX + (c<<3), y, w_chat[i++] | V_NOSCALEPATCH|V_NOSCALESTART|t, !cv_allcaps.value);
-
-		c++;
-		if (c >= (vid.width>>3))
-		{
-			c = 0;
-			y += 8;
-		}
-	}
-
-	if (hu_tick < 4)
-		V_DrawCharacter(HU_INPUTX + (c<<3), y, '_' | V_NOSCALEPATCH|V_NOSCALESTART|t, !cv_allcaps.value);
-}
-
 
 // draw the Crosshair, at the exact center of the view.
 //
@@ -993,10 +467,6 @@ static void HU_drawGametype(void)
 //
 void HU_Drawer(void)
 {
-	// draw chat string plus cursor
-	if (chat_on)
-		HU_DrawChat();
-
 	if (gamestate == GS_INTERMISSION || gamestate == GS_CUTSCENE || gamestate == GS_CREDITS)
 		return;
 
