@@ -3821,6 +3821,14 @@ void Command_ExitGame_f(void)
 {
 	INT32 i;
 
+	if (demorecording)
+		G_CheckDemoStatus();
+
+	multiplayer = false;
+	server = true;
+	SV_StopServer();
+	SV_ResetServer();
+
 	CV_ClearChangedFlags();
 
 	for (i = 0; i < MAXPLAYERS; i++)
