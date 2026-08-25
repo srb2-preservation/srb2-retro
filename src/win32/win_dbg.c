@@ -647,7 +647,7 @@ LONG WINAPI RecordExceptionInfo(PEXCEPTION_POINTERS data/*, LPCSTR Message, LPST
 }
 
 // thank you stack overflow
-int _imp___vsnprintf(
+/*int _imp___vsnprintf(
     char *buffer,
     size_t count,
     const char *format,
@@ -657,4 +657,4 @@ int _imp___vsnprintf(
     return vsnprintf( buffer, count, format, argptr );
 }
 
-void *_imp___iob;
+void *_imp___iob;*/
