@@ -16,7 +16,7 @@ jobs:
      - uses: actions/checkout@v4.2.2
 
      - name: Install Dependencies
-       run: sudo apt update && sudo apt install -y gcc-mingw-w64-i686 binutils-mingw-w64-i686
+       run: sudo apt update && sudo apt install -y gcc-mingw-w64-i686 binutils-mingw-w64-i686 nasm
 
      - name: Build SRB2 Legacy
        run: make -C src/ --keep-going  -j$(nproc) MINGW=1 SDL=1
