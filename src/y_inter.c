@@ -651,7 +651,7 @@ void Y_Ticker(void)
 					data.coop.total += data.coop.ringbonus;
 					data.coop.ringbonus = 0;
 
-					if (skip == true && (data.coop.gotlife == consoleplayer || data.coop.gotlife == secondarydisplayplayer))
+					if (skip == true && (data.coop.gotlife == consoleplayer))
 					{
 						// lives are already added since tally is fake, but play the music
 						if (mariomode)
@@ -745,7 +745,7 @@ void Y_Ticker(void)
 				data.spec.score += data.spec.ringbonus;
 				data.spec.ringbonus = 0;
 
-				if (skip == true && (data.coop.gotlife == consoleplayer || data.coop.gotlife == secondarydisplayplayer))
+				if (skip == true && (data.coop.gotlife == consoleplayer))
 				{
 					// lives are already added since tally is fake, but play the music
 					if (mariomode)
@@ -865,9 +865,6 @@ void Y_StartIntermission(void)
 			inttype = int_ctf;
 		}
 	}
-
-	// We couldn't display the intermission even if we wanted to.
-	if (dedicated) return;
 
 	switch (inttype)
 	{

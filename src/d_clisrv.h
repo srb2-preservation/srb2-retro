@@ -63,7 +63,6 @@ extern INT32 ticruned, ticmiss;
 // against the registered handler. Now it just runs immediately, locally.
 void RegisterNetXCmd(netxcmd_t id, void (*cmd_f)(UINT8 **p, INT32 playernum));
 void SendNetXCmd(netxcmd_t id, const void *param, size_t nparam);
-void SendNetXCmd2(netxcmd_t id, const void *param, size_t nparam); // splitscreen player
 UINT8 GetFreeXCmdSize(void);
 
 void D_ResetTiccmds(void);
@@ -92,7 +91,5 @@ void SV_StartSinglePlayerServer(void);
 void SV_StopServer(void);
 void SV_ResetServer(void);
 void CL_ClearPlayer(INT32 playernum);
-void CL_AddSplitscreenPlayer(void);
-void CL_RemoveSplitscreenPlayer(void);
 
 #endif // __D_CLISRV__

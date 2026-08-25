@@ -96,7 +96,7 @@ void G_InitNew(UINT8 pultmode, const char *mapname, boolean resetplayer,
 // Can be called by the startup code or M_Responder.
 // A normal game starts at map 1, but a warp test can start elsewhere
 void G_DeferedInitNew(boolean pultmode, const char *mapname, INT32 pickedchar,
-	boolean SSSG, boolean FLS);
+	boolean FLS);
 void G_DoLoadLevel(boolean resetplayer);
 
 void G_DeferedPlayDemo(const char *demo);

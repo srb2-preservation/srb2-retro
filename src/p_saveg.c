@@ -2217,8 +2217,6 @@ static void P_NetUnArchiveThinkers(void)
 					// added for angle prediction
 					if (consoleplayer == i)
 						localangle = mobj->angle;
-					if (secondarydisplayplayer == i)
-						localangle2 = mobj->angle;
 				}
 				if (diff & MD_MOVEDIR)
 					mobj->movedir = READANGLE(save_p);
@@ -2721,7 +2719,7 @@ static inline boolean P_UnArchiveSPGame(INT16 mapoverride)
 
 	P_UnArchivePlayer();
 
-	G_DeferedInitNew(false, G_BuildMapName(gamemap), savedata.skin, false, true);
+	G_DeferedInitNew(false, G_BuildMapName(gamemap), savedata.skin, true);
 	COM_BufAddText("dummyconsvar 1\n"); // G_DeferedInitNew doesn't do this
 
 	return true;

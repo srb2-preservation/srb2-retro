@@ -938,8 +938,6 @@ void I_OsPolling(void)
 		I_GetJoystick2Events();
 	}
 
-	I_GetMouseEvents();
-
 	I_GetEvent();
 }
 
@@ -1297,7 +1295,7 @@ static SDL_bool Impl_CreateWindow(SDL_bool fullscreen)
 {
 	int flags = 0;
 
-	if (rendermode == render_none) // dedicated
+	if (rendermode == render_none)
 		return SDL_TRUE; // Monster Iestyn -- not sure if it really matters what we return here tbh
 
 	if (window != NULL)
@@ -1433,11 +1431,6 @@ OpenRendererFile (const char * mode)
 
 void I_StartupGraphics(void)
 {
-	if (dedicated)
-	{
-		rendermode = render_none;
-		return;
-	}
 	if (graphics_started)
 		return;
 

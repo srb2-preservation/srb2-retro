@@ -1562,17 +1562,6 @@ void R_AddSprites(sector_t *sec, INT32 lightlevel)
 
 				if (approx_dist < LIMIT_DRAW_DIST)
 					R_ProjectSprite(thing);
-				else if (splitscreen && players[secondarydisplayplayer].mo)
-				{
-					adx = abs(players[secondarydisplayplayer].mo->x - thing->x);
-					ady = abs(players[secondarydisplayplayer].mo->y - thing->y);
-
-					// From _GG1_ p.428. Approx. eucledian distance fast.
-					approx_dist = adx + ady - ((adx < ady ? adx : ady)>>1);
-
-					if (approx_dist < LIMIT_DRAW_DIST)
-						R_ProjectSprite (thing);
-				}
 			}
 		}
 	}
@@ -1615,17 +1604,6 @@ void R_AddSprites(sector_t *sec, INT32 lightlevel)
 			// Only draw the precipitation oh-so-far from the player.
 			if (approx_dist < (cv_precipdist.value << FRACBITS))
 				R_ProjectPrecipitationSprite(precipthing);
-			else if (splitscreen && players[secondarydisplayplayer].mo)
-			{
-				adx = abs(players[secondarydisplayplayer].mo->x - precipthing->x);
-				ady = abs(players[secondarydisplayplayer].mo->y - precipthing->y);
-
-				// From _GG1_ p.428. Approx. eucledian distance fast.
-				approx_dist = adx + ady - ((adx < ady ? adx : ady)>>1);
-
-				if (approx_dist < (cv_precipdist.value << FRACBITS))
-					R_ProjectPrecipitationSprite (precipthing);
-			}
 		}
 	}
 }

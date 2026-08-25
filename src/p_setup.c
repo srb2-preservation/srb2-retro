@@ -608,20 +608,16 @@ static void P_LoadSectors(lumpnum_t lumpnum)
 #endif // ----- end special tricks -----
 
 		// Keep players out of secret levels!
-		if (!dedicated) // to prevent dedicated server error.
+		if (ss->tag == 4240 && !(grade & 2)) // Mario
+			I_Error("You need to unlock this level first!\n");
+		else if (ss->tag == 4250 && !(grade & 16)) // NiGHTS
+			I_Error("You need to unlock this level first!\n");
+		else if (ss->tag == 4260 && (modifiedgame || netgame || multiplayer) && !(grade & 2048)) // NAGZ
 		{
-			// Keep players out of secret levels!
-			if (ss->tag == 4240 && !(grade & 2)) // Mario
+			if (netgame || multiplayer)
+				I_Error("You need to unlock this level in single player first!\n");
+			else
 				I_Error("You need to unlock this level first!\n");
-			else if (ss->tag == 4250 && !(grade & 16)) // NiGHTS
-				I_Error("You need to unlock this level first!\n");
-			else if (ss->tag == 4260 && (modifiedgame || netgame || multiplayer) && !(grade & 2048)) // NAGZ
-			{
-				if (netgame || multiplayer)
-					I_Error("You need to unlock this level in single player first!\n");
-				else
-					I_Error("You need to unlock this level first!\n");
-			}
 		}
 	}
 
@@ -2019,7 +2015,7 @@ boolean P_SetupLevel(INT32 map, boolean skipprecip)
 	// This is needed. Don't touch.
 	maptol = mapheaderinfo[gamemap-1].typeoflevel;
 
-	if (!(grade & 2) && (maptol & TOL_SRB1) && !dedicated) // to prevent dedicated server error.
+	if (!(grade & 2) && (maptol & TOL_SRB1))
 		I_Error("You have to unlock this level first!");
 
 	HU_clearChatChars();
@@ -2075,11 +2071,6 @@ noscript:
 	if (mapheaderinfo[gamemap-1].forcecharacter != 255)
 	{
 		char skincmd[33];
-		if (splitscreen)
-		{
-			sprintf(skincmd, "skin2 %s\n", skins[mapheaderinfo[gamemap-1].forcecharacter].name);
-			CV_Set(&cv_skin2, skins[mapheaderinfo[gamemap-1].forcecharacter].name);
-		}
 
 		sprintf(skincmd, "skin %s\n", skins[mapheaderinfo[gamemap-1].forcecharacter].name);
 
@@ -2087,23 +2078,6 @@ noscript:
 
 		if (!netgame)
 		{
-			if (splitscreen)
-			{
-				SetPlayerSkinByNum(secondarydisplayplayer, mapheaderinfo[gamemap-1].forcecharacter);
-				if (cv_playercolor2.value != players[secondarydisplayplayer].prefcolor)
-				{
-					CV_StealthSetValue(&cv_playercolor2, players[secondarydisplayplayer].prefcolor);
-					players[secondarydisplayplayer].skincolor = players[secondarydisplayplayer].prefcolor;
-
-					// a copy of color
-					if (players[secondarydisplayplayer].mo)
-					{
-						players[secondarydisplayplayer].mo->flags |= MF_TRANSLATION;
-						players[secondarydisplayplayer].mo->color = (UINT8)players[secondarydisplayplayer].skincolor;
-					}
-				}
-			}
-
 			SetPlayerSkinByNum(consoleplayer, mapheaderinfo[gamemap-1].forcecharacter);
 			// normal player colors in single player
 			if (cv_playercolor.value != players[consoleplayer].prefcolor)
@@ -2121,30 +2095,27 @@ noscript:
 		}
 	}
 
-	if (!dedicated)
+	if (maptol & TOL_2D)
 	{
-		if (maptol & TOL_2D)
-		{
-			CV_SetValue(&cv_cam_speed, 0);
-		}
-		// Salt: CV_ClearChangedFlags() messes with your settings :(
-		/*else if (!cv_cam_speed.changed && !(maptol & TOL_2D))
-			CV_Set(&cv_cam_speed, cv_cam_speed.defaultvalue);*/
-
-		// chasecam on in chaos, race, coop
-		// chasecam off in match, tag, capture the flag
-		if (!cv_chasecam.changed)
-			CV_SetValue(&cv_chasecam,
-				(gametype == GT_RACE || gametype == GT_COOP
-#ifdef CHAOSISNOTDEADYET
-				|| gametype == GT_CHAOS
-#endif
-				) || (maptol & TOL_2D));
-
-		// same for second player
-		if (!cv_chasecam2.changed)
-			CV_SetValue(&cv_chasecam2, cv_chasecam.value);
+		CV_SetValue(&cv_cam_speed, 0);
 	}
+	// Salt: CV_ClearChangedFlags() messes with your settings :(
+	/*else if (!cv_cam_speed.changed && !(maptol & TOL_2D))
+		CV_Set(&cv_cam_speed, cv_cam_speed.defaultvalue);*/
+
+	// chasecam on in chaos, race, coop
+	// chasecam off in match, tag, capture the flag
+	if (!cv_chasecam.changed)
+		CV_SetValue(&cv_chasecam,
+			(gametype == GT_RACE || gametype == GT_COOP
+#ifdef CHAOSISNOTDEADYET
+			|| gametype == GT_CHAOS
+#endif
+			) || (maptol & TOL_2D));
+
+	// same for second player
+	if (!cv_chasecam2.changed)
+		CV_SetValue(&cv_chasecam2, cv_chasecam.value);
 
 	// Initial height of PointOfView
 	// will be set by player think.
@@ -2199,13 +2170,8 @@ noscript:
 	P_InitPicAnims();
 
 	// SRB2 determines the sky texture to be used depending on the map header.
-	if (!dedicated)
-	{
-		P_SetupLevelSky(mapheaderinfo[gamemap-1].skynum);
-		globallevelskynum = levelskynum;
-	}
-	else
-		globallevelskynum = levelskynum = mapheaderinfo[gamemap-1].skynum;
+	P_SetupLevelSky(mapheaderinfo[gamemap-1].skynum);
+	globallevelskynum = levelskynum;
 
 	P_MakeMapMD5(lastloadedmaplumpnum, &mapmd5);
 
@@ -2317,7 +2283,7 @@ noscript:
 			}
 		}
 
-		if (realnumplayers) //this should also fix the dedicated crash bug. You only pick a player if one exists to be picked.
+		if (realnumplayers) // You only pick a player if one exists to be picked.
 		{
 			i = P_Random() % realnumplayers;
 			players[playersactive[i]].pflags |= PF_TAGIT; //choose our initial tagger before map starts.
@@ -2333,59 +2299,53 @@ noscript:
 				P_SetMobjState(players[playersactive[i]].mo, S_DISS);
 			}
 
-			G_DeathMatchSpawnPlayer(playersactive[i]); //respawn the lucky player in his dedicated spawn location.
+			G_DeathMatchSpawnPlayer(playersactive[i]); //respawn the lucky player in their spawn location.
 		}
 		else
 			CONS_Printf("No player currently available to become IT. Awaiting available players.\n");
 
 	}
 
-	if (!dedicated)
+	if (players[displayplayer].mo)
 	{
-		if (players[displayplayer].mo)
-		{
-			camera.x = players[displayplayer].mo->x;
-			camera.y = players[displayplayer].mo->y;
-			camera.z = players[displayplayer].mo->z;
-			camera.angle = players[displayplayer].mo->angle;
-		}
-
-		// Salt: CV_ClearChangedFlags() messes with your settings :(
-		/*if (!cv_cam_height.changed)
-			CV_Set(&cv_cam_height, cv_cam_height.defaultvalue);
-
-		if (!cv_cam_dist.changed)
-			CV_Set(&cv_cam_dist, cv_cam_dist.defaultvalue);
-
-		if (!cv_cam2_height.changed)
-			CV_Set(&cv_cam2_height, cv_cam2_height.defaultvalue);
-
-		if (!cv_cam2_dist.changed)
-			CV_Set(&cv_cam2_dist, cv_cam2_dist.defaultvalue);*/
-
-		// Though, I don't think anyone would care about cam_rotate being reset back to the only value that makes sense :P
-		if (!cv_cam_rotate.changed)
-			CV_Set(&cv_cam_rotate, cv_cam_rotate.defaultvalue);
-
-		if (!cv_cam2_rotate.changed)
-			CV_Set(&cv_cam2_rotate, cv_cam2_rotate.defaultvalue);
-
-		if (!cv_useranalog.value)
-		{
-			if (!cv_analog.changed)
-				CV_SetValue(&cv_analog, 0);
-			if (!cv_analog2.changed)
-				CV_SetValue(&cv_analog2, 0);
-		}
-
-		displayplayer = consoleplayer; // Start with your OWN view, please!
+		camera.x = players[displayplayer].mo->x;
+		camera.y = players[displayplayer].mo->y;
+		camera.z = players[displayplayer].mo->z;
+		camera.angle = players[displayplayer].mo->angle;
 	}
+
+	// Salt: CV_ClearChangedFlags() messes with your settings :(
+	/*if (!cv_cam_height.changed)
+		CV_Set(&cv_cam_height, cv_cam_height.defaultvalue);
+
+	if (!cv_cam_dist.changed)
+		CV_Set(&cv_cam_dist, cv_cam_dist.defaultvalue);
+
+	if (!cv_cam2_height.changed)
+		CV_Set(&cv_cam2_height, cv_cam2_height.defaultvalue);
+
+	if (!cv_cam2_dist.changed)
+		CV_Set(&cv_cam2_dist, cv_cam2_dist.defaultvalue);*/
+
+	// Though, I don't think anyone would care about cam_rotate being reset back to the only value that makes sense :P
+	if (!cv_cam_rotate.changed)
+		CV_Set(&cv_cam_rotate, cv_cam_rotate.defaultvalue);
+
+	if (!cv_cam2_rotate.changed)
+		CV_Set(&cv_cam2_rotate, cv_cam2_rotate.defaultvalue);
+
+	if (!cv_useranalog.value)
+	{
+		if (!cv_analog.changed)
+			CV_SetValue(&cv_analog, 0);
+		if (!cv_analog2.changed)
+			CV_SetValue(&cv_analog2, 0);
+	}
+
+	displayplayer = consoleplayer; // Start with your OWN view, please!
 
 	if (cv_useranalog.value)
 		CV_SetValue(&cv_analog, true);
-
-	if (splitscreen && cv_useranalog2.value)
-		CV_SetValue(&cv_analog2, true);
 
 	if (twodlevel)
 	{
@@ -2409,7 +2369,7 @@ noscript:
 
 
 
-	if (precache || dedicated)
+	if (precache)
 		R_PrecacheLevel();
 
 	nextmapoverride = 0;

@@ -18,7 +18,6 @@
 /// \brief the automap code
 
 #include "g_game.h"
-#include "d_main.h"
 #include "am_map.h"
 #include "g_input.h"
 #include "p_local.h"
@@ -655,7 +654,7 @@ void AM_Ticker(void)
 	if (!cv_debug)
 		AM_Stop();
 
-	if (dedicated || !automapactive)
+	if (!automapactive)
 		return;
 
 	amclock++;

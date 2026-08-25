@@ -317,8 +317,6 @@ static inline VOID OpenTextConsole(VOID)
 	console = M_CheckParm("-console") != 0;
 #endif
 
-	dedicated = M_CheckParm("-dedicated") != 0;
-
 	if (M_CheckParm("-detachconsole"))
 	{
 		if (FreeConsole())
@@ -335,7 +333,7 @@ static inline VOID OpenTextConsole(VOID)
 #endif
 	}
 
-	if (dedicated || console)
+	if (console)
 	{
 		if (AllocConsole()) //Let get the real console HANDLEs, because Mingw's Bash is bad!
 		{
@@ -456,8 +454,8 @@ static HWND OpenMainWindow (HINSTANCE hInstance, LPSTR wTitle)
 	       WS_CAPTION|WS_POPUP|WS_SYSMENU,    //dwStyle       //WS_VISIBLE|WS_POPUP for bAppFullScreen
 	       0,
 	       0,
-	       dedicated ? 0:specialmodes[specialmode].width,        //GetSystemMetrics(SM_CXSCREEN),
-	       dedicated ? 0:specialmodes[specialmode].height,       //GetSystemMetrics(SM_CYSCREEN),
+	       specialmodes[specialmode].width,        //GetSystemMetrics(SM_CXSCREEN),
+	       specialmodes[specialmode].height,       //GetSystemMetrics(SM_CYSCREEN),
 	       NULL,                              //hWnd Parent
 	       NULL,                              //hMenu Menu
 	       hInstance,

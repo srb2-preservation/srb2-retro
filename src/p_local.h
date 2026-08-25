@@ -218,7 +218,7 @@ mobj_t *P_GetClosestAxis(mobj_t *source);
 //
 
 // main player in game
-extern player_t *stplyr; // for splitscreen correct palette changes and overlay
+extern player_t *stplyr; // for correct palette changes and overlay
 
 // Is there a better place for these?
 extern INT32 var1;

@@ -37,7 +37,6 @@ typedef enum
 	GS_TITLESCREEN,     // title screen
 	GS_CREDITS,         // credit sequence
 	GS_TIMEATTACK,      // time attack menu
-	GS_DEDICATEDSERVER, // new state for dedicated server
 	GS_WAITINGPLAYERS   // waiting for players in a net game
 } gamestate_t;
 

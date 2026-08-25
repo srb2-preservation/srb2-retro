@@ -55,9 +55,6 @@
 #define HU_INPUTX 0
 #define HU_INPUTY 0
 
-#define HU_SERVER_SAY	1	// Server message (dedicated).
-#define HU_CSAY			2	// Server CECHOes to everyone.
-
 //-------------------------------------------
 //              heads up font
 //-------------------------------------------
@@ -162,9 +159,6 @@ void HU_LoadGraphics(void)
 {
 	char buffer[9];
 	INT32 i, j;
-
-	if (dedicated)
-		return;
 
 	// cache the heads-up font for entire game execution
 	j = HU_FONTSTART;
@@ -331,9 +325,6 @@ void MatchType_OnChange(void)
 //
 void HU_Ticker(void)
 {
-	if (dedicated)
-		return;
-
 	hu_tick++;
 	hu_tick &= 7; // currently only to blink chat input cursor
 
@@ -394,37 +385,6 @@ static inline void HU_DrawCrosshair(void)
 	V_DrawTranslucentPatch(vid.width>>1, y, V_NOSCALESTART, crosshair[i - 1]);
 }
 
-static inline void HU_DrawCrosshair2(void)
-{
-	INT32 i, y;
-
-	i = cv_crosshair2.value & 3;
-	if (!i)
-		return;
-
-	if ((netgame || multiplayer) && players[secondarydisplayplayer].spectator)
-		return;
-
-#ifdef HWRENDER
-	if (rendermode != render_soft)
-		y = (INT32)gr_basewindowcentery;
-	else
-#endif
-		y = viewwindowy + (viewheight>>1);
-
-	if (splitscreen)
-	{
-#ifdef HWRENDER
-		if (rendermode != render_soft)
-			y += (INT32)gr_viewheight;
-		else
-#endif
-			y += viewheight;
-
-		V_DrawTranslucentPatch(vid.width>>1, y, V_NOSCALESTART, crosshair[i - 1]);
-	}
-}
-
 static void HU_drawGametype(void)
 {
 	INT32 i = 0;
@@ -455,10 +415,7 @@ static void HU_drawGametype(void)
 	else if (gametype == GT_CTF)
 		i = 7;
 
-	if (splitscreen)
-		V_DrawString(4, 184, 0, gametype_cons_t[i].strvalue);
-	else
-		V_DrawString(4, 192, 0, gametype_cons_t[i].strvalue);
+	V_DrawString(4, 192, 0, gametype_cons_t[i].strvalue);
 }
 
 #define MAXCECHOLINES 16
@@ -491,9 +448,6 @@ void HU_Drawer(void)
 	// draw the crosshair, not when viewing demos nor with chasecam
 	if (!automapactive && cv_crosshair.value && !demoplayback && !cv_chasecam.value)
 		HU_DrawCrosshair();
-
-	if (!automapactive && cv_crosshair2.value && !demoplayback && !cv_chasecam2.value)
-		HU_DrawCrosshair2();
 
 	if (cechotimer)
 	{
@@ -1116,7 +1070,7 @@ static void HU_DrawRankings(void)
 		HU_DrawDualTabRankings(32, 32, tab, scorelines, whiteplayer);
 
 	// draw spectators in a ticker across the bottom
-	if (!splitscreen && (gametype == GT_MATCH || gametype == GT_TAG || gametype == GT_CTF))
+	if (gametype == GT_MATCH || gametype == GT_TAG || gametype == GT_CTF)
 		HU_DrawSpectatorTicker();
 }
 

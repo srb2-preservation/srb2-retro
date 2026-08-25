@@ -1677,8 +1677,6 @@ void A_Fall(void *thing)
 	// are meant to be obstacles.
 }
 
-#define LIVESBOXDISPLAYPLAYER // Use displayplayer instead of closest player
-
 // Function: A_1upThinker
 //
 // Description: Used by the 1up box to show the player's face.
@@ -1689,65 +1687,8 @@ void A_Fall(void *thing)
 void A_1upThinker(void *thing)
 {
 	mobj_t *actor = thing;
-	#ifdef LIVESBOXDISPLAYPLAYER
-	if (!splitscreen)
-	{
-		actor->frame = states[S_PLAY_BOX1A].frame;
-		actor->skin = &skins[players[displayplayer].skin];
-	}
-	else
-	{
-		INT32 i;
-		fixed_t dist = INT32_MAX;
-		fixed_t temp;
-		INT32 closestplayer = 0;
-
-		for (i = 0; i < MAXPLAYERS; i++)
-		{
-			if (!playeringame[i])
-				continue;
-
-			if (!players[i].mo)
-				continue;
-
-			temp = P_AproxDistance(players[i].mo->x-actor->x, players[i].mo->y-actor->y);
-
-			if (temp < dist)
-			{
-				closestplayer = i;
-				dist = temp;
-			}
-		}
-
-		P_SetMobjStateNF(actor, S_PLAY_BOX1A);
-		actor->skin = &skins[players[closestplayer].skin];
-	}
-	#else
-	INT32 i;
-	fixed_t dist = INT32_MAX;
-	fixed_t temp;
-	INT32 closestplayer = 0;
-
-	for (i = 0; i < MAXPLAYERS; i++)
-	{
-		if (!playeringame[i])
-			continue;
-
-		if (!players[i].mo)
-			continue;
-
-		temp = P_AproxDistance(players[i].mo->x-actor->x, players[i].mo->y-actor->y);
-
-		if (temp < dist)
-		{
-			closestplayer = i;
-			dist = temp;
-		}
-	}
-
-	P_SetMobjStateNF(actor, S_PLAY_BOX1A);
-	actor->skin = &skins[players[closestplayer].skin];
-	#endif
+	actor->frame = states[S_PLAY_BOX1A].frame;
+	actor->skin = &skins[players[displayplayer].skin];
 }
 
 // Function: A_MonitorPop

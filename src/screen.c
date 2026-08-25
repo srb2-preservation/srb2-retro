@@ -31,7 +31,6 @@
 #include "st_stuff.h"
 #include "hu_stuff.h"
 #include "z_zone.h"
-#include "d_main.h"
 #include "d_clisrv.h"
 #include "f_finale.h"
 
@@ -108,9 +107,6 @@ boolean R_SSE2 = false;
 
 void SCR_SetMode(void)
 {
-	if (dedicated)
-		return;
-
 	if (!setmodeneeded || WipeInAction)
 		return; // should never happen and don't change it during a wipe, BAD!
 
@@ -239,13 +235,6 @@ void SCR_Startup(void)
 
 	M_SetupMemcpy();
 
-	if (dedicated)
-	{
-		V_Init();
-		V_SetPalette(0);
-		return;
-	}
-
 	vid.modenum = 0;
 
 	vid.fdupx = (float)vid.width/BASEVIDWIDTH;
@@ -272,9 +261,6 @@ void SCR_Startup(void)
 //
 void SCR_Recalc(void)
 {
-	if (dedicated)
-		return;
-
 	// bytes per pixel quick access
 	scr_bpp = vid.bpp;
 
@@ -329,9 +315,6 @@ void SCR_Recalc(void)
 void SCR_CheckDefaultMode(void)
 {
 	INT32 scr_forcex, scr_forcey; // resolution asked from the cmd-line
-
-	if (dedicated)
-		return;
 
 	// 0 means not set at the cmd-line
 	scr_forcex = scr_forcey = 0;

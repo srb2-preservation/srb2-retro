@@ -209,10 +209,6 @@ void I_OutputMsg(const char *error, ...) FUNCPRINTF;
 */
 void I_StartupMouse(void);
 
-/**	\brief Startup the second mouse
-*/
-void I_StartupMouse2(void);
-
 /**	\brief keyboard startup, shutdown, handler
 */
 void I_StartupKeyboard(void);
@@ -316,10 +312,6 @@ void I_GetJoystickEvents(void);
 /**	\brief Second Joystick's events
 */
 void I_GetJoystick2Events(void);
-
-/**	\brief Mouses events
-*/
-void I_GetMouseEvents(void);
 
 /**	\brief Checks if the mouse needs to be grabbed
 */

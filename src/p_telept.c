@@ -66,16 +66,8 @@ void P_MixUp(mobj_t *thing, fixed_t x, fixed_t y, fixed_t z, angle_t angle)
 		// absolute angle position
 		if (thing == players[consoleplayer].mo)
 			localangle = angle;
-		if (splitscreen && thing == players[secondarydisplayplayer].mo)
-			localangle2 = angle;
-
 		// move chasecam at new player location
-		if (splitscreen && cv_chasecam2.value
-			&& thing->player == &players[secondarydisplayplayer])
-		{
-			P_ResetCamera(thing->player, &camera2);
-		}
-		else if (cv_chasecam.value && thing->player == &players[displayplayer])
+		if (cv_chasecam.value && thing->player == &players[displayplayer])
 			P_ResetCamera(thing->player, &camera);
 
 		// don't run in place after a teleport
@@ -132,16 +124,8 @@ boolean P_Teleport(mobj_t *thing, fixed_t x, fixed_t y, fixed_t z, angle_t angle
 		// absolute angle position
 		if (thing->player == &players[consoleplayer])
 			localangle = angle;
-		if (splitscreen && thing->player == &players[secondarydisplayplayer])
-			localangle2 = angle;
-
 		// move chasecam at new player location
-		if (splitscreen && cv_chasecam2.value
-			&& thing->player == &players[secondarydisplayplayer])
-		{
-			P_ResetCamera(thing->player, &camera2);
-		}
-		else if (cv_chasecam.value && thing->player == &players[displayplayer])
+		if (cv_chasecam.value && thing->player == &players[displayplayer])
 			P_ResetCamera(thing->player, &camera);
 
 		// don't run in place after a teleport

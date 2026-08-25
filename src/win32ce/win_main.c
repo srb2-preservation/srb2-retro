@@ -264,8 +264,7 @@ static inline VOID OpenTextConsole(void)
 {
 	HANDLE ci, co;
 	const BOOL tco = M_CheckParm("-console") != 0;
-	dedicated = M_CheckParm("-dedicated") != 0;
-	if (!(dedicated || tco))
+	if (!tco)
 		return;
 	FreeConsole();
 	AllocConsole(); //Let get the real console HANDLE, because Mingw's Bash is bad!
@@ -316,15 +315,15 @@ static HWND OpenMainWindow (HINSTANCE hInstance, int nCmdShow, LPSTR wTitle)
 #ifdef _DEBUG
 	       0,     //ExStyle
 #else
-	       dedicated ? 0:WS_EX_TOPMOST,     //ExStyle
+	       WS_EX_TOPMOST,     //ExStyle
 #endif
 	       "SRB2WC",                         //Classname
 	       wTitle,                           //Windowname
 	       WS_CAPTION|WS_POPUP|WS_SYSMENU,   //dwStyle       //WS_VISIBLE|WS_POPUP for bAppFullScreen
 	       0,
 	       0,
-	       dedicated ? 0:BASEVIDWIDTH,  //GetSystemMetrics(SM_CXSCREEN),
-	       dedicated ? 0:BASEVIDHEIGHT,  //GetSystemMetrics(SM_CYSCREEN),
+	       BASEVIDWIDTH,  //GetSystemMetrics(SM_CXSCREEN),
+	       BASEVIDHEIGHT,  //GetSystemMetrics(SM_CYSCREEN),
 	       NULL,                             //hWnd Parent
 	       NULL,                             //hMenu Menu
 	       hInstance,

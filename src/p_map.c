@@ -166,8 +166,6 @@ static void P_DoSpring(mobj_t *spring, mobj_t *object)
 
 			if (object->player == &players[consoleplayer])
 				localangle = spring->angle;
-			else if (splitscreen && object->player == &players[secondarydisplayplayer])
-				localangle2 = spring->angle;
 		}
 
 		P_ResetPlayer(object->player);
@@ -319,8 +317,6 @@ static boolean PIT_CheckThing(mobj_t *thing)
 
 			if (thing->player == &players[consoleplayer])
 				localangle = thing->angle;
-			else if (thing->player == &players[secondarydisplayplayer])
-				localangle2 = thing->angle;
 
 			return true;
 		}
@@ -1404,16 +1400,14 @@ INT32 P_TryCameraMove(fixed_t x, fixed_t y, camera_t *thiscam)
 	floatok = false;
 
 	if (twodlevel
-		|| (thiscam == &camera && players[displayplayer].mo && (players[displayplayer].mo->flags2 & MF2_TWOD))
-		|| (thiscam == &camera2 && players[secondarydisplayplayer].mo && (players[secondarydisplayplayer].mo->flags2 & MF2_TWOD)))
+		|| (thiscam == &camera && players[displayplayer].mo && (players[displayplayer].mo->flags2 & MF2_TWOD)))
 		itsatwodlevel = true;
 
 	if (!itsatwodlevel)
 	{
 		boolean cameranoclip;
 
-		if ((thiscam == &camera && (players[displayplayer].pflags & PF_NOCLIP))
-		|| (thiscam == &camera2 && (players[secondarydisplayplayer].pflags & PF_NOCLIP)))
+		if (thiscam == &camera && (players[displayplayer].pflags & PF_NOCLIP))
 		{ // Noclipping player camera noclips too!!
 			cameranoclip = true;
 		}
@@ -1801,9 +1795,7 @@ static boolean P_ThingHeightClip(mobj_t *thing)
 
 		if (thing->player)
 		{
-			if (splitscreen && cv_chasecam2.value && thing->player == &players[secondarydisplayplayer])
-				camera2.z += thing->pmomz;
-			else if (cv_chasecam.value && thing->player == &players[displayplayer])
+			if (cv_chasecam.value && thing->player == &players[displayplayer])
 				camera.z += thing->pmomz;
 		}
 
@@ -2266,11 +2258,6 @@ isblocking:
 				slidemo->angle = climbangle;
 				if (slidemo->player == &players[consoleplayer])
 					localangle = slidemo->angle;
-				else if (splitscreen && slidemo->player ==
-					&players[secondarydisplayplayer])
-				{
-					localangle2 = slidemo->angle;
-				}
 
 				if (!slidemo->player->climbing)
 					slidemo->player->climbing = 5;

@@ -53,12 +53,11 @@ consvar_t cv_playdemospeed = {"playdemospeed", "0", 0, CV_Unsigned, NULL, 0, NUL
 INT32 ticruned, ticmiss;
 
 static tic_t maketic = 1, neededtic = 1;
-static ticcmd_t localcmds, localcmds2;
+static ticcmd_t localcmds;
 
 void D_ResetTiccmds(void)
 {
 	memset(&localcmds, 0, sizeof(ticcmd_t));
-	memset(&localcmds2, 0, sizeof(ticcmd_t));
 }
 
 // -----------------------------------------------------------------
@@ -92,15 +91,6 @@ void SendNetXCmd(netxcmd_t id, const void *param, size_t nparam)
 		return;
 
 	RunNetXCmd(id, param, nparam, consoleplayer);
-}
-
-// splitscreen player
-void SendNetXCmd2(netxcmd_t id, const void *param, size_t nparam)
-{
-	if (demoplayback)
-		return;
-
-	RunNetXCmd(id, param, nparam, secondarydisplayplayer);
 }
 
 UINT8 GetFreeXCmdSize(void)
@@ -168,7 +158,7 @@ void SV_StartSinglePlayerServer(void)
 {
 	server = true;
 	netgame = false;
-	multiplayer = splitscreen;
+	multiplayer = false;
 	gametype = GT_COOP;
 	SV_StopServer();
 }
@@ -176,14 +166,6 @@ void SV_StartSinglePlayerServer(void)
 void CL_ClearPlayer(INT32 playernum)
 {
 	memset(&players[playernum], 0, sizeof (player_t));
-}
-
-void CL_AddSplitscreenPlayer(void)
-{
-}
-
-void CL_RemoveSplitscreenPlayer(void)
-{
 }
 
 INT32 D_NumPlayers(void)
@@ -229,16 +211,11 @@ void NetUpdate(void)
 	I_OsPolling();
 	D_ProcessEvents();
 
-	if (!dedicated)
-		rendergametic = gametic;
+	rendergametic = gametic;
 
 	G_BuildTiccmd(&localcmds, (INT32)realtics);
-	if (splitscreen)
-		G_BuildTiccmd2(&localcmds2, (INT32)realtics);
 
 	netcmds[maketic%BACKUPTICS][consoleplayer] = localcmds;
-	if (splitscreen)
-		netcmds[maketic%BACKUPTICS][secondarydisplayplayer] = localcmds2;
 	maketic++;
 	neededtic = maketic;
 

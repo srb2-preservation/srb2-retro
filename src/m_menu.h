@@ -48,8 +48,6 @@ void M_StartControlPanel(void);
 
 // Draws a box with a texture inside as background for messages
 void M_DrawTextBox(INT32 x, INT32 y, INT32 width, INT32 boxlines);
-// show or hide the setup for player 2 (called at splitscreen change)
-void M_SwitchSplitscreen(void);
 
 // the function to show a message box typing with the string inside
 // string must be static (not in the stack)
@@ -212,8 +210,6 @@ extern CV_PossibleValue_t gametype_cons_t[];
 
 extern INT16 startmap;
 extern INT32 ultmode;
-
-extern boolean StartSplitScreenGame;
 
 void M_CheatActivationResponder(INT32 ch);
 void Moviemode_mode_Onchange(void);

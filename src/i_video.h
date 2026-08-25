@@ -34,8 +34,8 @@ typedef enum
 	/// OpenGL
 	render_opengl = 2,
 
-	/// Dedicated
-	render_none = 3  // for dedicated server
+	/// No renderer
+	render_none = 3
 } rendermode_t;
 
 /**	\brief currect render mode

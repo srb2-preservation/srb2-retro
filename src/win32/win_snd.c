@@ -900,9 +900,6 @@ void I_StartupSound(void)
 
 	sound_started = false;
 
-	if (dedicated)
-		return;
-
 	if (nosound)
 		return;
 
@@ -1191,10 +1188,7 @@ static VOID I_InitAudioMixer(VOID)
 // -----------
 void I_InitDigMusic(void)
 {
-	if (dedicated)
-		nodigimusic = true;
-	else
-		CONS_Printf("I_InitDigMusic()\n");
+	CONS_Printf("I_InitDigMusic()\n");
 
 #ifdef FMODSOUND
 	if (!nodigimusic)
@@ -1265,10 +1259,7 @@ void I_InitMIDIMusic(void)
 
 	bMusicStarted = false;
 
-	if (dedicated)
-		nomidimusic = true;
-	else
-		CONS_Printf("I_InitMIDIMusic()\n");
+	CONS_Printf("I_InitMIDIMusic()\n");
 
 	if (nomidimusic)
 		return;

@@ -869,9 +869,6 @@ void V_DrawSmallScaledPatch(INT32 x, INT32 y, INT32 scrn, patch_t *patch)
 	y -= SHORT(patch->topoffset)/2;
 	x -= SHORT(patch->leftoffset)/2;
 
-	if (scrn & splitscreen)
-		y /= 2;
-
 	desttop = screens[scrn&V_PARAMMASK];
 
 	if (!desttop)
@@ -902,9 +899,7 @@ void V_DrawSmallScaledPatch(INT32 x, INT32 y, INT32 scrn, patch_t *patch)
 			if (vid.height != BASEVIDHEIGHT * dupy)
 			{
 				// same thing here
-				if (scrn & splitscreen && scrn & V_SNAPTOBOTTOM)
-					desttop += (vid.height/2 - (BASEVIDHEIGHT/2 * dupy)) * vid.width;
-				else if (scrn & V_SNAPTOBOTTOM)
+				if (scrn & V_SNAPTOBOTTOM)
 					desttop += (vid.height - (BASEVIDHEIGHT * dupy)) * vid.width;
 				else if (!(scrn & V_SNAPTOTOP))
 					desttop += (vid.height - (BASEVIDHEIGHT * dupy)) * vid.width / 2;
@@ -1193,9 +1188,6 @@ void V_DrawSmallMappedPatch(INT32 x, INT32 y, INT32 scrn, patch_t *patch, const 
 
 	y -= SHORT(patch->topoffset)/2;
 
-	if (scrn & splitscreen)
-		y /= 2;
-
 	desttop = screens[scrn&V_PARAMMASK];
 
 	if (!desttop)
@@ -1224,9 +1216,7 @@ void V_DrawSmallMappedPatch(INT32 x, INT32 y, INT32 scrn, patch_t *patch, const 
 			if (vid.height != BASEVIDHEIGHT * dupy)
 			{
 				// same thing here
-				if (scrn & splitscreen && scrn & V_SNAPTOBOTTOM)
-					desttop += (vid.height/2 - (BASEVIDHEIGHT/2 * dupy)) * vid.width;
-				else if (scrn & V_SNAPTOBOTTOM)
+				if (scrn & V_SNAPTOBOTTOM)
 					desttop += (vid.height - (BASEVIDHEIGHT * dupy)) * vid.width;
 				else if (!(scrn & V_SNAPTOTOP))
 					desttop += (vid.height - (BASEVIDHEIGHT * dupy)) * vid.width / 2;
@@ -2331,9 +2321,6 @@ void V_DoPostProcessor(postimg_t type)
 #if NUMSCREENS < 4
 	return; // do not enable image post processing for ARM, SH and MIPS CPUs
 #endif
-
-	if (splitscreen) // Not supported in splitscreen - someone want to add support?
-		return;
 
 	if (type == postimg_water)
 	{

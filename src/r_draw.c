@@ -49,14 +49,6 @@ INT32 viewwidth, scaledviewwidth, viewheight, viewwindowx, viewwindowy;
 */
 UINT8 *ylookup[MAXVIDHEIGHT*4];
 
-/**	\brief pointer to the start of each line of the screen, for view1 (splitscreen)
-*/
-UINT8 *ylookup1[MAXVIDHEIGHT*4];
-
-/**	\brief pointer to the start of each line of the screen, for view2 (splitscreen)
-*/
-UINT8 *ylookup2[MAXVIDHEIGHT*4];
-
 /**	\brief  x byte offset for columns inside the viewwindow,
 	so the first column starts at (SCRWIDTH - VIEWWIDTH)/2
 */
@@ -433,10 +425,7 @@ void R_InitViewBuffer(INT32 width, INT32 height)
 
 	// Precalculate all row offsets.
 	for (i = 0; i < height; i++)
-	{
-		ylookup[i] = ylookup1[i] = screens[0] + (i+viewwindowy)*vid.width*bytesperpixel;
-		ylookup2[i] = screens[0] + (i+(vid.height>>1))*vid.width*bytesperpixel; // for splitscreen
-	}
+		ylookup[i] = screens[0] + (i+viewwindowy)*vid.width*bytesperpixel;
 }
 
 /**	\brief viewborder patches lump numbers

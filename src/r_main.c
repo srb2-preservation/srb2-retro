@@ -32,7 +32,6 @@
 #include "m_menu.h"
 #include "p_local.h"
 #include "am_map.h"
-#include "d_main.h"
 #include "v_video.h"
 #include "dstrings.h"
 
@@ -129,48 +128,6 @@ consvar_t cv_grtranslucenthud = {"gr_translucenthud", "255", CV_SAVE|CV_CALL, gr
 consvar_t cv_homremoval = {"homremoval", "Off", CV_SAVE, CV_OnOff, NULL, 0, NULL, NULL, 0, 0, NULL};
 
 consvar_t cv_moviemodeinfo = {"moviemodeinfo", "Yes", CV_SAVE, CV_YesNo, NULL, 0, NULL, NULL, 0, 0, NULL};
-
-void SplitScreen_OnChange(void)
-{
-	if (!cv_debug && netgame)
-	{
-		if (splitscreen)
-		{
-			CONS_Printf("Splitscreen not supported in netplay, "
-				"sorry!\n");
-			splitscreen = false;
-		}
-		return;
-	}
-
-	// recompute screen size
-	R_ExecuteSetViewSize();
-
-	// change the menu
-	M_SwitchSplitscreen();
-
-	if (!demoplayback)
-	{
-		if (splitscreen)
-			CL_AddSplitscreenPlayer();
-		else
-			CL_RemoveSplitscreenPlayer();
-
-		if (server && !netgame)
-			multiplayer = splitscreen;
-	}
-	else
-	{
-		INT32 i;
-		secondarydisplayplayer = consoleplayer;
-		for (i = 0; i < MAXPLAYERS; i++)
-			if (playeringame[i] && i != consoleplayer)
-			{
-				secondarydisplayplayer = i;
-				break;
-			}
-	}
-}
 
 static void ChaseCam_OnChange(void)
 {
@@ -550,9 +507,6 @@ void R_ExecuteSetViewSize(void)
 	scaledviewwidth = vid.width;
 	viewheight = vid.height;
 
-	if (splitscreen)
-		viewheight >>= 1;
-
 	viewwidth = scaledviewwidth;
 
 	centery = viewheight/2;
@@ -719,29 +673,14 @@ static mobj_t *viewmobj;
 void R_SetupFrame(player_t *player)
 {
 	INT32 dy = 0;
-	camera_t *thiscam;
+	camera_t *thiscam = &camera;
 
-	if (splitscreen && player == &players[secondarydisplayplayer]
-		&& player != &players[consoleplayer])
-	{
-		thiscam = &camera2;
-	}
-	else
-		thiscam = &camera;
-
-	if (cv_chasecam.value && thiscam == &camera && !thiscam->chase)
+	if (cv_chasecam.value && !thiscam->chase)
 	{
 		P_ResetCamera(player, &camera);
 		thiscam->chase = true;
 	}
-	else if (cv_chasecam2.value && thiscam == &camera2 && !thiscam->chase)
-	{
-		P_ResetCamera(player, &camera2);
-		thiscam->chase = true;
-	}
-	else if (!cv_chasecam.value && thiscam == &camera)
-		thiscam->chase = false;
-	else if (!cv_chasecam2.value && thiscam == &camera2)
+	else if (!cv_chasecam.value)
 		thiscam->chase = false;
 
 	if (player->awayviewtics)
@@ -752,8 +691,7 @@ void R_SetupFrame(player_t *player)
 		aimingangle = player->awayviewaiming;
 		viewangle = viewmobj->angle;
 	}
-	else if ((cv_chasecam.value && thiscam == &camera)
-		|| (cv_chasecam2.value && thiscam == &camera2))
+	else if (cv_chasecam.value)
 	// use outside cam view
 	{
 		viewmobj = player->mo; // LIES! FILTHY STINKING LIES!!!
@@ -779,11 +717,6 @@ void R_SetupFrame(player_t *player)
 				viewangle = localangle; // WARNING: camera uses this
 				aimingangle = localaiming;
 			}
-			else if (player == &players[secondarydisplayplayer])
-			{
-				viewangle = localangle2;
-				aimingangle = localaiming2;
-			}
 		}
 	}
 
@@ -799,8 +732,7 @@ void R_SetupFrame(player_t *player)
 
 	viewplayer = player;
 
-	if (((cv_chasecam.value && thiscam == &camera) || (cv_chasecam2.value && thiscam == &camera2))
-		&& !player->awayviewtics)
+	if (cv_chasecam.value && !player->awayviewtics)
 	{
 		viewx = thiscam->x;
 		viewy = thiscam->y;
@@ -835,10 +767,7 @@ void R_SetupFrame(player_t *player)
 		// (lmps, network and use F12...)
 		G_ClipAimingPitch((INT32 *)&aimingangle);
 
-		if (!splitscreen)
-			dy = AIMINGTODY(aimingangle) * viewheight/BASEVIDHEIGHT;
-		else
-			dy = AIMINGTODY(aimingangle) * viewheight*2/BASEVIDHEIGHT;
+		dy = AIMINGTODY(aimingangle) * viewheight/BASEVIDHEIGHT;
 
 		yslope = &yslopetab[(3*viewheight/2) - dy];
 	}
@@ -926,10 +855,6 @@ void R_RegisterEngineStuff(void)
 	CV_RegisterVar(&cv_soniccd);
 	CV_RegisterVar(&cv_allowmlook);
 	CV_RegisterVar(&cv_homremoval);
-
-	// Enough for dedicated server
-	if (dedicated)
-		return;
 
 	CV_RegisterVar(&cv_precipdist);
 	CV_RegisterVar(&cv_chasecam);

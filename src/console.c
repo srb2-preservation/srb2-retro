@@ -37,7 +37,6 @@
 #include "i_video.h"
 #include "z_zone.h"
 #include "i_system.h"
-#include "d_main.h"
 #include "m_menu.h"
 
 #ifdef _WINDOWS
@@ -376,25 +375,16 @@ void CON_Init(void)
 	con_curlines = vid.height;
 
 
-	if (!dedicated)
-	{
-		con_started = true;
-		con_startup = true; // need explicit screen refresh until we are in Doom loop
-		consoletoggle = false;
-		CV_RegisterVar(&cons_msgtimeout);
-		CV_RegisterVar(&cons_hudlines);
-		CV_RegisterVar(&cons_speed);
-		CV_RegisterVar(&cons_height);
-		CV_RegisterVar(&cons_backpic);
-		CV_RegisterVar(&cons_backcolor);
-		COM_AddCommand("bind", CONS_Bind_f);
-	}
-	else
-	{
-		con_started = true;
-		con_startup = false; // need explicit screen refresh until we are in Doom loop
-		consoletoggle = true;
-	}
+	con_started = true;
+	con_startup = true; // need explicit screen refresh until we are in Doom loop
+	consoletoggle = false;
+	CV_RegisterVar(&cons_msgtimeout);
+	CV_RegisterVar(&cons_hudlines);
+	CV_RegisterVar(&cons_speed);
+	CV_RegisterVar(&cons_height);
+	CV_RegisterVar(&cons_backpic);
+	CV_RegisterVar(&cons_backcolor);
+	COM_AddCommand("bind", CONS_Bind_f);
 }
 // Console input initialization
 //
@@ -864,7 +854,7 @@ boolean CON_Responder(event_t *ev)
 	// add key to cmd line here
 	if (input_cx < CON_MAXPROMPTCHARS)
 	{
-		if (key >= 'A' && key <= 'Z' && !shiftdown) //this is only really necessary for dedicated servers
+		if (key >= 'A' && key <= 'Z' && !shiftdown)
 			key = key + 'a' - 'A';
 
 		inputlines[inputline][input_cx] = (char)key;

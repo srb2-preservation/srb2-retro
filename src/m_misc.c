@@ -513,7 +513,7 @@ void M_SaveConfig(const char *filename)
 	// FIXME: save key aliases if ever implemented..
 
 	CV_SaveVariables(f);
-	if (!dedicated) G_SaveKeySetting(f);
+	G_SaveKeySetting(f);
 
 	fclose(f);
 

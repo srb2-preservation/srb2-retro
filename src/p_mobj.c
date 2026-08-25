@@ -18,7 +18,6 @@
 /// \brief Moving object handling. Spawn functions
 
 #include "doomdef.h"
-#include "d_main.h"
 #include "g_game.h"
 #include "g_input.h"
 #include "st_stuff.h"
@@ -2700,8 +2699,6 @@ void P_CameraThinker(player_t *player, camera_t *thiscam)
 			fixed_t cam_height = cv_cam_height.value;
 			thiscam->z = thiscam->floorz;
 
-			if (player == &players[secondarydisplayplayer])
-				cam_height = cv_cam2_height.value;
 			if (thiscam->z > player->mo->z + player->mo->height + cam_height*FRACUNIT + 16*FRACUNIT)
 				P_ResetCamera(player, &camera);
 		}
@@ -2729,9 +2726,9 @@ void P_CameraThinker(player_t *player, camera_t *thiscam)
 	}
 
 	// Are we in water?
-	if (!splitscreen && P_CameraCheckWater(thiscam))
+	if (P_CameraCheckWater(thiscam))
 		postimgtype = postimg_water;
-	else if (!splitscreen && P_CameraCheckHeat(thiscam))
+	else if (P_CameraCheckHeat(thiscam))
 		postimgtype = postimg_heat;
 }
 
@@ -4751,7 +4748,7 @@ static boolean P_ShieldLook(mobj_t *thing, powertype_t power)
 		return false;
 	}
 
-	if (!splitscreen && rendermode != render_soft)
+	if (rendermode != render_soft)
 	{
 		angle_t viewingangle;
 
@@ -6749,8 +6746,6 @@ void P_SpawnPrecipitation(void)
 	fixed_t x = 0, y = 0, height;
 	subsector_t *precipsector = NULL;
 
-	if (dedicated) return;
-
 	if (curWeather == PRECIP_SNOW)
 	{
 		const INT32 snowloop = preloop / cv_precipdensity.value;
@@ -6872,7 +6867,7 @@ void P_RespawnSpecials(void)
 			}
 		}
 
-		if (!dedicated && playeringame[displayplayer])
+		if (playeringame[displayplayer])
 		{
 			if (players[displayplayer].mo->subsector->sector->ceilingpic == skyflatnum)
 				volume = 255;
@@ -7089,8 +7084,6 @@ void P_SpawnPlayer(mapthing_t *mthing, INT32 playernum)
 	mobj->angle = FixedAngle(mthing->angle*FRACUNIT);
 	if (playernum == consoleplayer)
 		localangle = mobj->angle;
-	else if (splitscreen && playernum == secondarydisplayplayer)
-		localangle2 = mobj->angle;
 	mobj->player = p;
 	mobj->health = p->health;
 
@@ -7125,11 +7118,6 @@ void P_SpawnPlayer(mapthing_t *mthing, INT32 playernum)
 	{
 		if (displayplayer == playernum)
 			P_ResetCamera(p, &camera);
-	}
-	if (cv_chasecam2.value && splitscreen)
-	{
-		if (secondarydisplayplayer == playernum)
-			P_ResetCamera(p, &camera2);
 	}
 
 	// set the scale to the mobj's destscale so settings get correctly set.  if we don't, they sometimes don't.
@@ -7178,8 +7166,6 @@ void P_SpawnStarpostPlayer(mobj_t *mobj, INT32 playernum)
 	mobj->angle = angle;
 	if (playernum == consoleplayer)
 		localangle = mobj->angle;
-	else if (splitscreen && playernum == secondarydisplayplayer)
-		localangle2 = mobj->angle;
 
 	mobj->player = p;
 	mobj->health = p->health;
@@ -7208,11 +7194,6 @@ void P_SpawnStarpostPlayer(mobj_t *mobj, INT32 playernum)
 	{
 		if (displayplayer == playernum)
 			P_ResetCamera(p, &camera);
-	}
-	if (cv_chasecam2.value && splitscreen)
-	{
-		if (secondarydisplayplayer == playernum)
-			P_ResetCamera(p, &camera2);
 	}
 
 	if (!(netgame || multiplayer))

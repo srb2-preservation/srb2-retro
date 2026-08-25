@@ -33,15 +33,11 @@ static CV_PossibleValue_t onecontrolperkey_cons_t[] = {{1, "One"}, {2, "Several"
 // mouse values are used once
 consvar_t cv_mousesens = {"mousesens", "20", CV_SAVE, mousesens_cons_t, NULL, 0, NULL, NULL, 0, 0, NULL};
 consvar_t cv_mlooksens = {"mlooksens", "20", CV_SAVE, mousesens_cons_t, NULL, 0, NULL, NULL, 0, 0, NULL};
-consvar_t cv_mousesens2 = {"mousesens2", "20", CV_SAVE, mousesens_cons_t, NULL, 0, NULL, NULL, 0, 0, NULL};
-consvar_t cv_mlooksens2 = {"mlooksens2", "20", CV_SAVE, mousesens_cons_t, NULL, 0, NULL, NULL, 0, 0, NULL};
 consvar_t cv_controlperkey = {"controlperkey", "One", CV_SAVE, onecontrolperkey_cons_t, NULL, 0, NULL, NULL, 0, 0, NULL};
 consvar_t cv_allowautoaim = {"allowautoaim", "Yes", CV_NETVAR, CV_YesNo, NULL, 0, NULL, NULL, 0, 0, NULL};
 
 INT32 mousex, mousey;
 INT32 mlooky; // like mousey but with a custom sensitivity for mlook
-
-INT32 mouse2x, mouse2y, mlook2y;
 
 // joystick values are repeated
 INT32 joyxmove[JOYAXISSET], joyymove[JOYAXISSET], joy2xmove[JOYAXISSET], joy2ymove[JOYAXISSET];
@@ -51,7 +47,6 @@ UINT8 gamekeydown[NUMINPUTS];
 
 // two key codes (or virtual key) per game control
 INT32 gamecontrol[num_gamecontrols][2];
-INT32 gamecontrolbis[num_gamecontrols][2]; // secondary splitscreen player
 
 typedef struct
 {
@@ -61,7 +56,6 @@ typedef struct
 } dclick_t;
 static dclick_t mousedclicks[MOUSEBUTTONS];
 static dclick_t joydclicks[JOYBUTTONS + JOYHATS*4];
-static dclick_t mouse2dclicks[MOUSEBUTTONS];
 static dclick_t joy2dclicks[JOYBUTTONS + JOYHATS*4];
 
 // protos
@@ -124,15 +118,6 @@ void G_MapEventsToControls(event_t *ev)
 			if (ev->data3 != INT32_MAX) joy2ymove[i] = ev->data3;
 			break;
 
-		case ev_mouse2: // buttons are virtual keys
-			mouse2x = (INT32)(ev->data2*((cv_mousesens2.value*cv_mousesens2.value)/110.0f + 0.1f));
-			mouse2y = (INT32)(ev->data3*((cv_mousesens2.value*cv_mousesens2.value)/110.0f + 0.1f));
-
-			// for now I use the mlook sensitivity just for mlook,
-			// instead of having a general mouse y sensitivity.
-			mlook2y = (INT32)(ev->data3*((cv_mlooksens.value*cv_mlooksens.value)/110.0f + 0.1f));
-			break;
-
 		default:
 			break;
 	}
@@ -148,12 +133,6 @@ void G_MapEventsToControls(event_t *ev)
 	{
 		flag = G_CheckDoubleClick(gamekeydown[KEY_JOY1+i], &joydclicks[i]);
 		gamekeydown[KEY_DBLJOY1+i] = flag;
-	}
-
-	for (i = 0; i < MOUSEBUTTONS; i++)
-	{
-		flag = G_CheckDoubleClick(gamekeydown[KEY_2MOUSE1+i], &mouse2dclicks[i]);
-		gamekeydown[KEY_DBL2MOUSE1+i] = flag;
 	}
 
 	for (i = 0; i < JOYBUTTONS + JOYHATS*4; i++)
@@ -981,23 +960,6 @@ void G_Controldefault(void)
 	gamecontrol[gc_jump       ][1] = '/';
 	gamecontrol[gc_console    ][0] = KEY_CONSOLE;
 	gamecontrol[gc_console    ][1] = KEY_F5;
-	//gamecontrolbis
-	gamecontrolbis[gc_forward   ][0] = KEY_2HAT1+0;
-	gamecontrolbis[gc_forward   ][1] = 'w';
-	gamecontrolbis[gc_backward  ][0] = KEY_2HAT1+1;
-	gamecontrolbis[gc_backward  ][1] = 's';
-	gamecontrolbis[gc_turnleft  ][0] = KEY_2HAT1+2;
-	gamecontrolbis[gc_turnleft  ][1] = 'a';
-	gamecontrolbis[gc_turnright ][0] = KEY_2HAT1+3;
-	gamecontrolbis[gc_turnright ][1] = 'd';
-	gamecontrolbis[gc_weaponnext][0] = 't';
-	gamecontrolbis[gc_weaponprev][0] = 'r';
-	gamecontrolbis[gc_fire      ][0] = KEY_2JOY1+6; //X
-	gamecontrolbis[gc_firenormal][0] = KEY_2JOY1+5; //Y
-	gamecontrolbis[gc_use       ][0] = KEY_2JOY1+1; //B
-	gamecontrolbis[gc_jump      ][0] = KEY_2JOY1+2; //A
-	//gamecontrolbis[gc_straferight][0] = 'x';
-	//gamecontrolbis[gc_strafeleft ][0] = 'z';
 }
 #elif defined (_PSP)
 void G_Controldefault(void)
@@ -1083,19 +1045,6 @@ void G_Controldefault(void)
 	gamecontrol[gc_jump       ][0] = KEY_JOY1+01; //A
 	gamecontrol[gc_jump       ][1] = KEY_JOY1+06; //a
 	gamecontrol[gc_pause      ][0] = KEY_JOY1+18; //Home
-	gamecontrolbis[gc_forward    ][0] = KEY_2JOY1+02; //UP
-	gamecontrolbis[gc_backward   ][0] = KEY_2JOY1+03; //DOWN
-	gamecontrolbis[gc_turnleft   ][0] = KEY_2JOY1+04; //LEFT
-	gamecontrolbis[gc_turnright  ][0] = KEY_2JOY1+05; //RIGHIT
-	gamecontrolbis[gc_weaponnext ][0] = KEY_2JOY1+10; //y
-	gamecontrolbis[gc_weaponprev ][0] = KEY_2JOY1+9; //x
-	gamecontrolbis[gc_fire       ][0] = KEY_2JOY1+12; //L
-	gamecontrolbis[gc_firenormal ][0] = KEY_2JOY1+13; //R
-	gamecontrolbis[gc_use        ][0] = KEY_2JOY1+00; //B
-	gamecontrolbis[gc_use        ][1] = KEY_2JOY1+07; //b
-	gamecontrolbis[gc_jump       ][0] = KEY_2JOY1+01; //A
-	gamecontrolbis[gc_jump       ][1] = KEY_2JOY1+06; //a
-	gamecontrolbis[gc_pause      ][0] = KEY_2JOY1+18; //Home
 #endif
 }
 #endif
@@ -1115,16 +1064,6 @@ void G_SaveKeySetting(FILE *f)
 			fprintf(f, "\n");
 	}
 
-	for (i = 1; i < num_gamecontrols; i++)
-	{
-		fprintf(f, "setcontrol2 \"%s\" \"%s\"", gamecontrolname[i],
-			G_KeynumToString(gamecontrolbis[i][0]));
-
-		if (gamecontrolbis[i][1])
-			fprintf(f, " \"%s\"\n", G_KeynumToString(gamecontrolbis[i][1]));
-		else
-			fprintf(f, "\n");
-	}
 }
 
 void G_CheckDoubleUsage(INT32 keynum)
@@ -1138,10 +1077,6 @@ void G_CheckDoubleUsage(INT32 keynum)
 				gamecontrol[i][0] = KEY_NULL;
 			if (gamecontrol[i][1] == keynum)
 				gamecontrol[i][1] = KEY_NULL;
-			if (gamecontrolbis[i][0] == keynum)
-				gamecontrolbis[i][0] = KEY_NULL;
-			if (gamecontrolbis[i][1] == keynum)
-				gamecontrolbis[i][1] = KEY_NULL;
 		}
 	}
 }
@@ -1184,19 +1119,4 @@ void Command_Setcontrol_f(void)
 	}
 
 	setcontrol(gamecontrol, na);
-}
-
-void Command_Setcontrol2_f(void)
-{
-	INT32 na;
-
-	na = (INT32)COM_Argc();
-
-	if (na != 3 && na != 4)
-	{
-		CONS_Printf("setcontrol2 <controlname> <keyname> [<2nd keyname>]\n");
-		return;
-	}
-
-	setcontrol(gamecontrolbis, na);
 }

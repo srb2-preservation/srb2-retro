@@ -70,7 +70,6 @@ extern boolean addedtogame; // true after the server has added you
 extern boolean multiplayer;
 
 extern INT16 gametype;
-extern boolean splitscreen;
 extern boolean circuitmap; // Does this level have 'circuit mode'?
 extern boolean fromlevelselect;
 extern INT32 cv_debug;
@@ -109,7 +108,6 @@ extern boolean gamedataloaded;
 // Player taking events, and displaying.
 extern INT32 consoleplayer;
 extern INT32 displayplayer;
-extern INT32 secondarydisplayplayer; // for splitscreen
 
 // Maps of special importance
 extern INT16 spstage_start;

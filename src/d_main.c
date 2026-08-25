@@ -166,8 +166,6 @@ const char *pandf = "%s" PATHSEP "%s";
 event_t events[MAXEVENTS];
 INT32 eventhead, eventtail;
 
-boolean dedicated = false;
-
 //
 // D_PostEvent
 // Called by the I/O functions when input is detected
@@ -233,9 +231,6 @@ static void D_Display(void)
 	static gamestate_t oldgamestate = -1;
 	boolean redrawsbar = false, viewactivestate = false;
 	static boolean wipe = false;
-
-	if (dedicated)
-		return;
 
 	if (nodrawers)
 		return; // for comparative timing/profiling
@@ -355,7 +350,6 @@ static void D_Display(void)
 
 		case GS_DEMOSCREEN:
 			D_PageDrawer(pagename);
-		case GS_DEDICATEDSERVER:
 		case GS_WAITINGPLAYERS:
 		case GS_NULL:
 			break;
@@ -380,7 +374,7 @@ static void D_Display(void)
 		}
 
 		// draw the view directly
-		if (!automapactive && !dedicated && cv_renderview.value)
+		if (!automapactive && cv_renderview.value)
 		{
 			if (players[displayplayer].mo)
 			{
@@ -392,28 +386,6 @@ static void D_Display(void)
 #endif
 				if (rendermode != render_none)
 					R_RenderPlayerView(&players[displayplayer]);
-			}
-
-			// render the second screen
-			if (secondarydisplayplayer != consoleplayer && players[secondarydisplayplayer].mo)
-			{
-#ifdef HWRENDER
-				if (rendermode != render_soft)
-					HWR_RenderPlayerView(1, &players[secondarydisplayplayer]);
-				else
-#endif
-				if (rendermode != render_none)
-				{
-					viewwindowy = vid.height / 2;
-					M_Memcpy(ylookup, ylookup2, viewheight*sizeof (ylookup[0]));
-
-					topleft = screens[0] + viewwindowy*vid.width + viewwindowx;
-
-					R_RenderPlayerView(&players[secondarydisplayplayer]);
-
-					viewwindowy = 0;
-					M_Memcpy(ylookup, ylookup1, viewheight*sizeof (ylookup[0]));
-				}
 			}
 
 			// Image postprocessing effect
@@ -529,13 +501,7 @@ void D_SRB2Loop(void)
 		G_BeginRecording();
 
 	// user settings
-	if (dedicated)
-		COM_BufAddText(va("exec \"%s"PATHSEP"adedserv.cfg\"\n", srb2home));
-	else
-		COM_BufAddText(va("exec \"%s"PATHSEP"autoexec.cfg\" -noerror\n", srb2home));
-
-	if (dedicated)
-		server = true;
+	COM_BufAddText(va("exec \"%s"PATHSEP"autoexec.cfg\" -noerror\n", srb2home));
 
 	if (M_CheckParm("-voodoo")) // 256x256 Texture Limiter
 		COM_BufAddText("gr_voodoocompatibility on\n");
@@ -624,8 +590,6 @@ static void D_RunFrame(void)
 			// Lagless camera! Yay!
 			if (gamestate == GS_LEVEL && netgame)
 			{
-				if (splitscreen && camera2.chase)
-					P_MoveChaseCamera(&players[secondarydisplayplayer], &camera2, true);
 				if (camera.chase)
 					P_MoveChaseCamera(&players[displayplayer], &camera, true);
 			}
@@ -1032,15 +996,9 @@ void D_SRB2Main(void)
 #if (defined (__unix__) || defined(__APPLE__) || defined (UNIXCOMMON)) && !defined (__CYGWIN__) && !defined (DC) && !defined (PSP) && !defined(GP2X)
 			I_Error("Please set $HOME to your home directory\n");
 #elif defined (_WIN32_WCE) && 0
-                       if (dedicated)
-                               snprintf(configfile, sizeof configfile, "/Storage Card/SRB2DEMO/d"CONFIGFILENAME);
-                       else
-                               snprintf(configfile, sizeof configfile, "/Storage Card/SRB2DEMO/"CONFIGFILENAME);
+                       snprintf(configfile, sizeof configfile, "/Storage Card/SRB2DEMO/"CONFIGFILENAME);
 #else
-			if (dedicated)
-				snprintf(configfile, sizeof configfile, "d"CONFIGFILENAME);
-			else
-				snprintf(configfile, sizeof configfile, CONFIGFILENAME);
+			snprintf(configfile, sizeof configfile, CONFIGFILENAME);
 #endif
 		}
 		else
@@ -1055,10 +1013,7 @@ void D_SRB2Main(void)
 				snprintf(srb2home, sizeof srb2home, "%s", userhome);
 #endif // DEFAULTDIR
 			snprintf(downloaddir, sizeof downloaddir, "%s" PATHSEP "DOWNLOAD", srb2home);
-			if (dedicated)
-				snprintf(configfile, sizeof configfile, "%s" PATHSEP "d"CONFIGFILENAME, srb2home);
-			else
-				snprintf(configfile, sizeof configfile, "%s" PATHSEP CONFIGFILENAME, srb2home);
+			snprintf(configfile, sizeof configfile, "%s" PATHSEP CONFIGFILENAME, srb2home);
 
 			// can't use sprintf since there is %u in savegamename
 			strcatbf(savegamename, srb2home, PATHSEP);
@@ -1132,7 +1087,6 @@ void D_SRB2Main(void)
 	CONS_Printf("%s",text[W_INIT]);
 
 	//---------------------------------------------------- READY TIME
-	// we need to check for dedicated before initialization of some subsystems
 
 	CONS_Printf("%s", text[I_STARTUPTIMER]);
 	I_StartupTimer();
@@ -1178,7 +1132,6 @@ void D_SRB2Main(void)
 	cht_Init();
 
 	//---------------------------------------------------- READY SCREEN
-	// we need to check for dedicated before initialization of some subsystems
 
 	CONS_Printf("%s", text[I_STARTUPGRAPHICS]);
 	I_StartupGraphics();

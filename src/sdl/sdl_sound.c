@@ -1204,12 +1204,6 @@ void I_StartupSound(void)
 	audio.callback = I_UpdateStream;
 	audio.userdata = &localdata;
 
-	if (dedicated)
-	{
-		nosound = nomidimusic = nodigimusic = true;
-		return;
-	}
-
 	// Configure sound device
 	CONS_Printf("I_StartupSound:\n");
 
@@ -1501,7 +1495,7 @@ void I_InitMusic(void)
 	I_AddExitFunc(I_ShutdownGMEMusic);
 #endif
 
-	if ((nomidimusic && nodigimusic) || dedicated)
+	if (nomidimusic && nodigimusic)
 		return;
 
 #ifdef HAVE_MIXER

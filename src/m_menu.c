@@ -1836,7 +1836,6 @@ static INT32 FindFirstMap(INT32 gtype)
 }
 
 consvar_t cv_newgametype = {"newgametype", "Coop", CV_HIDEN|CV_CALL, gametype_cons_t, Newgametype_OnChange, 0, NULL, NULL, 0, 0, NULL};
-boolean StartSplitScreenGame;
 
 static void Newgametype_OnChange(void)
 {
@@ -2773,11 +2772,6 @@ menu_t PlayerDef =
 };
 // Tails 03-02-2002
 
-void M_SwitchSplitscreen(void)
-{
-}
-
-
 ////////////////////////////////////////////////////////////////
 //                   CHARACTER SELECT SCREEN                  //
 ////////////////////////////////////////////////////////////////
@@ -3481,7 +3475,6 @@ static void M_NewGame(void)
 	PlayerDef.prevMenu = currentMenu;
 	M_SetupChoosePlayer(0);
 
-	StartSplitScreenGame = false;
 }
 
 static void M_SRB1Remake(INT32 choice)
@@ -3498,7 +3491,6 @@ static void M_SRB1Remake(INT32 choice)
 	PlayerDef.prevMenu = currentMenu;
 	M_SetupNextMenu(&PlayerDef);
 
-	StartSplitScreenGame = false;
 }
 
 static void M_NightsGame(INT32 choice)
@@ -3515,7 +3507,6 @@ static void M_NightsGame(INT32 choice)
 	PlayerDef.prevMenu = currentMenu;
 	M_SetupNextMenu(&PlayerDef);
 
-	StartSplitScreenGame = false;
 }
 
 static void M_MarioGame(INT32 choice)
@@ -3532,7 +3523,6 @@ static void M_MarioGame(INT32 choice)
 	PlayerDef.prevMenu = currentMenu;
 	M_SetupNextMenu(&PlayerDef);
 
-	StartSplitScreenGame = false;
 }
 
 static void M_NAGZGame(INT32 choice)
@@ -3549,7 +3539,6 @@ static void M_NAGZGame(INT32 choice)
 	PlayerDef.prevMenu = currentMenu;
 	M_SetupNextMenu(&PlayerDef);
 
-	StartSplitScreenGame = false;
 }
 
 static void M_CustomWarp(INT32 choice)
@@ -3565,7 +3554,6 @@ static void M_CustomWarp(INT32 choice)
 	PlayerDef.prevMenu = currentMenu;
 	M_SetupNextMenu(&PlayerDef);
 
-	StartSplitScreenGame = false;
 }
 
 // Chose the player you want to use Tails 03-02-2002
@@ -3585,7 +3573,7 @@ static void M_ChoosePlayer(INT32 choice)
 	lastmapsaved = 0;
 	gamecomplete = false;
 
-	G_DeferedInitNew(ultmode, G_BuildMapName(startmap), skinnum, StartSplitScreenGame, fromlevelselect);
+	G_DeferedInitNew(ultmode, G_BuildMapName(startmap), skinnum, fromlevelselect);
 	COM_BufAddText("dummyconsvar 1\n"); // G_DeferedInitNew doesn't do this
 }
 
@@ -3748,7 +3736,7 @@ static void M_ChooseTimeAttackNoRecord(INT32 choice)
 	M_ClearMenus(true);
 	timeattacking = true;
 	remove(va("%s"PATHSEP"temp.lmp", srb2home));
-	G_DeferedInitNew(false, G_BuildMapName(cv_nextmap.value), cv_chooseskin.value-1, false, false);
+	G_DeferedInitNew(false, G_BuildMapName(cv_nextmap.value), cv_chooseskin.value-1, false);
 	timeattacking = true;
 }
 
@@ -3764,7 +3752,7 @@ static void M_ChooseTimeAttack(INT32 choice)
 	timeattacking = true;
 	G_RecordDemo("temp");
 	G_BeginRecording();
-	G_DeferedInitNew(false, G_BuildMapName(cv_nextmap.value), cv_chooseskin.value-1, false, false);
+	G_DeferedInitNew(false, G_BuildMapName(cv_nextmap.value), cv_chooseskin.value-1, false);
 	timeattacking = true;
 }
 
@@ -4034,7 +4022,6 @@ static void M_LevelSelectWarp(INT32 choice)
 
 	fromlevelselect = true;
 
-	StartSplitScreenGame = false;
 
 	if (fromloadgame)
 	{
@@ -5421,8 +5408,8 @@ menu_t ControlDef2 =
 
 
 //
-// Start the controls menu, setting it up for either the console player,
-// or the secondary splitscreen player
+// Start the controls menu, setting it up for either the primary
+// or secondary joystick
 //
 static  boolean setupcontrols_secondaryplayer;
 static  INT32   (*setupcontrols)[2];  // pointer to the gamecontrols of the player being edited
@@ -6789,7 +6776,7 @@ boolean M_Responder(event_t *ev)
 	static INT32 lastx = 0, lasty = 0;
 	void (*routine)(INT32 choice); // for some casting problem
 
-	if (dedicated || gamestate == GS_INTRO || gamestate == GS_INTRO2 || gamestate == GS_CUTSCENE)
+	if (gamestate == GS_INTRO || gamestate == GS_INTRO2 || gamestate == GS_CUTSCENE)
 		return false;
 
 	if (CON_Ready())
@@ -7111,7 +7098,7 @@ boolean M_Responder(event_t *ev)
 
 				// Make sure the Switch Team / Spectate option only shows up in gametypes that apply.
 				if (!(gametype == GT_MATCH || gametype == GT_TAG || gametype == GT_CTF)
-					|| splitscreen || !(netgame || multiplayer) || !Playing())
+					|| !(netgame || multiplayer) || !Playing())
 				{
 					MainMenu[spectate].status = IT_DISABLED;
 					MainMenu[switchteam].status = IT_DISABLED;
@@ -7294,7 +7281,7 @@ void M_StartControlPanel(void)
 			MainMenu[scramble].status = IT_STRING | IT_CALL;
 	}
 
-	if (!(gametype == GT_MATCH || gametype == GT_TAG || gametype == GT_CTF) || splitscreen)
+	if (!(gametype == GT_MATCH || gametype == GT_TAG || gametype == GT_CTF))
 	{
 		MainMenu[spectate].status = IT_DISABLED;
 		MainMenu[switchteam].status = IT_DISABLED;
@@ -7411,9 +7398,6 @@ boolean M_MouseNeeded(void)
 //
 void M_Ticker(void)
 {
-	if (dedicated)
-		return;
-
 	if (--skullAnimCounter <= 0)
 		skullAnimCounter = 8 * NEWTICRATERATIO;
 
@@ -7434,9 +7418,6 @@ void M_Init(void)
 	CV_RegisterVar(&cv_nextmap);
 	CV_RegisterVar(&cv_newgametype);
 	CV_RegisterVar(&cv_chooseskin);
-
-	if (dedicated)
-		return;
 
 	// This is used because DOOM 2 had only one HELP
 	//  page. I use CREDIT as second page now, but

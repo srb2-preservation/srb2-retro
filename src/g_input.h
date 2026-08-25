@@ -125,7 +125,6 @@ extern consvar_t cv_mousesens, cv_mlooksens, cv_allowautoaim;
 
 extern INT32 mousex, mousey;
 extern INT32 mlooky; //mousey with mlookSensitivity
-extern INT32 mouse2x, mouse2y, mlook2y;
 
 extern INT32 joyxmove[JOYAXISSET], joyymove[JOYAXISSET], joy2xmove[JOYAXISSET], joy2ymove[JOYAXISSET];
 
@@ -134,7 +133,6 @@ extern UINT8 gamekeydown[NUMINPUTS];
 
 // two key codes (or virtual key) per game control
 extern INT32 gamecontrol[num_gamecontrols][2];
-extern INT32 gamecontrolbis[num_gamecontrols][2]; // secondary splitscreen player
 
 // peace to my little coder fingers!
 // check a gamecontrol being active or not
@@ -149,7 +147,6 @@ INT32 G_KeyStringtoNum(const char *keystr);
 // detach any keys associated to the given game control
 void G_ClearControlKeys(INT32 (*setupcontrols)[2], INT32 control);
 void Command_Setcontrol_f(void);
-void Command_Setcontrol2_f(void);
 void G_Controldefault(void);
 void G_SaveKeySetting(FILE *f);
 void G_CheckDoubleUsage(INT32 keynum);

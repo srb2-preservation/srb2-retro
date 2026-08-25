@@ -18,7 +18,6 @@
 /// \brief Preparation of data for rendering,generation of lookups, caching, retrieval by name
 
 #include "doomdef.h"
-#include "d_main.h"
 #include "g_game.h"
 #include "i_video.h"
 #include "r_local.h"
@@ -1066,8 +1065,7 @@ INT32 R_CheckTextureNumForName(const char *name, UINT16 sidenum)
 		if (!strncasecmp(textures[i]->name, name, 8))
 			return (INT32)i;
 
-	// Ignore texture errors of colormaps and others in dedicated mode.
-	if (!dedicated && name[0] != '#')
+	if (name[0] != '#')
 	{
 		if (sidenum == 0xffff)
 			CONS_Printf("WARNING: R_CheckTextureNumForName: %.8s not found.\nDefaulting to REDWALL.\n", name);

@@ -40,18 +40,6 @@ extern consvar_t cv_joyscale;
 extern consvar_t cv_joyscale2;
 extern consvar_t cv_controlperkey;
 
-// splitscreen with second mouse
-extern consvar_t cv_mouse2port;
-extern consvar_t cv_usemouse2;
-#if defined (__unix__) || defined (UNIXCOMMON)
-extern consvar_t cv_mouse2opt;
-#endif
-extern consvar_t cv_invertmouse2;
-extern consvar_t cv_alwaysfreelook2;
-extern consvar_t cv_mousemove2;
-extern consvar_t cv_mousesens2;
-extern consvar_t cv_mlooksens2;
-
 // normally in p_mobj but the .h is not read
 extern consvar_t cv_itemrespawntime;
 extern consvar_t cv_itemrespawn;
@@ -60,11 +48,6 @@ extern consvar_t cv_flagtime;
 extern consvar_t cv_suddendeath;
 
 extern consvar_t cv_skin;
-
-// secondary splitscreen player
-extern consvar_t cv_playername2;
-extern consvar_t cv_playercolor2;
-extern consvar_t cv_skin2;
 
 extern consvar_t cv_tagtype;
 extern consvar_t cv_touchtag;

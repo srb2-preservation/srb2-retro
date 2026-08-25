@@ -3209,7 +3209,7 @@ void I_StartupKeyboard(void)
 {
 	DIPROPDWORD dip;
 
-	if (dedicated || !lpDI)
+	if (!lpDI)
 		return;
 
 	// make sure the app window has the focus or DirectInput acquire keyboard won't work

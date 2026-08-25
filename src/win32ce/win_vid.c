@@ -117,14 +117,11 @@ void I_StartupGraphics(void)
 		rendermode = render_soft;
 #endif
 
-	if (dedicated)
-		rendermode = render_none;
-	else
-		VID_Init();
+	VID_Init();
 
 	// register exit code for graphics
 	I_AddExitFunc(I_ShutdownGraphics);
-	if (!dedicated) graphics_started = true;
+	graphics_started = true;
 }
 
 // ------------------
@@ -719,9 +716,6 @@ int VID_SetMode(int modenum)
 	int stat;
 	vmode_t *pnewmode;
 	vmode_t *poldmode;
-
-	if (dedicated)
-		return 0;
 
 	CONS_Printf("VID_SetMode(%d)\n", modenum);
 

@@ -97,7 +97,6 @@ player_t players[MAXPLAYERS];
 
 INT32 consoleplayer; // player taking events and displaying
 INT32 displayplayer; // view being displayed
-INT32 secondarydisplayplayer; // for splitscreen
 
 tic_t gametic;
 tic_t levelstarttic; // gametic at level start
@@ -312,10 +311,7 @@ consvar_t cv_crosshair = {"crosshair", "Cross", CV_SAVE, crosshair_cons_t, NULL,
 consvar_t cv_crosshair2 = {"crosshair2", "Cross", CV_SAVE, crosshair_cons_t, NULL, 0, NULL, NULL, 0, 0, NULL};
 consvar_t cv_invertmouse = {"invertmouse", "Off", CV_SAVE, CV_OnOff, NULL, 0, NULL, NULL, 0, 0, NULL};
 consvar_t cv_alwaysfreelook = {"alwaysmlook", "On", CV_SAVE, CV_OnOff, NULL, 0, NULL, NULL, 0, 0, NULL};
-consvar_t cv_invertmouse2 = {"invertmouse2", "Off", CV_SAVE, CV_OnOff, NULL, 0, NULL, NULL, 0, 0, NULL};
-consvar_t cv_alwaysfreelook2 = {"alwaysmlook2", "Off", CV_SAVE, CV_OnOff, NULL, 0, NULL, NULL, 0, 0, NULL};
 consvar_t cv_mousemove = {"mousemove", "On", CV_SAVE, CV_OnOff, NULL, 0, NULL, NULL, 0, 0, NULL};
-consvar_t cv_mousemove2 = {"mousemove2", "On", CV_SAVE, CV_OnOff, NULL, 0, NULL, NULL, 0, 0, NULL};
 consvar_t cv_analog = {"analog", "Off", CV_CALL, CV_OnOff, Analog_OnChange, 0, NULL, NULL, 0, 0, NULL};
 consvar_t cv_analog2 = {"analog2", "Off", CV_CALL, CV_OnOff, Analog2_OnChange, 0, NULL, NULL, 0, 0, NULL};
 #ifdef DC
@@ -677,8 +673,6 @@ static INT32 Joy2Axis(axis_input_e axissel)
 // or reads it from the demo buffer.
 // If recording a demo, write it out
 //
-// set secondaryplayer true to build player 2's ticcmd in splitscreen mode
-//
 INT32 localaiming, localaiming2;
 angle_t localangle, localangle2;
 
@@ -1019,333 +1013,6 @@ void G_BuildTiccmd(ticcmd_t *cmd, INT32 realtics)
 		displayplayer = consoleplayer;
 }
 
-// like the g_buildticcmd 1 but using mouse2, gamcontrolbis, ...
-void G_BuildTiccmd2(ticcmd_t *cmd, INT32 realtics)
-{
-	boolean strafe;
-	INT32 tspeed, forward, side, axis;
-	const INT32 speed = 1;
-	// these ones used for multiple conditions
-	boolean turnleft, turnright, mouseaiming, analogjoystickmove, gamepadjoystickmove;
-
-	static INT32 turnheld; // for accelerative turning
-	static boolean keyboard_look; // true if lookup/down using keyboard
-
-	G_CopyTiccmd(cmd,  I_BaseTiccmd2(), 1); // empty, or external driver
-
-	//why build a ticcmd if we're paused?
-	if (paused)
-		return;
-
-	// a little clumsy, but then the g_input.c became a lot simpler!
-	strafe = gamekeydown[gamecontrolbis[gc_strafe][0]] ||
-		gamekeydown[gamecontrolbis[gc_strafe][1]];
-
-	turnright = gamekeydown[gamecontrolbis[gc_turnright][0]]
-		|| gamekeydown[gamecontrolbis[gc_turnright][1]];
-	turnleft = gamekeydown[gamecontrolbis[gc_turnleft][0]]
-		|| gamekeydown[gamecontrolbis[gc_turnleft][1]];
-
-	mouseaiming = (gamekeydown[gamecontrolbis[gc_mouseaiming][0]]
-		|| gamekeydown[gamecontrolbis[gc_mouseaiming][1]]) ^ cv_alwaysfreelook2.value;
-	analogjoystickmove = cv_usejoystick2.value && !Joystick2.bGamepadStyle;
-	gamepadjoystickmove = cv_usejoystick2.value && Joystick2.bGamepadStyle;
-
-	axis = Joy2Axis(AXISTURN);
-	if (gamepadjoystickmove && axis != 0)
-	{
-		turnright = turnright || (axis > 0);
-		turnleft = turnleft || (axis < 0);
-	}
-
-	forward = side = 0;
-
-	// use two stage accelerative turning
-	// on the keyboard and joystick
-	if (turnleft || turnright)
-		turnheld += realtics;
-	else
-		turnheld = 0;
-
-	if (turnheld < SLOWTURNTICS)
-		tspeed = 2; // slow turn
-	else
-		tspeed = speed;
-
-	// let movement keys cancel each other out
-	if (cv_analog2.value) // Analog
-	{
-		if (turnright)
-			cmd->angleturn = (INT16)(cmd->angleturn - angleturn[tspeed]);
-		if (turnleft)
-			cmd->angleturn = (INT16)(cmd->angleturn + angleturn[tspeed]);
-	}
-
-	if (strafe || cv_analog2.value || twodlevel
-		|| (players[secondarydisplayplayer].mo && (players[secondarydisplayplayer].mo->flags2 & MF2_TWOD))
-		|| players[secondarydisplayplayer].climbing
-		|| (players[secondarydisplayplayer].pflags & PF_NIGHTSMODE)
-		|| (players[secondarydisplayplayer].pflags & PF_SLIDING)) // Analog
-	{
-		if (turnright)
-			side += sidemove[speed];
-		if (turnleft)
-			side -= sidemove[speed];
-
-		if (analogjoystickmove && axis != 0)
-		{
-			// JOYAXISRANGE is supposed to be 1023 (divide by 1024)
-			side += ((axis * sidemove[1]) >> 10);
-		}
-	}
-	else
-	{
-		if (turnright)
-			cmd->angleturn = (INT16)(cmd->angleturn - angleturn[tspeed]);
-		else if (turnleft)
-			cmd->angleturn = (INT16)(cmd->angleturn + angleturn[tspeed]);
-
-		if (analogjoystickmove && axis != 0)
-		{
-			// JOYAXISRANGE should be 1023 (divide by 1024)
-			cmd->angleturn = (INT16)(cmd->angleturn - ((axis * angleturn[1]) >> 10)); // ANALOG!
-		}
-	}
-
-	axis = Joy2Axis(AXISSTRAFE);
-	if (gamepadjoystickmove && axis != 0)
-	{
-		if (axis < 0)
-			side += sidemove[speed];
-		else if (axis > 0)
-			side -= sidemove[speed];
-	}
-	else if (analogjoystickmove && axis != 0)
-	{
-		// JOYAXISRANGE is supposed to be 1023 (divide by 1024)
-			side += ((axis * sidemove[1]) >> 10);
-	}
-
-	// forward with key or button
-	axis = Joy2Axis(AXISMOVE);
-	if (gamekeydown[gamecontrolbis[gc_forward][0]] ||
-		gamekeydown[gamecontrolbis[gc_forward][1]] ||
-		(gamepadjoystickmove && axis < 0))
-	{
-		// No additional acceleration when moving forward/backward and strafing simultaneously.
-		if ((gamekeydown[gamecontrolbis[gc_straferight][0]] || gamekeydown[gamecontrolbis[gc_straferight][1]]) ||
-			(gamekeydown[gamecontrolbis[gc_strafeleft][0]] || gamekeydown[gamecontrolbis[gc_strafeleft][1]]))
-			forward += FixedMul(forwardmove[speed], FRACUNIT * 3 / 4);
-		else
-			forward += forwardmove[speed];
-	}
-
-	if (gamekeydown[gamecontrolbis[gc_backward][0]] ||
-		gamekeydown[gamecontrolbis[gc_backward][1]] ||
-		(gamepadjoystickmove && axis > 0))
-	{
-		// No additional acceleration when moving forward/backward and strafing simultaneously.
-		if ((gamekeydown[gamecontrolbis[gc_straferight][0]] || gamekeydown[gamecontrolbis[gc_straferight][1]]) ||
-			(gamekeydown[gamecontrolbis[gc_strafeleft][0]] || gamekeydown[gamecontrolbis[gc_strafeleft][1]]))
-			forward -= FixedMul(forwardmove[speed], FRACUNIT * 3 / 4);
-		else
-			forward -= forwardmove[speed];
-	}
-
-	if (analogjoystickmove && axis != 0)
-		forward -= ((axis * forwardmove[1]) >> 10); // ANALOG!
-
-	// some people strafe left & right with mouse buttons
-	if (gamekeydown[gamecontrolbis[gc_straferight][0]] ||
-		gamekeydown[gamecontrolbis[gc_straferight][1]])
-	{
-		// No additional acceleration when moving forward/backward and strafing simultaneously.
-		if ((gamekeydown[gamecontrolbis[gc_forward][0]] || gamekeydown[gamecontrolbis[gc_forward][1]]) ||
-			(gamekeydown[gamecontrolbis[gc_backward][0]] || gamekeydown[gamecontrolbis[gc_backward][1]]))
-			side += FixedMul(sidemove[speed], FRACUNIT * 3 / 4);
-		else
-			side += sidemove[speed];
-	}
-	if (gamekeydown[gamecontrolbis[gc_strafeleft][0]] ||
-		gamekeydown[gamecontrolbis[gc_strafeleft][1]])
-	{
-		// No additional acceleration when moving forward/backward and strafing simultaneously.
-		if ((gamekeydown[gamecontrolbis[gc_forward][0]] || gamekeydown[gamecontrolbis[gc_forward][1]]) ||
-			(gamekeydown[gamecontrolbis[gc_backward][0]] || gamekeydown[gamecontrolbis[gc_backward][1]]))
-			side -= FixedMul(sidemove[speed], FRACUNIT * 3 / 4);
-		else
-			side -= sidemove[speed];
-	}
-
-	// Next Weapon
-	if (gamekeydown[gamecontrolbis[gc_weaponnext][0]] ||
-		gamekeydown[gamecontrolbis[gc_weaponnext][1]])
-		cmd->buttons |= BT_WEAPONNEXT;
-
-	// Previous Weapon
-	if (gamekeydown[gamecontrolbis[gc_weaponprev][0]] ||
-		gamekeydown[gamecontrolbis[gc_weaponprev][1]])
-		cmd->buttons |= BT_WEAPONPREV;
-
-	//use the three avaliable bits to determine the weapon.
-	cmd->buttons &= ~BT_WEAPONMASK;
-
-	if (gamekeydown[gamecontrolbis[gc_normalring][0]] ||
-		gamekeydown[gamecontrolbis[gc_normalring][1]])
-		cmd->buttons |= 1; // Normal Ring
-	else if (gamekeydown[gamecontrolbis[gc_autoring][0]] ||
-		gamekeydown[gamecontrolbis[gc_autoring][1]])
-		cmd->buttons |= 2; // Automatic Ring
-	else if (gamekeydown[gamecontrolbis[gc_bouncering][0]] ||
-		gamekeydown[gamecontrolbis[gc_bouncering][1]])
-		cmd->buttons |= 3; // Bounce Ring
-	else if (gamekeydown[gamecontrolbis[gc_scatterring][0]] ||
-		gamekeydown[gamecontrolbis[gc_scatterring][1]])
-		cmd->buttons |= 4; // Scatter Ring
-	else if (gamekeydown[gamecontrolbis[gc_grenadering][0]] ||
-		gamekeydown[gamecontrolbis[gc_grenadering][1]])
-		cmd->buttons |= 5; // Grenade Ring
-	else if (gamekeydown[gamecontrolbis[gc_explosionring][0]] ||
-		gamekeydown[gamecontrolbis[gc_explosionring][1]])
-		cmd->buttons |= 6; // Explosion Ring
-	else if (gamekeydown[gamecontrolbis[gc_railring][0]] ||
-		gamekeydown[gamecontrolbis[gc_railring][1]])
-		cmd->buttons |= 7; // Rail Ring
-
-	// fire with any button/key
-	axis = Joy2Axis(AXISFIRE);
-	if (gamekeydown[gamecontrolbis[gc_fire][0]] ||
-		gamekeydown[gamecontrolbis[gc_fire][1]] ||
-		(cv_usejoystick2.value && axis > 0))
-		cmd->buttons |= BT_ATTACK;
-
-	// fire normal with any button/key
-	axis = Joy2Axis(AXISFIRENORMAL);
-	if (gamekeydown[gamecontrolbis[gc_firenormal][0]] ||
-		gamekeydown[gamecontrolbis[gc_firenormal][1]] ||
-		(cv_usejoystick2.value && axis > 0))
-		cmd->buttons |= BT_FIRENORMAL;
-
-	if (gamekeydown[gamecontrolbis[gc_tossflag][0]] ||
-		gamekeydown[gamecontrolbis[gc_tossflag][1]])
-		cmd->buttons |= BT_TOSSFLAG;
-
-	// use with any button/key
-	if (gamekeydown[gamecontrolbis[gc_use][0]] ||
-		gamekeydown[gamecontrolbis[gc_use][1]])
-		cmd->buttons |= BT_USE;
-
-	// Taunts
-	if (gamekeydown[gamecontrolbis[gc_taunt][0]] ||
-		gamekeydown[gamecontrolbis[gc_taunt][1]])
-		cmd->buttons |= BT_TAUNT;
-
-	// Camera Controls
-	if ((gamekeydown[gamecontrolbis[gc_camleft][0]] ||
-		gamekeydown[gamecontrolbis[gc_camleft][1]]) &&
-		(cv_debug || cv_analog2.value || cv_objectplace.value || players[secondarydisplayplayer].pflags & PF_NIGHTSMODE))
-		cmd->buttons |= BT_CAMLEFT;
-
-	if ((gamekeydown[gamecontrolbis[gc_camright][0]] ||
-		gamekeydown[gamecontrolbis[gc_camright][1]]) &&
-		(cv_debug || cv_analog2.value || cv_objectplace.value || players[secondarydisplayplayer].pflags & PF_NIGHTSMODE))
-		cmd->buttons |= BT_CAMRIGHT;
-
-	if (gamekeydown[gamecontrolbis[gc_camreset][0]] ||
-		gamekeydown[gamecontrolbis[gc_camreset][1]])
-	{
-		if (cv_chasecam2.value)
-			P_ResetCamera(&players[secondarydisplayplayer], &camera2);
-	}
-
-	// jump button
-	if (gamekeydown[gamecontrolbis[gc_jump][0]] ||
-		gamekeydown[gamecontrolbis[gc_jump][1]])
-		cmd->buttons |= BT_JUMP;
-
-	// mouse look stuff (mouse look is not the same as mouse aim)
-	if (mouseaiming)
-	{
-		keyboard_look = false;
-
-		// looking up/down
-		if (players[secondarydisplayplayer].mo
-			&& players[secondarydisplayplayer].mo->eflags & MFE_VERTICALFLIP
-			&& !cv_chasecam.value //because chasecam's not inverted
-			? !cv_invertmouse2.value : cv_invertmouse2.value)
-			localaiming2 -= mlook2y<<19;
-		else
-			localaiming2 += mlook2y<<19;
-	}
-
-	axis = Joy2Axis(AXISLOOK);
-
-	if (analogjoystickmove && cv_lookaxis2.value != 0 && axis != 0)
-		localaiming2 += axis<<16;
-
-	// spring back if not using keyboard neither mouselookin'
-	if (!keyboard_look && cv_lookaxis2.value == 0 && !mouseaiming)
-		localaiming2 = 0;
-
-	if (gamekeydown[gamecontrolbis[gc_lookup][0]] ||
-		gamekeydown[gamecontrolbis[gc_lookup][1]] ||
-		(gamepadjoystickmove && axis < 0))
-	{
-		if (players[secondarydisplayplayer].mo && players[secondarydisplayplayer].mo->eflags & MFE_VERTICALFLIP && !cv_chasecam.value)
-			localaiming2 -= KB_LOOKSPEED;
-		else
-			localaiming2 += KB_LOOKSPEED;
-		keyboard_look = true;
-	}
-	else if (gamekeydown[gamecontrolbis[gc_lookdown][0]] ||
-		gamekeydown[gamecontrolbis[gc_lookdown][1]] ||
-		(gamepadjoystickmove && axis > 0))
-	{
-		if (players[secondarydisplayplayer].mo && players[secondarydisplayplayer].mo->eflags & MFE_VERTICALFLIP && !cv_chasecam.value)
-			localaiming2 += KB_LOOKSPEED;
-		else
-			localaiming2 -= KB_LOOKSPEED;
-		keyboard_look = true;
-	}
-	else if (gamekeydown[gamecontrolbis[gc_centerview][0]] ||
-		gamekeydown[gamecontrolbis[gc_centerview][1]])
-		localaiming2 = 0;
-
-	// accept no mlook for network games
-	if (!cv_allowmlook.value)
-		localaiming2 = 0;
-
-	// look up max (viewheight/2) look down min -(viewheight/2)
-	cmd->aiming = G_ClipAimingPitch(&localaiming2);
-
-	if (!mouseaiming && cv_mousemove2.value)
-		forward += mouse2y;
-
-	if (strafe || cv_analog2.value
-		|| players[secondarydisplayplayer].climbing
-		|| (players[secondarydisplayplayer].pflags & PF_SLIDING)) // Analog for mouse
-		side = side + mouse2x*2;
-	else
-		cmd->angleturn = (INT16)(cmd->angleturn - (mouse2x*8));
-
-	mouse2x = mouse2y = mlook2y = 0;
-
-	if (forward > MAXPLMOVE)
-		forward = MAXPLMOVE;
-	else if (forward < -MAXPLMOVE)
-		forward = -MAXPLMOVE;
-	if (side > MAXPLMOVE)
-		side = MAXPLMOVE;
-	else if (side < -MAXPLMOVE)
-		side = -MAXPLMOVE;
-
-	cmd->forwardmove = (SINT8)(cmd->forwardmove + forward);
-	cmd->sidemove = (SINT8)(cmd->sidemove + side);
-
-	localangle2 += (cmd->angleturn<<16);
-	cmd->angleturn = (INT16)(localangle2 >> 16);
-}
-
 // User has designated that they want
 // analog ON, so tell the game to stop
 // fudging with it.
@@ -1435,8 +1102,6 @@ void G_DoLoadLevel(boolean resetplayer)
 		P_FindEmerald();
 
 	displayplayer = consoleplayer; // view the guy you are playing
-	if (!splitscreen)
-		secondarydisplayplayer = consoleplayer;
 
 	gameaction = ga_nothing;
 #ifdef PARANOIA
@@ -1445,8 +1110,6 @@ void G_DoLoadLevel(boolean resetplayer)
 
 	if (cv_chasecam.value)
 		P_ResetCamera(&players[displayplayer], &camera);
-	if (cv_chasecam2.value && splitscreen)
-		P_ResetCamera(&players[secondarydisplayplayer], &camera2);
 
 	// clear cmd building stuff
 	memset(gamekeydown, 0, sizeof (gamekeydown));
@@ -1456,7 +1119,6 @@ void G_DoLoadLevel(boolean resetplayer)
 		joy2xmove[i] = joy2ymove[i] = 0;
 	}
 	mousex = mousey = 0;
-	mouse2x = mouse2y = 0;
 
 	// clear hud messages remains (usually from game startup)
 	CON_ClearHUD();
@@ -1489,8 +1151,7 @@ boolean G_Responder(event_t *ev)
 				if (displayplayer == MAXPLAYERS)
 					displayplayer = 0;
 
-				if (displayplayer != consoleplayer && (!playeringame[displayplayer]
-					|| (splitscreen && displayplayer == secondarydisplayplayer)))
+				if (displayplayer != consoleplayer && !playeringame[displayplayer])
 					continue;
 
 				if ((gametype == GT_CTF || (gametype == GT_MATCH && cv_matchtype.value)) && players[consoleplayer].ctfteam
@@ -1699,7 +1360,7 @@ dontcompleteyet:
 	for (i = 0; i < MAXPLAYERS; i++)
 	{
 		// BP: i == 0 for playback of demos 1.29 now new players is added with xcmd
-		if ((playeringame[i] || i == 0) /*&& !dedicated*/)
+		if (playeringame[i] || i == 0)
 		{
 			cmd = &players[i].cmd;
 
@@ -1764,16 +1425,8 @@ dontcompleteyet:
 
 		case GS_WAITINGPLAYERS:
 			F_TitleScreenTicker(); // Fixes title sky stopping
-		case GS_DEDICATEDSERVER:
 		case GS_NULL:
 			break; // do nothing
-	}
-
-	// Dedicated servers don't get a last draw.
-	if (dedicated && lastdraw)
-	{
-		lastdraw = false;
-		G_DoCompleted();
 	}
 
 	if (pausedelay)
@@ -1971,7 +1624,7 @@ void G_PlayerReborn(INT32 player)
 	if (netgame || multiplayer)
 		p->powers[pw_flashing] = flashingtics-1; // Babysitting deterrent
 
-	if (P_IsLocalPlayer(p) && !(splitscreen && p == &players[secondarydisplayplayer]))
+	if (P_IsLocalPlayer(p))
 	{
 		if (!(mapmusic & 2048)) // TODO: Might not need this here
 			mapmusic = mapheaderinfo[gamemap-1].musicslot;
@@ -1998,15 +1651,11 @@ void G_PlayerReborn(INT32 player)
 		{
 			if (p == &players[consoleplayer])
 				CV_SetValue(&cv_playercolor, 6);
-			else if (p == &players[secondarydisplayplayer])
-				CV_SetValue(&cv_playercolor2, 6);
 		}
 		else if (p->ctfteam == 2 && p->skincolor != 7)
 		{
 			if (p == &players[consoleplayer])
 				CV_SetValue(&cv_playercolor, 7);
-			else if (p == &players[secondarydisplayplayer])
-				CV_SetValue(&cv_playercolor2, 7);
 		}
 	}
 }
@@ -2204,8 +1853,6 @@ void G_DoReborn(INT32 playernum)
 
 			if (cv_chasecam.value)
 				P_ResetCamera(&players[displayplayer], &camera);
-			if (cv_chasecam2.value && splitscreen)
-				P_ResetCamera(&players[secondarydisplayplayer], &camera2);
 
 			// clear cmd building stuff
 			memset(gamekeydown, 0, sizeof (gamekeydown));
@@ -2215,7 +1862,6 @@ void G_DoReborn(INT32 playernum)
 				joy2xmove[i] = joy2ymove[i] = 0;
 			}
 			mousex = mousey = 0;
-			mouse2x = mouse2y = 0;
 
 			// clear hud messages remains (usually from game startup)
 			CON_ClearHUD();
@@ -2794,7 +2440,7 @@ void G_LoadGame(UINT32 slot, INT16 mapoverride)
 //	gameaction = ga_nothing;
 //	G_SetGamestate(GS_LEVEL);
 	displayplayer = consoleplayer;
-	multiplayer = splitscreen = false;
+	multiplayer = false;
 
 //	G_DeferedInitNew(sk_medium, G_BuildMapName(1), 0, 0, 1);
 	if (setsizeneeded)
@@ -2856,7 +2502,7 @@ void G_SaveGame(UINT32 savegameslot)
 // Can be called by the startup code or the menu task,
 // consoleplayer, displayplayer, playeringame[] should be set.
 //
-void G_DeferedInitNew(boolean pultmode, const char *mapname, INT32 pickedchar, boolean SSSG, boolean FLS)
+void G_DeferedInitNew(boolean pultmode, const char *mapname, INT32 pickedchar, boolean FLS)
 {
 	paused = false;
 
@@ -2865,12 +2511,6 @@ void G_DeferedInitNew(boolean pultmode, const char *mapname, INT32 pickedchar, b
 
 	// this leave the actual game if needed
 	SV_StartSinglePlayerServer();
-
-	if (splitscreen != SSSG)
-	{
-		splitscreen = SSSG;
-		SplitScreen_OnChange();
-	}
 
 	SetSavedSkin(0, pickedchar, atoi(skins[pickedchar].prefcolor));
 
