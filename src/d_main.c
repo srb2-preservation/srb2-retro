@@ -1265,6 +1265,13 @@ void D_SRB2Main(void)
 	{
 		gameaction = ga_nothing;
 
+		// D_MapChange below can load a map synchronously (see SendNetXCmd
+		// in d_clisrv.c), before D_SRB2Loop ever reaches its own "before
+		// load a level" SCR_SetMode() call. Do it here too so walldrawerfunc
+		// is valid before R_SetupSkyDraw copies it into wallcolfunc.
+		SCR_SetMode();
+		SCR_Recalc();
+
 		CV_ClearChangedFlags();
 
 		// Do this here so if you run SRB2 with eg +timelimit 5, the time limit counts
