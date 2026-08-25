@@ -2,52 +2,29 @@ name: Windows x86
 
 on:
   push:
-    branches: [ "master" ]
+    branches: ["master"]
   pull_request:
-    branches: [ "master" ]
+    branches: ["master"]
 
 env:
-  CC: gcc
-  
-defaults:
-    run:
-      shell: msys2 {0}
+  PREFIX: i686-w64-mingw32
 
 jobs:
    build:
-    runs-on: windows-latest
-    steps: 
-     - uses: actions/checkout@v4  
-     - name: Setup Environment
-       uses: msys2/setup-msys2@v2
-       with: 
-        msystem: MINGW32
-        install: >- 
-         git 
-         make
-         mingw-w64-i686-gcc
-         mingw-w64-i686-zlib
-         mingw-w64-i686-libpng
-         mingw-w64-i686-SDL2
-         mingw-w64-i686-SDL2_mixer
-         nasm
+    runs-on: ubuntu-latest
+    steps:
+     - uses: actions/checkout@v4.2.2
 
-     
-     - name: Build SRB2 Retro
-       run: |
-        touch src/comptime.h
-        make -C src/ --keep-going MINGW=1 SDL=1 -j
+     - name: Install Dependencies
+       run: sudo apt update && sudo apt install -y gcc-mingw-w64-i686 binutils-mingw-w64-i686
+
+     - name: Build SRB2 Legacy
+       run: make -C src/ --keep-going  -j$(nproc) MINGW=1 SDL=1
 
      - name: Upload Artifacts
-       uses: actions/upload-artifact@v4.3.4
+       uses: actions/upload-artifact@v4.6.2
        with:
-        name: srb2retro-WIN32
+        name: srb2retro-windows-x86-${{ github.sha }}
         path: |
           bin/
-          src/comptime.h 
-
-     - name: Download Artifacts
-       uses: actions/download-artifact@v4.1.8
-       with:
-        name: srb2retro-WIN32
-       continue-on-error: true
+          src/comptime.h
