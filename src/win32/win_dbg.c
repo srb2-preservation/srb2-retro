@@ -594,29 +594,6 @@ LONG WINAPI RecordExceptionInfo(PEXCEPTION_POINTERS data/*, LPCSTR Message, LPST
 		// Load the top (highest address) of the stack from the
 		// thread information block. It will be found there in
 		// Win9x and Windows NT.
-#ifdef _X86_
-#ifdef __GNUC__
-		__asm__("movl %%fs : 4, %%eax": "=a"(pStackTop));
-#elif defined (_MSC_VER)
-		__asm
-		{
-			mov eax, fs:[4]
-			mov pStackTop, eax
-		}
-#endif
-#elif defined (_AMD64_)
-#ifdef __GNUC__
-		__asm__("mov %%gs : 4, %%rax": "=a"(pStackTop));
-#elif defined (_MSC_VER)
-/*
-		__asm
-		{
-			mov rax, fs:[4]
-			mov pStackTop, rax
-		}
-*/
-#endif
-#endif
 		if (pStackTop == NULL)
 			goto StackSkip;
 		else if (pStackTop > pStack + MaxStackDump)
@@ -668,3 +645,16 @@ LONG WINAPI RecordExceptionInfo(PEXCEPTION_POINTERS data/*, LPCSTR Message, LPST
 		return prevExceptionFilter(data);
 	return EXCEPTION_CONTINUE_SEARCH;
 }
+
+// thank you stack overflow
+int _imp___vsnprintf(
+    char *buffer,
+    size_t count,
+    const char *format,
+    va_list argptr
+    )
+{
+    return vsnprintf( buffer, count, format, argptr );
+}
+
+void *_imp___iob;
