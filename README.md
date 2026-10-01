@@ -12,7 +12,6 @@ The goal of SRB2 Retro is to include essential fixes and QOL improvements seen i
 ## Compiling
 
 See [SRB2 Wiki/Source code compiling](http://wiki.srb2.org/wiki/Source_code_compiling)  
-Alternatively, you can also use [srb2bld](https://mb.srb2.org/addons/srb2bld-srb2-build-package-manager-cli.3727/)
 
 ## Nightlies
 
