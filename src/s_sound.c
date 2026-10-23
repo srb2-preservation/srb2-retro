@@ -748,7 +748,6 @@ static INT32 actualmidimusicvolume;
 void S_UpdateSounds(void)
 {
 	INT32 audible, cnum, volume, sep, pitch;
-	sfxinfo_t *sfx;
 	channel_t *c;
 	MumblePos_t MPos;
 
@@ -859,7 +858,6 @@ void S_UpdateSounds(void)
 	for (cnum = 0; cnum < numofchannels; cnum++)
 	{
 		c = &channels[cnum];
-		sfx = c->sfxinfo;
 
 		if (c->sfxinfo)
 		{
@@ -1201,7 +1199,7 @@ INT32 S_AdjustSoundParams(const mobj_t *listener, const mobj_t *source, INT32 *v
 
 	if (sfxinfo->pitch & SF_OUTSIDESOUND) // Rain special case
 	{
-		fixed_t x, y, yl, yh, xl, xh, closex, closey, newdist;
+		fixed_t x, y, yl, yh, xl, xh, newdist;
 
 		if (R_PointInSubsector(listensource.x, listensource.y)->sector->ceilingpic == skyflatnum)
 			approx_dist = 0;
@@ -1212,8 +1210,6 @@ INT32 S_AdjustSoundParams(const mobj_t *listener, const mobj_t *source, INT32 *v
 			yh = listensource.y + 1024*FRACUNIT;
 			xl = listensource.x - 1024*FRACUNIT;
 			xh = listensource.x + 1024*FRACUNIT;
-			closex = listensource.x + 2048*FRACUNIT;
-			closey = listensource.y + 2048*FRACUNIT;
 			approx_dist = 1024*FRACUNIT;
 			for (y = yl; y <= yh; y += FRACUNIT*64)
 				for (x = xl; x <= xh; x += FRACUNIT*64)
@@ -1223,11 +1219,7 @@ INT32 S_AdjustSoundParams(const mobj_t *listener, const mobj_t *source, INT32 *v
 						// Found the outdoors!
 						newdist = S_CalculateSoundDistance(listensource.x, listensource.y, 0, x, y, 0);
 						if (newdist < approx_dist)
-						{
-							closex = x;
-							closey = y;
 							approx_dist = newdist;
-						}
 					}
 				}
 		}

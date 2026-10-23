@@ -1396,7 +1396,6 @@ static void CheckMissileImpact(mobj_t *mobj)
 //
 INT32 P_TryCameraMove(fixed_t x, fixed_t y, camera_t *thiscam)
 {
-	fixed_t oldx, oldy;
 	subsector_t *s = R_PointInSubsector(x, y);
 	INT32 retval = 1;
 	boolean itsatwodlevel = false;
@@ -1425,8 +1424,6 @@ INT32 P_TryCameraMove(fixed_t x, fixed_t y, camera_t *thiscam)
 			if (cameranoclip)
 			{
 				floatok = true;
-				oldx = thiscam->x;
-				oldy = thiscam->y;
 				thiscam->floorz = thiscam->z;
 				thiscam->ceilingz = thiscam->z + thiscam->height;
 				thiscam->x = x;
@@ -1443,8 +1440,6 @@ INT32 P_TryCameraMove(fixed_t x, fixed_t y, camera_t *thiscam)
 			if (cameranoclip)
 			{
 				floatok = true;
-				oldx = thiscam->x;
-				oldy = thiscam->y;
 				thiscam->floorz = thiscam->z;
 				thiscam->ceilingz = thiscam->z + thiscam->height;
 				thiscam->x = x;
@@ -1463,8 +1458,6 @@ INT32 P_TryCameraMove(fixed_t x, fixed_t y, camera_t *thiscam)
 			if (cameranoclip)
 			{
 				floatok = true;
-				oldx = thiscam->x;
-				oldy = thiscam->y;
 				thiscam->floorz = thiscam->z;
 				thiscam->ceilingz = thiscam->z + thiscam->height;
 				thiscam->x = x;
@@ -1475,8 +1468,6 @@ INT32 P_TryCameraMove(fixed_t x, fixed_t y, camera_t *thiscam)
 			else if (s == thiscam->subsector && tmceilingz >= thiscam->z)
 			{
 				floatok = true;
-				oldx = thiscam->x;
-				oldy = thiscam->y;
 				thiscam->floorz = tmfloorz;
 				thiscam->ceilingz = tmfloorz + thiscam->height;
 				thiscam->x = x;
@@ -1495,8 +1486,6 @@ INT32 P_TryCameraMove(fixed_t x, fixed_t y, camera_t *thiscam)
 			if (cameranoclip)
 			{
 				floatok = true;
-				oldx = thiscam->x;
-				oldy = thiscam->y;
 				thiscam->floorz = thiscam->z;
 				thiscam->ceilingz = thiscam->z + thiscam->height;
 				thiscam->x = x;
@@ -1517,8 +1506,6 @@ INT32 P_TryCameraMove(fixed_t x, fixed_t y, camera_t *thiscam)
 	// the move is ok,
 	// so link the thing into its new position
 
-	oldx = thiscam->x;
-	oldy = thiscam->y;
 	thiscam->floorz = tmfloorz;
 	thiscam->ceilingz = tmceilingz;
 	thiscam->x = x;
@@ -1575,8 +1562,6 @@ boolean PIT_PushableMoved(mobj_t *thing)
 //
 boolean P_TryMove(mobj_t *thing, fixed_t x, fixed_t y, boolean allowdropoff)
 {
-	fixed_t oldx, oldy;
-
 	floatok = false;
 
 	if (!P_CheckPosition(thing, x, y))
@@ -1703,8 +1688,6 @@ boolean P_TryMove(mobj_t *thing, fixed_t x, fixed_t y, boolean allowdropoff)
 	// Link the thing into its new position
 	P_UnsetThingPosition(thing);
 
-	oldx = thing->x;
-	oldy = thing->y;
 	thing->floorz = tmfloorz;
 	thing->ceilingz = tmceilingz;
 	thing->x = x;
@@ -1721,8 +1704,6 @@ boolean P_TryMove(mobj_t *thing, fixed_t x, fixed_t y, boolean allowdropoff)
 
 boolean P_SceneryTryMove(mobj_t *thing, fixed_t x, fixed_t y)
 {
-	fixed_t oldx, oldy;
-
 	if (!P_CheckPosition(thing, x, y))
 		return false; // solid wall or thing
 
@@ -1744,8 +1725,6 @@ boolean P_SceneryTryMove(mobj_t *thing, fixed_t x, fixed_t y)
 	// so link the thing into its new position
 	P_UnsetThingPosition(thing);
 
-	oldx = thing->x;
-	oldy = thing->y;
 	thing->floorz = tmfloorz;
 	thing->ceilingz = tmceilingz;
 	thing->x = x;
@@ -1943,7 +1922,6 @@ static void P_HitSlideLine(line_t *ld)
 //
 static void P_HitBounceLine(line_t *ld)
 {
-	INT32 side;
 	angle_t lineangle, moveangle, deltaangle;
 	fixed_t movelen;
 
@@ -1958,8 +1936,6 @@ static void P_HitBounceLine(line_t *ld)
 		tmxmove = -tmxmove;
 		return;
 	}
-
-	side = P_PointOnLineSide(slidemo->x, slidemo->y, ld);
 
 	lineangle = R_PointToAngle2(0, 0, ld->dx, ld->dy);
 
@@ -2036,7 +2012,6 @@ static boolean P_IsClimbingValid(player_t *player, angle_t angle)
 {
 	fixed_t platx, platy;
 	subsector_t *glidesector;
-	boolean climb = true;
 
 	platx = P_ReturnThrustX(player->mo, angle, player->mo->radius + FIXEDSCALE(8*FRACUNIT, player->mo->scale));
 	platy = P_ReturnThrustY(player->mo, angle, player->mo->radius + FIXEDSCALE(8*FRACUNIT, player->mo->scale));
@@ -2045,7 +2020,7 @@ static boolean P_IsClimbingValid(player_t *player, angle_t angle)
 
 	if (glidesector->sector != player->mo->subsector->sector)
 	{
-		boolean floorclimb = false, thrust = false, boostup = false;
+		boolean floorclimb = false;
 
 		if (glidesector->sector->ffloors)
 		{
@@ -2060,42 +2035,20 @@ static boolean P_IsClimbingValid(player_t *player, angle_t angle)
 				if (player->mo->eflags & MFE_VERTICALFLIP)
 				{
 					if ((*rover->topheight < player->mo->z + player->mo->height) && ((player->mo->z + player->mo->height + player->mo->momz) < *rover->topheight))
-					{
 						floorclimb = true;
-						boostup = false;
-					}
 					if (*rover->topheight < player->mo->z) // Waaaay below the ledge.
-					{
 						floorclimb = false;
-						boostup = false;
-						thrust = false;
-					}
 					if (*rover->bottomheight > player->mo->z + player->mo->height - FIXEDSCALE(16*FRACUNIT,player->mo->scale))
-					{
 						floorclimb = false;
-						thrust = true;
-						boostup = true;
-					}
 				}
 				else
 				{
 					if ((*rover->bottomheight > player->mo->z) && ((player->mo->z - player->mo->momz) > *rover->bottomheight))
-					{
 						floorclimb = true;
-						boostup = false;
-					}
 					if (*rover->bottomheight > player->mo->z + player->mo->height) // Waaaay below the ledge.
-					{
 						floorclimb = false;
-						boostup = false;
-						thrust = false;
-					}
 					if (*rover->topheight < player->mo->z + FIXEDSCALE(16*FRACUNIT,player->mo->scale))
-					{
 						floorclimb = false;
-						thrust = true;
-						boostup = true;
-					}
 				}
 
 				if (floorclimb)
@@ -2108,16 +2061,6 @@ static boolean P_IsClimbingValid(player_t *player, angle_t angle)
 			if ((glidesector->sector->floorheight <= player->mo->z + player->mo->height)
 				&& ((player->mo->z + player->mo->momz) <= glidesector->sector->floorheight))
 				floorclimb = true;
-
-			if (!floorclimb && glidesector->sector->ceilingheight > player->mo->z - FIXEDSCALE(16*FRACUNIT,player->mo->scale)
-				&& (glidesector->sector->floorpic == skyflatnum
-				|| glidesector->sector->floorheight
-				< (player->mo->z - FIXEDSCALE(8*FRACUNIT,player->mo->scale))))
-			{
-				thrust = true;
-				boostup = true;
-				// Play climb-up animation here
-			}
 
 			if ((glidesector->sector->floorheight > player->mo->z)
 				&& glidesector->sector->floorpic == skyflatnum)
@@ -2133,16 +2076,6 @@ static boolean P_IsClimbingValid(player_t *player, angle_t angle)
 				&& ((player->mo->z - player->mo->momz) >= glidesector->sector->ceilingheight))
 				floorclimb = true;
 
-			if (!floorclimb && glidesector->sector->floorheight < player->mo->z + FIXEDSCALE(16*FRACUNIT,player->mo->scale)
-				&& (glidesector->sector->ceilingpic == skyflatnum
-				|| glidesector->sector->ceilingheight
-				> (player->mo->z + player->mo->height + FIXEDSCALE(8*FRACUNIT,player->mo->scale))))
-			{
-				thrust = true;
-				boostup = true;
-				// Play climb-up animation here
-			}
-
 			if ((glidesector->sector->ceilingheight < player->mo->z+player->mo->height)
 				&& glidesector->sector->ceilingpic == skyflatnum)
 				return false;
@@ -2151,8 +2084,6 @@ static boolean P_IsClimbingValid(player_t *player, angle_t angle)
 				|| (player->mo->z >= glidesector->sector->ceilingheight))
 				floorclimb = true;
 		}
-
-		climb = false;
 
 		if (!floorclimb)
 			return false;
@@ -2959,12 +2890,6 @@ static boolean PIT_RadiusAttack(mobj_t *thing)
 	if (P_CheckSight(thing, bombspot))
 	{
 		INT32 damage = bombdamage - dist;
-		INT32 momx = 0, momy = 0;
-		if (dist)
-		{
-			momx = (thing->x - bombspot->x)/dist;
-			momy = (thing->y - bombspot->y)/dist;
-		}
 		// must be in direct path
 		P_DamageMobj(thing, bombspot, bombsource, damage); // Tails 01-11-2001
 	}

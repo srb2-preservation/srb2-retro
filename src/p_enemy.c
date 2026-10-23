@@ -470,13 +470,10 @@ boolean P_LookForPlayers(mobj_t *actor, boolean allaround, boolean tracer, fixed
 {
 	INT32 c = 0, stop;
 	player_t *player;
-	sector_t *sector;
 	angle_t an;
 
 	if (P_FreezeObjectplace())
 		return false;
-
-	sector = actor->subsector->sector;
 
 	// BP: first time init, this allow minimum lastlook changes
 	if (actor->lastlook < 0)
@@ -550,9 +547,6 @@ static boolean P_LookForShield(void *thing)
 	mobj_t *actor = thing;
 	INT32 c = 0, stop;
 	player_t *player;
-	sector_t *sector;
-
-	sector = actor->subsector->sector;
 
 	// BP: first time init, this allow minimum lastlook changes
 	if (actor->lastlook < 0)
@@ -3510,9 +3504,6 @@ void A_DetonChase(void *thing)
 	mobj_t *actor = thing;
 	angle_t exact;
 	fixed_t xydist, dist;
-	mobj_t *oldtracer;
-
-	oldtracer = actor->tracer;
 
 	// modify tracer threshold
 	if (!actor->tracer || actor->tracer->health <= 0)
@@ -4210,11 +4201,9 @@ void A_OldRingExplode(void *thing)
 //
 void A_MixUp(void *thing)
 {
-	mobj_t *actor = thing;
 	boolean teleported[MAXPLAYERS];
 	INT32 i, numplayers = 0, prandom = 0;
 
-	actor = NULL;
 	if (!multiplayer)
 		return;
 
@@ -4422,10 +4411,8 @@ void A_MixUp(void *thing)
 //
 void A_RecyclePowers(void *thing)
 {
-	mobj_t *actor = thing;
 	INT32 i, numplayers = 0;
 
-	actor = NULL;
 	if (!multiplayer)
 		return;
 

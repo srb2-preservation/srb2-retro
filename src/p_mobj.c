@@ -2278,7 +2278,6 @@ static void P_SceneryZMovement(mobj_t *mo)
 void P_MobjCheckWater(mobj_t *mobj)
 {
 	sector_t *sector;
-	UINT32 oldeflags;
 	UINT32 wasinwater;
 
 	wasinwater = mobj->eflags & MFE_UNDERWATER; // important: not boolean!
@@ -2288,7 +2287,6 @@ void P_MobjCheckWater(mobj_t *mobj)
 
 	// see if we are in water, and set some flags for later
 	sector = mobj->subsector->sector;
-	oldeflags = mobj->eflags;
 
 	if (sector->ffloors) // 3D water
 	{
@@ -2585,11 +2583,9 @@ static boolean P_CameraCheckWater(camera_t *thiscam)
 void P_DestroyRobots(void)
 {
 	// Search through all the thinkers for enemies.
-	INT32 count;
 	mobj_t *mo;
 	thinker_t *think;
 
-	count = 0;
 	for (think = thinkercap.next; think != &thinkercap; think = think->next)
 	{
 		if (think->function != (actionf_p1)P_MobjThinker)
@@ -2632,7 +2628,6 @@ void P_CameraThinker(player_t *player, camera_t *thiscam)
 	if (thiscam->momx || thiscam->momy)
 	{
 		fixed_t ptryx, ptryy, xmove, ymove;
-		fixed_t oldx, oldy; // reducing bobbing/momentum on ice when up against walls
 
 		if (thiscam->momx > MAXMOVE)
 			thiscam->momx = MAXMOVE;
@@ -2646,9 +2641,6 @@ void P_CameraThinker(player_t *player, camera_t *thiscam)
 
 		xmove = thiscam->momx;
 		ymove = thiscam->momy;
-
-		oldx = thiscam->x;
-		oldy = thiscam->y;
 
 		do
 		{
@@ -2816,10 +2808,8 @@ static void P_PlayerMobjThinker(mobj_t *mobj)
 	{
 		fixed_t watertop;
 		fixed_t waterbottom;
-		boolean roverfound;
 
 		watertop = waterbottom = 0;
-		roverfound = false;
 
 		for (node = mobj->touching_sectorlist; node; node = node->m_snext)
 		{
@@ -2836,7 +2826,6 @@ static void P_PlayerMobjThinker(mobj_t *mobj)
 					{
 						watertop = *rover->topheight;
 						waterbottom = *rover->bottomheight;
-						roverfound = true;
 						break;
 					}
 				}
@@ -3066,11 +3055,8 @@ static boolean P_Look4Players(mobj_t *actor, boolean allaround)
 {
 	INT32 stop, c = 0;
 	player_t *player;
-	sector_t *sector;
 	angle_t an;
 	fixed_t dist;
-
-	sector = actor->subsector->sector;
 
 	// first time init, this allow minimum lastlook changes
 	if (actor->lastlook < 0)
@@ -4530,15 +4516,8 @@ void P_SpawnParaloop(fixed_t x, fixed_t y, fixed_t z, fixed_t radius, INT32 numb
 	TVector v;
 	TVector *res;
 	fixed_t finalx, finaly, finalz, dist;
-	mobj_t hoopcenter;
 	angle_t degrees, fa, closestangle;
 	fixed_t mobjx, mobjy, mobjz;
-
-	hoopcenter.x = x;
-	hoopcenter.y = y;
-	hoopcenter.z = z;
-
-	hoopcenter.z = z - mobjinfo[type].height/2;
 
 	degrees = FINEANGLES/number;
 
@@ -6880,15 +6859,13 @@ void P_RespawnSpecials(void)
 			else
 			{
 				fixed_t yl, yh, xl, xh;
-				fixed_t closex, closey, closedist, newdist;
+				fixed_t closedist, newdist;
 
 				// Essentially check in a 1024 unit radius of the player for an outdoor area.
 				yl = players[displayplayer].mo->y - 1024*FRACUNIT;
 				yh = players[displayplayer].mo->y + 1024*FRACUNIT;
 				xl = players[displayplayer].mo->x - 1024*FRACUNIT;
 				xh = players[displayplayer].mo->x + 1024*FRACUNIT;
-				closex = players[displayplayer].mo->x + 2048*FRACUNIT;
-				closey = players[displayplayer].mo->y + 2048*FRACUNIT;
 				closedist = 2048*FRACUNIT;
 				for (y = yl; y <= yh; y += FRACUNIT*64)
 					for (x = xl; x <= xh; x += FRACUNIT*64)
@@ -6897,11 +6874,7 @@ void P_RespawnSpecials(void)
 						{
 							newdist = S_CalculateSoundDistance(players[displayplayer].mo->x, players[displayplayer].mo->y, 0, x, y, 0);
 							if (newdist < closedist)
-							{
-								closex = x;
-								closey = y;
 								closedist = newdist;
-							}
 						}
 					}
 				volume = 255 - (closedist>>(FRACBITS+2));

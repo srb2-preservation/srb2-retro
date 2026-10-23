@@ -233,7 +233,7 @@ static void D_Display(void)
 {
 	static boolean menuactivestate = false;
 	static gamestate_t oldgamestate = -1;
-	boolean redrawsbar = false, viewactivestate = false;
+	boolean redrawsbar = false;
 	static boolean wipe = false;
 
 	if (dedicated)
@@ -375,7 +375,6 @@ static void D_Display(void)
 	{
 		if (oldgamestate != GS_LEVEL)
 		{
-			viewactivestate = false; // view was not active
 #if 0
 			R_FillBackScreen(); // draw the pattern into the back screen
 #endif
