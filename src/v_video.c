@@ -406,13 +406,13 @@ static void V_DrawTranslucentMappedPatch(INT32 x, INT32 y, INT32 scrn, patch_t *
 
 	if (scrn & V_NOSCALESTART)
 	{
-		desttop = screens[scrn&0xffff] + (y*vid.width) + x;
-		deststop = screens[scrn&0xffff] + vid.width * vid.height * vid.bpp;
+		desttop = screens[scrn&V_PARAMMASK] + (y*vid.width) + x;
+		deststop = screens[scrn&V_PARAMMASK] + vid.width * vid.height * vid.bpp;
 	}
 	else
 	{
-		desttop = screens[scrn&0xffff] + (y*vid.dupy*vid.width) + (x*vid.dupx);
-		deststop = screens[scrn&0xffff] + vid.width * vid.height * vid.bpp;
+		desttop = screens[scrn&V_PARAMMASK] + (y*vid.dupy*vid.width) + (x*vid.dupx);
+		deststop = screens[scrn&V_PARAMMASK] + vid.width * vid.height * vid.bpp;
 
 		// Center it if necessary
 		if (!(scrn & V_NOSCALEPATCH))
@@ -439,7 +439,7 @@ static void V_DrawTranslucentMappedPatch(INT32 x, INT32 y, INT32 scrn, patch_t *
 				V_DrawFill(0, 0, BASEVIDWIDTH, BASEVIDHEIGHT, 31);
 		}
 	}
-	scrn &= 0xffff;
+	scrn &= V_PARAMMASK;
 
 	col = 0;
 	colfrac = FixedDiv(FRACUNIT, dupx<<FRACBITS);
@@ -506,13 +506,13 @@ void V_DrawMappedPatch(INT32 x, INT32 y, INT32 scrn, patch_t *patch, const UINT8
 
 	if (scrn & V_NOSCALESTART)
 	{
-		desttop = screens[scrn&0xffff] + (y*vid.width) + x;
-		deststop = screens[scrn&0xffff] + vid.width * vid.height * vid.bpp;
+		desttop = screens[scrn&V_PARAMMASK] + (y*vid.width) + x;
+		deststop = screens[scrn&V_PARAMMASK] + vid.width * vid.height * vid.bpp;
 	}
 	else
 	{
-		desttop = screens[scrn&0xffff] + (y*vid.dupy*vid.width) + (x*vid.dupx);
-		deststop = screens[scrn&0xffff] + vid.width * vid.height * vid.bpp;
+		desttop = screens[scrn&V_PARAMMASK] + (y*vid.dupy*vid.width) + (x*vid.dupx);
+		deststop = screens[scrn&V_PARAMMASK] + vid.width * vid.height * vid.bpp;
 
 		// Center it if necessary
 		if (!(scrn & V_NOSCALEPATCH))
@@ -539,7 +539,7 @@ void V_DrawMappedPatch(INT32 x, INT32 y, INT32 scrn, patch_t *patch, const UINT8
 				V_DrawFill(0, 0, BASEVIDWIDTH, BASEVIDHEIGHT, 31);
 		}
 	}
-	scrn &= 0xffff;
+	scrn &= V_PARAMMASK;
 
 	col = 0;
 	colfrac = FixedDiv(FRACUNIT, dupx<<FRACBITS);
@@ -1318,8 +1318,8 @@ void V_DrawTranslucentPatch(INT32 x, INT32 y, INT32 scrn, patch_t *patch)
 	colfrac = FixedDiv(FRACUNIT, dupx<<FRACBITS);
 	rowfrac = FixedDiv(FRACUNIT, dupy<<FRACBITS);
 
-	desttop = screens[scrn&0xffff];
-	deststop = screens[scrn&0xffff] + vid.width * vid.height * vid.bpp;
+	desttop = screens[scrn&V_PARAMMASK];
+	deststop = screens[scrn&V_PARAMMASK] + vid.width * vid.height * vid.bpp;
 
 	if (!desttop)
 		return;
@@ -1419,7 +1419,7 @@ void V_DrawPatch(INT32 x, INT32 y, INT32 scrn, patch_t *patch)
 #endif
 
 	desttop = screens[scrn] + y*vid.width + x;
-	deststop = screens[scrn&0xffff] + vid.width * vid.height * vid.bpp;
+	deststop = screens[scrn&V_PARAMMASK] + vid.width * vid.height * vid.bpp;
 	w = SHORT(patch->width);
 
 	for (col = 0; col < w; x++, col++, desttop++)
@@ -1499,7 +1499,7 @@ static void V_BlitScaledPic(INT32 rx1, INT32 ry1, INT32 scrn, pic_t * pic)
 
 	width = SHORT(pic->width);
 	height = SHORT(pic->height);
-	scrn &= 0xffff;
+	scrn &= V_PARAMMASK;
 
 	if (pic->mode != 0)
 	{
