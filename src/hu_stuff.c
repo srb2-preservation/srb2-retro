@@ -496,6 +496,8 @@ static void Got_Saycmd(UINT8 **p, INT32 playernum)
 
 	target = READSINT8(*p);
 	flags = READUINT8(*p);
+	msg = (char *)*p;
+	SKIPSTRING(*p);
 
 	if ((cv_mute.value || (flags & HU_CSAY)) && playernum != serverplayer && playernum != adminplayer)
 	{
@@ -513,9 +515,6 @@ static void Got_Saycmd(UINT8 **p, INT32 playernum)
 		}
 		return;
 	}
-
-	msg = (char *)*p;
-	SKIPSTRING(*p);
 
 	//check for invalid characters (0x80 or above)
 	{

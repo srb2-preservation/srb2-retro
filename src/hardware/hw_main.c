@@ -3784,10 +3784,10 @@ static void HWR_DrawSprite(gr_vissprite_t *spr)
 			{
 				light = R_GetPlaneLight(sector, spr->mobj->z + spr->mobj->height, false);
 
-			if (!(spr->mobj->frame & FF_FULLBRIGHT))
-				lightlevel = *sector->lightlist[light].lightlevel;
-			else
-				lightlevel = 255;
+				if (!(spr->mobj->frame & FF_FULLBRIGHT))
+					lightlevel = *sector->lightlist[light].lightlevel;
+				else
+					lightlevel = 255;
 
 				if (sector->lightlist[light].extra_colormap)
 					colormap = sector->lightlist[light].extra_colormap;
@@ -4701,7 +4701,7 @@ static void HWR_DrawSkyBackground(player_t *player)
 	v[0].y = v[1].y = -4.0f;
 	v[2].y = v[3].y =  4.0f;
 
-	v[0].z = v[1].z = v[2].z = v[3].z = 4.0f;	
+	v[0].z = v[1].z = v[2].z = v[3].z = 4.0f;
 
 	// NOTE: This doesn't work right with texture widths greater than 1024
 	// software doesn't draw any further than 1024 for skies anyway, but this doesn't overlap properly
@@ -4716,7 +4716,7 @@ static void HWR_DrawSkyBackground(player_t *player)
 
 	// Y
 	angle = aimingangle;
-	
+
 	float aspectratio = (float)vid.width/(float)vid.height;
 	dimensionmultiply = ((float)textures[skytexture]->height/(128.0f*aspectratio));
 	float angleturn = (((float)ANGLE_45-1.0f)*aspectratio)*dimensionmultiply;

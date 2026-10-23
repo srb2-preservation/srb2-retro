@@ -607,11 +607,11 @@ void V_DrawScaledPatch(INT32 x, INT32 y, INT32 scrn, patch_t *patch)
 	y -= SHORT(patch->topoffset);
 	x -= SHORT(patch->leftoffset);
 
-    // Only use one dup, to avoid stretching.
-    if (dupx < dupy)
-        dupy = dupx;
-    else
-        dupx = dupy;
+	// Only use one dup, to avoid stretching.
+	if (dupx < dupy)
+		dupy = dupx;
+	else
+		dupx = dupy;
 
 	colfrac = FixedDiv(FRACUNIT, dupx<<FRACBITS);
 	rowfrac = FixedDiv(FRACUNIT, dupy<<FRACBITS);

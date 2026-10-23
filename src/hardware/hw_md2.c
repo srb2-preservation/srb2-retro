@@ -1106,8 +1106,8 @@ void HWR_DrawMD2(gr_vissprite_t *spr)
 			{
 				light = R_GetPlaneLight(sector, spr->mobj->z + spr->mobj->height, false);
 
-			if (!(spr->mobj->frame & FF_FULLBRIGHT))
-				lightlevel = *sector->lightlist[light].lightlevel;
+				if (!(spr->mobj->frame & FF_FULLBRIGHT))
+					lightlevel = *sector->lightlist[light].lightlevel;
 
 				if (sector->lightlist[light].extra_colormap)
 					colormap = sector->lightlist[light].extra_colormap;
