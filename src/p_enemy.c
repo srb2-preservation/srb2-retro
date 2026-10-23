@@ -4041,7 +4041,7 @@ void A_RingExplode(void *thing)
 	mobj_t *actor = thing;
 	mobj_t *mo2;
 	thinker_t *th;
-	INT32 d;
+	angle_t d;
 
 	for (d = 0; d < 16; d++)
 		P_SpawnParaloop(actor->x, actor->y, actor->z + actor->height, actor->info->painchance, 16, MT_NIGHTSPARKLE, d*(ANGLE_22h), true, false);
