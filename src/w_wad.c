@@ -290,6 +290,8 @@ UINT16 W_LoadWadFile(const char *filename)
 		return INT16_MAX;
 	}
 
+	important = !W_VerifyNMUSlumps(filename);
+
 	// detect dehacked file with the "soc" extension
 	if (!stricmp(&filename[strlen(filename) - 4], ".soc"))
 	{
