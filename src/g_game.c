@@ -3185,6 +3185,7 @@ void G_DoPlayDemo(char *defdemoname)
 	// read demo header
 	gameaction = ga_nothing;
 	(void)READUINT8(demo_p); // ultmode
+	(void)READUINT8(demo_p); // map
 
 	(void)READUINT8(demo_p);
 
