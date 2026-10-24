@@ -3695,7 +3695,8 @@ void P_PlayerEmeraldBurst(player_t *player, boolean toss)
 
 			P_SetObjectMomZ(mo, 3*FRACUNIT, false);
 
-			if (player->mo->eflags * MFE_VERTICALFLIP)
+			//if (player->mo->eflags & MFE_VERTICALFLIP) should be here but isn't in order to maintain 2.0's original behavior, so instead
+			if (player->mo->eflags /** MFE_VERTICALFLIP*/)
 				mo->momz = -mo->momz;
 
 			if (toss)
