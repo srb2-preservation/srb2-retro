@@ -1160,11 +1160,12 @@ bustupdone:
 	if (mo->type == MT_FIREBALL || mo->type == MT_SHELL)
 		return;
 
-	if (((mo->flags & MF_MISSILE) || (mo->flags2 & MF2_SKULLFLY))
-		&& !mo->type == MT_DETON)
-	{
-		return; // no friction for missiles ever
-	}
+	//if (((mo->flags & MF_MISSILE) || (mo->flags2 & MF2_SKULLFLY))
+	//	&& !(mo->type == MT_DETON))
+	//{
+	//	return; // no friction for missiles ever
+	//}
+	// should be here but isn't in order to maintain 2.0's original behavior
 
 	if (mo->flags & MF_MISSILE)
 		return;
