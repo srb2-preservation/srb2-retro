@@ -127,6 +127,7 @@ UINT8 *PutFileNeeded(void)
 		else
 			filestatus += (1 << 4); // will send if requested
 
+		nameonly(strcpy(wadfilename, wadfiles[i]->filename));
 		bytesused += (nameonlylength(wadfilename) + 22);
 
 		// Don't write too far...
@@ -137,7 +138,6 @@ UINT8 *PutFileNeeded(void)
 
 		count++;
 		WRITEUINT32(p, wadfiles[i]->filesize);
-		nameonly(strcpy(wadfilename, wadfiles[i]->filename));
 		WRITESTRINGN(p, wadfilename, MAX_WADPATH);
 		WRITEMEM(p, wadfiles[i]->md5sum, 16);
 	}
