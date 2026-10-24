@@ -1640,7 +1640,7 @@ void R_SortVisSprites(void)
 	size_t       i, count;
 	vissprite_t *ds;
 	vissprite_t *best = NULL;
-	vissprite_t  unsorted;
+	static vissprite_t  unsorted;
 	fixed_t      bestscale;
 
 	count = vissprite_p - vissprites;
@@ -2387,7 +2387,7 @@ void R_InitSkins(void)
 #ifdef HWRENDER
 	if (rendermode == render_opengl)
 		HWR_AddPlayerMD2(0);
-#endif	
+#endif
 }
 
 static void R_DoSkinTranslationInit(void)
