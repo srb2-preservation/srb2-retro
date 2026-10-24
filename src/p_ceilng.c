@@ -89,6 +89,7 @@ void T_MoveCeiling(ceiling_t *ceiling)
 						if (ceiling->texture > -1) // flat changing
 							ceiling->sector->ceilingpic = ceiling->texture;
 						// don't break
+						/* FALLTHRU */
 					case raiseToHighest:
 					case raiseCeilingByLine:
 						ceiling->sector->ceilingdata = NULL;
@@ -190,6 +191,7 @@ void T_MoveCeiling(ceiling_t *ceiling)
 					// except generalized ones, reset speed, start back up
 					case crushAndRaise:
 						ceiling->speed = CEILSPEED;
+						/* FALLTHRU */
 					case fastCrushAndRaise:
 						ceiling->direction = 1;
 						break;
@@ -208,6 +210,7 @@ void T_MoveCeiling(ceiling_t *ceiling)
 						if (ceiling->texture > -1) // flat changing
 							ceiling->sector->ceilingpic = ceiling->texture;
 						// don't break
+						/* FALLTHRU */
 
 					// in all other cases, just remove the active ceiling
 					case lowerAndCrush:
@@ -440,6 +443,7 @@ INT32 EV_DoCeiling(line_t *line, ceiling_e type)
 			case crushAndRaise:
 				ceiling->crush = true;
 				ceiling->topheight = sec->ceilingheight;
+				/* FALLTHRU */
 			case lowerAndCrush:
 				ceiling->bottomheight = sec->floorheight;
 				ceiling->bottomheight += 4*FRACUNIT;

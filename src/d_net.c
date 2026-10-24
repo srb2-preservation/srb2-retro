@@ -768,6 +768,7 @@ static void DebugPrintpacket(const char *header)
 			fprintf(debugfile, "    friction %d movefactor %d tics %d statenum %d\n",
 				netbuffer->u.consistency.friction, netbuffer->u.consistency.movefactor,
 				netbuffer->u.consistency.tics, (INT32)netbuffer->u.consistency.statenum);
+			break;
 		case PT_CLIENTCMD:
 		case PT_CLIENT2CMD:
 		case PT_CLIENTMIS:

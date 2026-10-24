@@ -938,6 +938,7 @@ void HWR_DrawCoronas(void)
 			case ROCKET_SPR:
 				Surf.FlatColor.s.alpha = (UINT8)((M_Random()>>1)&0xff);
 				// don't need a break
+				/* FALLTHRU */
 			case CORONA_SPR:
 				size  = p_lspr->corona_radius  * ((cz+60.0f)/100.0f); // d'ou vienne ces constante ?
 				break;

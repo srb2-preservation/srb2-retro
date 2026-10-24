@@ -1003,6 +1003,7 @@ static void CL_ConnectToServer(boolean viams)
 					break; // exit the case
 
 				cl_mode = cl_askjoin; // don't break case continue to cljoin request now
+				/* FALLTHRU */
 			case cl_askjoin:
 				CL_LoadServerFiles();
 #ifdef JOININGAME
@@ -2935,6 +2936,7 @@ FILESTAMP
 				break;
 			case PT_TEXTCMD2: // splitscreen special
 				netconsole = nodetoplayer2[node];
+				/* FALLTHRU */
 			case PT_TEXTCMD:
 				if (!server)
 					break;

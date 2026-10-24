@@ -5594,6 +5594,7 @@ void P_MobjThinker(mobj_t *mobj)
 			else
 				mobj->z = mobj->floorz+1;
 			// THERE IS NO BREAK HERE ON PURPOSE
+			/* FALLTHRU */
 		default:
 			// check mobj against possible water content, before movement code
 			P_MobjCheckWater(mobj);
@@ -6412,6 +6413,7 @@ mobj_t *P_SpawnMobj(fixed_t x, fixed_t y, fixed_t z, mobjtype_t type)
 		case MT_BLUEBALL:
 #endif
 			nummaprings++;
+			/* FALLTHRU */
 		case MT_BOUNCERING:
 		case MT_RAILRING:
 		case MT_AUTOMATICRING:
@@ -8625,6 +8627,8 @@ mobj_t *P_SpawnMissile(mobj_t *source, mobj_t *dest, mobjtype_t type)
 			break;
 		case MT_TURRETLASER:
 			z = source->z + source->height/2;
+			//break; should be here but isn't in order to maintain 2.0's original behavior, so instead
+			/* FALLTHRU */
 		default:
 			z = source->z + 32*FRACUNIT;
 			break;
