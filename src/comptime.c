@@ -11,12 +11,14 @@
 #include "config.h"
 const char *compbranch = ""; // hell if I know what to do with cmake
 const char *comprevision = SRB2_COMP_REVISION;
+const char *compnote = SRB2_COMP_NOTE;
 
 #elif (defined(COMPVERSION))
 #include "comptime.h"
 #else
 const char *compbranch = "Unknown";
 const char *comprevision = "illegal";
+const char *compnote = "";
 #endif
 
 const char *compdate = __DATE__;

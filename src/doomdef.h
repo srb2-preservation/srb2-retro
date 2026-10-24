@@ -97,6 +97,9 @@
 extern FILE *logstream;
 #endif
 
+// Define this as a prerelease version suffix
+#define BETAVERSION "Nightly"
+
 //#define DEVELOP // Disable this for release builds to remove excessive cheat commands and enable MD5 checking and stuff, all in one go. :3
 #ifdef DEVELOP
 #define VERSION    0 // Game version
@@ -108,8 +111,13 @@ extern FILE *logstream;
 #else
 #define VERSION    200 // Game version
 #define SUBVERSION 7   // more precise version number
+#ifdef BETAVERSION
+#define VERSIONSTRING "v2.0.7 "BETAVERSION
+#define VERSIONSTRINGW L"v2.0.7 "BETAVERSION
+#else
 #define VERSIONSTRING "v2.0.7"
 #define VERSIONSTRINGW L"v2.0.7"
+#endif
 // Hey! If you change this, add 1 to the MODVERSION below!
 // Otherwise we can't force updates!
 #endif
@@ -254,7 +262,7 @@ INT32 I_GetKey(void);
 #endif
 
 // Compile date and time and revision.
-extern const char *compdate, *comptime, *comprevision, *compbranch;
+extern const char *compdate, *comptime, *comprevision, *compbranch, *compnote;
 
 // Disabled code and code under testing
 

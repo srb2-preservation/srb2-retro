@@ -1,6 +1,7 @@
 @ECHO OFF
 set BRA=Unknown
 set REV=illegal
+set GL1=
 
 copy nul: /b +%1\comptime.c tmp.$$$ > nul
 move tmp.$$$ %1\comptime.c > nul
@@ -14,6 +15,7 @@ set GIT=%2
 if "%GIT%"=="" set GIT=git
 FOR /F "usebackq" %%s IN (`%GIT% rev-parse --abbrev-ref HEAD`) DO @SET BRA=%%s
 FOR /F "usebackq" %%s IN (`%GIT% rev-parse HEAD`) DO @SET REV=%%s
+FOR /F "usebackq" %%s IN (`%GIT% rev-parse HEAD`) DO @SET GL1=%%s
 set REV=%REV:~0,8%
 goto filwri
 
@@ -28,3 +30,4 @@ ECHO // by the %0 batch file >> %1\comptime.h
 ECHO // >> %1\comptime.h
 ECHO const char* compbranch = "%BRA%"; >> %1\comptime.h
 ECHO const char* comprevision = "%REV%"; >> %1\comptime.h
+ECHO const char* compnote = "%GL1%"; >> %1\comptime.h
