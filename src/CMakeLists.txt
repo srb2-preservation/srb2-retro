@@ -263,6 +263,11 @@ add_library(SRB2Core STATIC
 	${SRB2_CORE_GAME_SOURCES}
 )
 
+target_include_directories(SRB2Core PRIVATE
+	${PNG_INCLUDE_DIRS}
+	${ZLIB_INCLUDE_DIRS}
+)
+
 add_subdirectory(sdl)
 
 if(${CMAKE_SYSTEM} MATCHES Windows)

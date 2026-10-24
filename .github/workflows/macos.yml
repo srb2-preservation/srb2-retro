@@ -34,7 +34,7 @@ jobs:
           cd ../../
 
     - name: Configure CMake
-      run: cmake -B build -G Ninja -DCMAKE_BUILD_TYPE=Release -DSRB2_CONFIG_HAVE_PNG=OFF
+      run: cmake -B build -G Ninja -DCMAKE_BUILD_TYPE=Release
 
     - name: Build SRB2 Retro
       run: ninja -C build
