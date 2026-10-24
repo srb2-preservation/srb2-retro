@@ -559,9 +559,8 @@ UINT16 W_CheckNumForNamePwad(const char *name, UINT16 wad, UINT16 startlump)
 	UINT16 i;
 	static char uname[9];
 
-	memset(uname, 0x00, sizeof uname);
-	strncpy(uname, name, 8);
-	uname[8] = 0;
+	memset(uname, 0, sizeof uname);
+	memcpy(uname, name, strnlen(name, sizeof(uname)-1));
 	strupr(uname);
 
 	if (!TestValidLump(wad,0))

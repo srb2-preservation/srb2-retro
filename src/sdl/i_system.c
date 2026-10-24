@@ -2671,7 +2671,7 @@ char *I_GetUserName(void)
 	static char username[MAXPLAYERNAME] = "PSPUSER";
 	return username;
 #elif !(defined (_WIN32_WCE) || defined (_XBOX))
-	static char username[MAXPLAYERNAME];
+	static char username[MAXPLAYERNAME+1];
 	char *p;
 #ifdef _WIN32
 	DWORD i = MAXPLAYERNAME;

@@ -1704,8 +1704,8 @@ void HU_SetCEchoFlags(INT32 flags)
 
 void HU_DoCEcho(const char *msg)
 {
-	strncpy(cechotext, msg, sizeof(cechotext));
-	strncat(cechotext, "\\", sizeof(cechotext));
+	strlcpy(cechotext, msg, sizeof(cechotext));
+	strlcat(cechotext, "\\", sizeof(cechotext));
 	cechotext[sizeof(cechotext) - 1] = '\0';
 	cechotimer = cechoduration;
 }

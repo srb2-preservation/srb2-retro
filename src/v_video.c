@@ -264,13 +264,14 @@ static void LoadPalette(const char *lumpname)
 
 const char *R_GetPalname(UINT16 num)
 {
-	static char palname[9];
-	char newpal[9] = "PLAYPAL";
+	static char palname[8+1];
+	char newpal[9] = "PLAYPAL\0";
 
 	if (num <= 9999)
 		snprintf(newpal, 8, "PAL%04u", num-1);
 
-	strncpy(palname, newpal, 8);
+	strncpy(palname, newpal, sizeof(palname)-1);
+	palname[8] = 0;
 	return palname;
 }
 
@@ -1928,7 +1929,7 @@ static void V_DrawWordWrapString(INT32 x, INT32 y, INT32 option, const char *str
 	int c;
 	size_t nx = x, i, lastusablespace = 0;
 
-	strncpy(newstring, string, 1024);
+	strlcpy(newstring, string, sizeof(newstring));
 
 	for (i = 0; i < strlen(newstring); i++)
 	{

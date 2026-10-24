@@ -127,10 +127,10 @@ void DEH_WriteUndoline(const char *value, const char *data, undotype_f flags)
 		strncat(undata, value, vlen);
 
 		if (data) // value+pader+data
-			strncat(strncat(undata, pader, plen), data, dlen);
+			strncat(strcat(undata, pader), data, dlen);
 
 		if (flags & UNDO_ENDTEXT) // let end the text
-			strncat(undata, pound, elen);
+			strcat(undata, pound);
 	}
 	else
 		newdata->undata = NULL;
@@ -1969,8 +1969,12 @@ static void readmaincfg(MYFILE *f)
 				savemoddata = true;
 
 				// Also save a time attack folder
-				filenamelen = strlen(gamedatafilename)-4;  // Strip off the extension
-				strncpy(timeattackfolder, gamedatafilename, min(filenamelen, sizeof (timeattackfolder)));
+				filenamelen = strlen(gamedatafilename);  // Strip off the extension
+				if (filenamelen >= 4)
+					filenamelen -= 4;
+				if (filenamelen >= sizeof(timeattackfolder))
+					filenamelen = sizeof(timeattackfolder)-1;
+				strncpy(timeattackfolder, gamedatafilename, filenamelen);
 				timeattackfolder[min(filenamelen, sizeof (timeattackfolder) - 1)] = '\0';
 
 				strncpy(savegamename, timeattackfolder, sizeof (timeattackfolder));
