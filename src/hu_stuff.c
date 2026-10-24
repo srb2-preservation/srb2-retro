@@ -773,7 +773,7 @@ void HU_clearChatChars(void)
 //
 boolean HU_Responder(event_t *ev)
 {
-	static boolean shiftdown = false, altdown = false;
+	static boolean shiftdown = false;
 	boolean eatkey = false;
 	UINT8 c;
 
@@ -783,10 +783,7 @@ boolean HU_Responder(event_t *ev)
 		return chat_on;
 	}
 	else if (ev->data1 == KEY_LALT || ev->data1 == KEY_RALT)
-	{
-		altdown = (ev->type == ev_keydown);
 		return false;
-	}
 
 	if (ev->type != ev_keydown)
 		return false;

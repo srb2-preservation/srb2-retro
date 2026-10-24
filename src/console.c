@@ -106,7 +106,6 @@ static void CON_RecalcSize(void);
 
 static void CONS_hudlines_Change(void);
 static void CONS_speed_Change(void);
-static void CONS_backcolor_Change(void);
 
 //======================================================================
 //                   CONSOLE VARS AND COMMANDS

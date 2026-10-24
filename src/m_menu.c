@@ -8805,7 +8805,6 @@ void M_Init(void)
 
 #ifdef HWRENDER
 
-static void M_DrawOpenGLMenu(void);
 static void M_OGL_DrawFogMenu(void);
 static void M_OGL_DrawColorMenu(void);
 static void M_HandleFogColor(INT32 choice);
@@ -8860,7 +8859,7 @@ menu_t OpenGLOptionDef =
 	sizeof (OpenGLOptionsMenu)/sizeof (menuitem_t),
 	&VideoOptionsDef,
 	OpenGLOptionsMenu,
-	M_DrawOpenGLMenu,
+	M_DrawGenericMenu,
 	30, 40,
 	0,
 	NULL
@@ -8906,20 +8905,6 @@ menu_t OGL_ColorDef =
 	0,
 	NULL
 };
-//======================================================================
-// M_DrawOpenGLMenu()
-//======================================================================
-static void M_DrawOpenGLMenu(void)
-{
-	INT32 mx, my;
-
-	mx = OpenGLOptionDef.x;
-	my = OpenGLOptionDef.y;
-	M_DrawGenericMenu(); // use generic drawer for cursor, items and title
-//	V_DrawString(BASEVIDWIDTH - mx - V_StringWidth(cv_scr_depth.string),
-//		my + currentMenu->menuitems[2].alphaKey, V_YELLOWMAP, cv_scr_depth.string);
-}
-
 #define FOG_COLOR_ITEM  1
 //======================================================================
 // M_OGL_DrawFogMenu()

@@ -2817,22 +2817,14 @@ void A_ThrownRing(void *thing)
 
 	if (leveltime % (TICRATE/7) == 0)
 	{
-		mobj_t *ring = NULL;
-
 		if (actor->flags2 & MF2_EXPLOSION)
-			ring = P_SpawnMobj(actor->x, actor->y, actor->z, MT_SMOK);
+			P_SpawnMobj(actor->x, actor->y, actor->z, MT_SMOK);
 		else if (actor->flags2 & MF2_AUTOMATIC)
-			ring = P_SpawnGhostMobj(actor);
+			P_SpawnGhostMobj(actor);
 		else if (!(actor->flags2 & MF2_RAILRING))
-			ring = P_SpawnMobj(actor->x, actor->y, actor->z, MT_SPARK);
+			P_SpawnMobj(actor->x, actor->y, actor->z, MT_SPARK);
 		else if (!(actor->flags2 & MF2_GRENADE))
-			ring = P_SpawnMobj(actor->x, actor->y, actor->z, MT_SUPERSPARK);
-
-/*		if (ring)
-		{
-			P_SetTarget(&ring->target, actor);
-			ring->color = actor->color; //copy color
-		}*/
+			P_SpawnMobj(actor->x, actor->y, actor->z, MT_SUPERSPARK);
 	}
 
 	// decrement bounce ring time
@@ -2954,7 +2946,6 @@ static mobj_t *grenade;
 
 static inline boolean PIT_GrenadeRing(mobj_t *thing)
 {
-	mobj_t *actor = thing;
 	if (!grenade)
 		return true;
 
@@ -4294,7 +4285,7 @@ void A_MixUp(void *thing)
 	{
 		fixed_t position[MAXPLAYERS][3];
 		angle_t anglepos[MAXPLAYERS];
-		INT32 pindex[MAXPLAYERS], counter = 0, teleportfrom = 0;
+		INT32 counter = 0, teleportfrom = 0;
 
 		// Zoom tube stuff
 		mobj_t *transtracer[MAXPLAYERS]; //tracer
@@ -4303,7 +4294,7 @@ void A_MixUp(void *thing)
 
 		for (i = 0; i < MAXPLAYERS; i++)
 		{
-			position[i][0] = position[i][1] = position[i][2] = anglepos[i] = pindex[i] = -1;
+			position[i][0] = position[i][1] = position[i][2] = anglepos[i] = -1;
 			teleported[i] = false;
 		}
 
@@ -4318,7 +4309,6 @@ void A_MixUp(void *thing)
 				position[counter][0] = players[i].mo->x;
 				position[counter][1] = players[i].mo->y;
 				position[counter][2] = players[i].mo->z;
-				pindex[counter] = i;
 				anglepos[counter] = players[i].mo->angle;
 				players[i].mo->momx = players[i].mo->momy = players[i].mo->momz =
 					players[i].rmomx = players[i].rmomy = 1;
@@ -4473,7 +4463,7 @@ void A_RecyclePowers(void *thing)
 		INT32 temp[MAXPLAYERS][NUMPOWERS];
 		INT32 weapons[MAXPLAYERS];
 		INT32 weaponheld[MAXPLAYERS];
-		INT32 pindex[MAXPLAYERS], counter = 0, j = 0, prandom = 0, recyclefrom = 0;
+		INT32 counter = 0, j = 0, prandom = 0, recyclefrom = 0;
 
 		for (i = 0; i < MAXPLAYERS; i++)
 		{
@@ -4481,7 +4471,6 @@ void A_RecyclePowers(void *thing)
 				&& players[i].mo && players[i].mo->health > 0 && !players[i].exiting && !players[i].powers[pw_super]
 				&& !((netgame || multiplayer) && players[i].spectator))
 			{
-				pindex[counter] = i;
 				for (j = 0; j < NUMPOWERS; j++)
 					temp[counter][j] = players[i].powers[j];
 				//1.1: ring weapons too

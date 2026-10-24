@@ -73,8 +73,6 @@ static void HWR_Add3DWater(lumpnum_t lumpnum, extrasubsector_t *xsub, fixed_t fi
 static void HWR_Render3DWater(void);
 static void HWR_RenderTransparentWalls(void);
 #endif
-static void HWR_FoggingOn(void);
-static UINT32 atohex(const char *s);
 
 static void CV_filtermode_ONChange(void);
 static void CV_anisotropic_ONChange(void);
@@ -4434,7 +4432,7 @@ static void HWR_ProjectSprite(mobj_t *thing)
 	gr_vissprite_t *vis;
 	float tr_x, tr_y;
 	float tx, tz;
-	float x1, x2;
+	float x1;
 	spritedef_t *sprdef;
 	spriteframe_t *sprframe;
 	size_t lumpoff;
@@ -4527,17 +4525,8 @@ static void HWR_ProjectSprite(mobj_t *thing)
 	// calculate edges of the shape
 	tx -= FIXED_TO_FLOAT(spritecachedinfo[lumpoff].offset);
 
-	// project x
-	x1 = gr_windowcenterx + (tx * gr_centerx / tz);
-
-	//faB : tr_x doesnt matter
-	// hurdler: it's used in cliptosolidsegs
-	tr_x = x1;
-
 	x1 = tx;
-
 	tx += FIXED_TO_FLOAT(spritecachedinfo[lumpoff].width);
-	x2 = gr_windowcenterx + (tx * gr_centerx / tz);
 
 	//
 	// store information in a vissprite
@@ -4594,7 +4583,7 @@ static void HWR_ProjectPrecipitationSprite(precipmobj_t *thing)
 	gr_vissprite_t *vis;
 	float tr_x, tr_y;
 	float tx, tz;
-	float x1, x2;
+	float x1;
 	spritedef_t *sprdef;
 	spriteframe_t *sprframe;
 	size_t lumpoff;
@@ -4642,17 +4631,8 @@ static void HWR_ProjectPrecipitationSprite(precipmobj_t *thing)
 	// calculate edges of the shape
 	tx -= FIXED_TO_FLOAT(spritecachedinfo[lumpoff].offset);
 
-	// project x
-	x1 = gr_windowcenterx + (tx * gr_centerx / tz);
-
-	//faB : tr_x doesnt matter
-	// hurdler: it's used in cliptosolidsegs
-	tr_x = x1;
-
 	x1 = tx;
-
 	tx += FIXED_TO_FLOAT(spritecachedinfo[lumpoff].width);
-	x2 = gr_windowcenterx + (tx * gr_centerx / tz);
 
 	//
 	// store information in a vissprite
@@ -4885,68 +4865,6 @@ void HWR_RenderPlayerView(INT32 viewnumber, player_t *player)
 	//------------------------------------------------------------------------
 	HWR_ClearView();
 
-	/* // I don't think this is ever used.
-	if (cv_grfog.value)
-	{
-		camera_t *camview;
-
-		HWR_FoggingOn(); // First of all, turn it on, set the default user settings too
-
-		if (splitscreen && player == &players[secondarydisplayplayer])
-			camview = &camera2;
-		else
-			camview = &camera;
-
-		if (viewsector)// && player->mo->subsector->sector->extra_colormap)
-		{
-			if (viewsector->ffloors)
-			{
-				ffloor_t *rover;
-
-				for (rover = viewsector->ffloors; rover; rover = rover->next)
-				{
-					if (!(rover->flags & FF_EXISTS) || !(rover->flags & FF_SWIMMABLE) || rover->flags & FF_SOLID)
-						continue;
-
-					if (*rover->topheight <= camview->z
-						|| *rover->bottomheight > (camview->z + (camview->height >> 1)))
-						continue;
-
-					if (camview->z + (camview->height >> 1) < *rover->topheight)
-					{
-						UINT32 sectorcolormap; // RGBA value of the sector's colormap
-						RGBA_t rgbcolor; // Convert the value from UINT32 to RGA_t
-						UINT32 fogvalue; // convert the color to FOG from RGBA to RGB
-
-						if (!(rover->master->frontsector->extra_colormap)) // See if there's a colormap in this FOF
-							continue;
-
-						sectorcolormap = rover->master->frontsector->extra_colormap->rgba;
-
-						rgbcolor.rgba = sectorcolormap;
-
-						fogvalue = (rgbcolor.s.red*0x10000)+(rgbcolor.s.green*0x100)+rgbcolor.s.blue;
-
-						HWD.pfnSetSpecialState(HWD_SET_FOG_COLOR, fogvalue);
-						HWD.pfnSetSpecialState(HWD_SET_FOG_DENSITY, cv_grfogdensity.value+128);
-
-					}
-
-				}
-			}
-
-		}
-		else // no custom fog?
-		{
-			HWD.pfnSetSpecialState(HWD_SET_FOG_COLOR, atohex(cv_grfogcolor.string));
-			HWD.pfnSetSpecialState(HWD_SET_FOG_DENSITY, cv_grfogdensity.value);
-		}
-
-	}
-	else
-		HWD.pfnSetSpecialState(HWD_SET_FOG_MODE, 0); // Turn it off
-		*/
-
 	if (drawsky)
 		HWR_DrawSkyBackground(player);
 
@@ -5054,49 +4972,6 @@ void HWR_RenderPlayerView(INT32 viewnumber, player_t *player)
 	// added by Hurdler for correct splitscreen
 	// moved here by hurdler so it works with the new near clipping plane
 	HWD.pfnGClipRect(0, 0, vid.width, vid.height, NZCLIP_PLANE);
-}
-
-// ==========================================================================
-//                                                                        FOG
-// ==========================================================================
-
-/// \author faB
-
-static UINT32 atohex(const char *s)
-{
-	INT32 iCol;
-	const char *sCol;
-	char cCol;
-	INT32 i;
-
-	if (strlen(s)<6)
-		return 0;
-
-	iCol = 0;
-	sCol = s;
-	for (i = 0; i < 6; i++, sCol++)
-	{
-		iCol <<= 4;
-		cCol = *sCol;
-		if (cCol >= '0' && cCol <= '9')
-			iCol |= cCol - '0';
-		else
-		{
-			if (cCol >= 'F')
-				cCol -= 'a' - 'A';
-			if (cCol >= 'A' && cCol <= 'F')
-				iCol = iCol | (cCol - 'A' + 10);
-		}
-	}
-	//CONS_Printf("col %x\n", iCol);
-	return iCol;
-}
-
-static void HWR_FoggingOn(void)
-{
-	HWD.pfnSetSpecialState(HWD_SET_FOG_COLOR, atohex(cv_grfogcolor.string));
-	HWD.pfnSetSpecialState(HWD_SET_FOG_DENSITY, cv_grfogdensity.value);
-	HWD.pfnSetSpecialState(HWD_SET_FOG_MODE, 1);
 }
 
 // ==========================================================================

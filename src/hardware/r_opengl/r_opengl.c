@@ -263,10 +263,6 @@ FUNCPRINTF void DBG_Printf(const char *lpFmt, ...)
 
 /* GLU functions */
 #define pgluBuild2DMipmaps gluBuild2DMipmaps
-
-/* 1.3 functions for multitexturing */
-#define pglActiveTexture glActiveTexture
-#define pglMultiTexCoord2f glMultiTexCoord2f
 #endif
 #else //!STATIC_OPENGL
 
@@ -392,11 +388,6 @@ static PFNglCopyTexImage2D pglCopyTexImage2D;
 /* GLU functions */
 typedef GLint (APIENTRY * PFNgluBuild2DMipmaps) (GLenum target, GLint internalFormat, GLsizei width, GLsizei height, GLenum format, GLenum type, const void *data);
 static PFNgluBuild2DMipmaps pgluBuild2DMipmaps;
-
-/* 1.3 functions for multitexturing */
-typedef void (APIENTRY *PFNglActiveTexture) (GLenum);
-static PFNglActiveTexture pglActiveTexture;
-typedef void (APIENTRY *PFNglMultiTexCoord2f) (GLenum, GLfloat, GLfloat);
 
 #endif
 
@@ -2236,10 +2227,7 @@ EXPORT void HWRAPI(DrawScreenFinalTexture)(int width, int height)
 	float origaspect, newaspect;
 	float xoff = 1, yoff = 1; // xoffset and yoffset for the polygon to have black bars around the screen
 	FRGBAFloat clearColour;
-	int lmaxx;
 	INT32 texsize = 2048;
-
-	lmaxx = width < screen_width ? screen_width : width;
 
 	if(screen_width <= 1024)
 		texsize = 1024;
