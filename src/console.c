@@ -835,7 +835,8 @@ boolean CON_Responder(event_t *ev)
 		}
 		else
 		{
-			strcpy(inputlines[inputline], inputlines[inputhist]);
+			// memmove, not strcpy: GCC can't tell inputhist != inputline here (-Wrestrict)
+			memmove(inputlines[inputline], inputlines[inputhist], strlen(inputlines[inputhist]) + 1);
 			input_cx = strlen(inputlines[inputline]);
 		}
 		return true;
