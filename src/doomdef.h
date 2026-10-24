@@ -194,7 +194,15 @@ extern FILE *logstream;
 void I_Error(const char *error, ...) FUNCIERROR;
 
 // console.h
+typedef enum
+{
+	CONS_NOTICE,
+	CONS_WARNING,
+	CONS_ERROR
+} alerttype_t;
+
 void CONS_Printf(const char *fmt, ...) FUNCPRINTF;
+void CONS_Alert(alerttype_t level, const char *fmt, ...) FUNCDEBUG;
 
 #include "m_swap.h"
 

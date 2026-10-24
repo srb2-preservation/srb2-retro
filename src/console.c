@@ -39,6 +39,7 @@
 #include "i_system.h"
 #include "d_main.h"
 #include "m_menu.h"
+#include "filesrch.h" // refreshdirmenu
 
 #ifdef _WINDOWS
 #include "win32/win_main.h"
@@ -1065,6 +1066,39 @@ void CONS_Printf(const char *fmt, ...)
 		I_FinishUpdate(); // page flip or blit buffer
 #endif
 	}
+}
+
+void CONS_Alert(alerttype_t level, const char *fmt, ...)
+{
+	va_list argptr;
+	static char *txt = NULL;
+
+	if (txt == NULL)
+		txt = malloc(8192);
+
+	va_start(argptr, fmt);
+	vsnprintf(txt, 8192, fmt, argptr);
+	va_end(argptr);
+
+	switch (level)
+	{
+		case CONS_NOTICE:
+			// no notice for notices, hehe
+			CONS_Printf("\x83" "%s" "\x80 ", M_GetText("NOTICE:"));
+			break;
+		case CONS_WARNING:
+			refreshdirmenu |= REFRESHDIR_WARNING;
+			CONS_Printf("\x82" "%s" "\x80 ", M_GetText("WARNING:"));
+			break;
+		case CONS_ERROR:
+			refreshdirmenu |= REFRESHDIR_ERROR;
+			CONS_Printf("\x85" "%s" "\x80 ", M_GetText("ERROR:"));
+			break;
+	}
+
+	// I am lazy and I feel like just letting CONS_Printf take care of things.
+	// Is that okay?
+	CONS_Printf("%s", txt);
 }
 
 // Print an error message, and wait for ENTER key to continue.
