@@ -898,7 +898,7 @@ static void IdentifyVersion(void)
 	D_AddFile(va(pandf,srb2waddir,"drill.dta")); //drill.dta
 	D_AddFile(va(pandf,srb2waddir,"soar.dta")); //soar.dta
 
-	if (FIL_ReadFileOK(va(pandf,srb2waddir,"retro.wad"))) 
+	if (FIL_ReadFileOK(va(pandf,srb2waddir,"retro.wad")))
 	{
 		D_AddFile(va(pandf,srb2waddir,"retro.wad"));
 		retrowad_loaded = true;
@@ -1341,7 +1341,8 @@ void D_SRB2Main(void)
 
 	if (M_CheckParm("-ultimatemode"))
 	{
-		autostart = ultimatemode = true;
+		autostart = true;
+		ultimatemode = true;
 	}
 
 	if (autostart || netgame || M_CheckParm("+connect") || M_CheckParm("-connect"))

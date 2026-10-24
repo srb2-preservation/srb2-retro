@@ -4378,7 +4378,7 @@ static void HWR_AddSprites(sector_t *sec)
 				HWR_ProjectSprite(thing);
 
 			if (cv_objectplace.value
-			&& (!thing->flags2 & MF2_DONTDRAW))
+			&& (!(thing->flags2 & MF2_DONTDRAW)))
 				objectsdrawn++;
 
 			if (!thing->snext)
