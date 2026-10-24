@@ -923,6 +923,8 @@ void I_StartupMouse(void)
 //
 void I_OsPolling(void)
 {
+	SDL_Keymod mod;
+
 #ifndef __EMSCRIPTEN__
 	if (consolevent)
 		I_GetConsoleEvents();
@@ -937,6 +939,16 @@ void I_OsPolling(void)
 	I_GetMouseEvents();
 
 	I_GetEvent();
+
+	mod = SDL_GetModState();
+	/* Handle here so that our state is always synched with the system. */
+	shiftdown = ctrldown = altdown = 0;
+	if (mod & KMOD_LSHIFT) shiftdown |= 1;
+	if (mod & KMOD_RSHIFT) shiftdown |= 2;
+	if (mod & KMOD_LCTRL)   ctrldown |= 1;
+	if (mod & KMOD_RCTRL)   ctrldown |= 2;
+	if (mod & KMOD_LALT)     altdown |= 1;
+	if (mod & KMOD_RALT)     altdown |= 2;
 }
 
 //
