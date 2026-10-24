@@ -1,4 +1,4 @@
-#define SRB2VERSION "2.0.7"/* this must be the first line, for cmake !! */
+#define SRB2VERSION "2.0.8"/* this must be the first line, for cmake !! */
 
 // The Modification ID (1 = Official Build), must be obtained from Inuyasha
 // ( http://mb.srb2.org/private.php?do=newpm&u=2604 ).
