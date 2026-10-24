@@ -2989,7 +2989,7 @@ const char *I_LocateWad(void)
  * (example: MemTotal) */
 static long get_entry(const char* name, const char* buf)
 {
-	char* hit = strstr(buf, name);
+	gconst char* hit = strstr(buf, name);
 	if (hit == NULL) {
 		return -1;
 	}

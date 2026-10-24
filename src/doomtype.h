@@ -159,6 +159,19 @@ typedef long ssize_t;
 	#endif
 #endif //macintosh
 
+// glibc 2.43 made alot of standard lib functions propagate the constness of its input pointers
+// to not cause warnings or compile issues on older glibc versions we do this silly thing
+// to not have a gazillion glibc version checks
+#if defined(__GLIBC_PREREQ)
+#if __GLIBC_PREREQ(2, 43)
+	#define gconst const
+#else
+	#define gconst
+#endif
+#else
+	#define gconst
+#endif
+
 #if defined (PC_DOS) || defined (_WIN32) || defined (_WII) || defined (_PSP) || defined (_arch_dreamcast) || defined (__HAIKU__) || defined(_NDS)  || defined(_PS3) || defined(__EMSCRIPTEN__)
 #define HAVE_DOSSTR_FUNCS
 #endif
