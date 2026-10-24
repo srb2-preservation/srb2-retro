@@ -651,7 +651,7 @@ static void M_PNGText(png_structp png_ptr, png_infop png_info_ptr, PNG_CONST png
 	else
 		snprintf(maptext, 8, "Unknown");
 
-	if (gamestate == GS_LEVEL && mapheaderinfo[gamemap-1].lvlttl)
+	if (gamestate == GS_LEVEL && mapheaderinfo[gamemap-1].lvlttl[0] != '\0')
 		snprintf(lvlttltext, 48, "%s%s%s",
 			mapheaderinfo[gamemap-1].lvlttl,
 			(mapheaderinfo[gamemap-1].nozone) ? "" : " ZONE",
@@ -659,7 +659,7 @@ static void M_PNGText(png_structp png_ptr, png_infop png_info_ptr, PNG_CONST png
 	else
 		snprintf(lvlttltext, 48, "Unknown");
 
-	if (gamestate == GS_LEVEL && &players[displayplayer] && players[displayplayer].mo)
+	if (gamestate == GS_LEVEL && players[displayplayer].mo)
 		snprintf(locationtxt, 40, "X:%d Y:%d Z:%d A:%d",
 			players[displayplayer].mo->x>>FRACBITS,
 			players[displayplayer].mo->y>>FRACBITS,

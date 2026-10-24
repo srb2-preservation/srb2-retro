@@ -1139,7 +1139,7 @@ static int M_PatchRoomsTable(boolean hosting)
 
 	for (i = 0; room_list[i].header.buffer[0]; i++)
 	{
-		if(room_list[i].name != '\0')
+		if(room_list[i].name[0] != '\0')
 		{
 			rooms_cons_t[i].strvalue = room_list[i].name;
 			rooms_cons_t[i].value = room_list[i].id;
