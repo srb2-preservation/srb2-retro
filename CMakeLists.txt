@@ -1,6 +1,10 @@
 cmake_minimum_required(VERSION 3.13)
+
+file(STRINGS src/version.h SRB2_VERSION)
+string(REGEX MATCH "[0-9]+\\.[0-9.]+" SRB2_VERSION ${SRB2_VERSION})
+
 project(SRB2
-	VERSION 2.0.7
+	VERSION ${SRB2_VERSION}
 	LANGUAGES C)
 
 if(${PROJECT_SOURCE_DIR} MATCHES ${PROJECT_BINARY_DIR})

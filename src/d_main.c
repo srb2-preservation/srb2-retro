@@ -119,6 +119,10 @@ static INT32 pagetic = 0;
 static const char *pagename = "MAP1PIC";
 static char *startupwadfiles[MAX_WADFILES];
 
+// Version numbers for netplay :upside_down_face:
+int    VERSION;
+int SUBVERSION;
+
 boolean devparm = false; // started game with -devparm
 
 boolean singletics = false; // timedemo
@@ -979,6 +983,21 @@ static inline void D_InitCutsceneInfo(void)
 			cutscenes[i].scene[j].text = NULL;
 }
 
+static void
+D_ConvertVersionNumbers (void)
+{
+	/* leave at defaults (0) under DEVELOP */
+#ifndef DEVELOP
+	int major;
+	int minor;
+
+	sscanf(SRB2VERSION, "%d.%d.%d", &major, &minor, &SUBVERSION);
+
+	/* this is stupid */
+	VERSION = ( major * 100 ) + minor;
+#endif
+}
+
 //
 // D_SRB2Main
 //
@@ -990,6 +1009,9 @@ void D_SRB2Main(void)
 
 	INT32 pstartmap = 1;
 	boolean autostart = false;
+
+	/* break the version string into version numbers, for netplay */
+	D_ConvertVersionNumbers();
 
 	// keep error messages until the final flush(stderr)
 #if !defined (PC_DOS) && !defined (_WIN32_WCE) && !defined(NOTERMIOS)

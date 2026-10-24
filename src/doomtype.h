@@ -402,6 +402,10 @@ typedef UINT32 lumpnum_t; // 16 : 16 unsigned long (wad num: lump num)
 typedef UINT32 tic_t;
 #define INFTICS UINT32_MAX
 
+/* preprocessor dumb and needs second macro to expand input */
+#define WSTRING2(s) L ## s
+#define WSTRING(s) WSTRING2 (s)
+
 #include "endian.h" // This is needed to make sure the below macro acts correctly in big endian builds
 
 #ifdef SRB2_BIG_ENDIAN

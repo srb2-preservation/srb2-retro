@@ -57,6 +57,7 @@
 
 
 #include "doomtype.h"
+#include "version.h"
 
 #include <stdarg.h>
 #include <stdio.h>
@@ -97,30 +98,22 @@
 extern FILE *logstream;
 #endif
 
-// Define this as a prerelease version suffix
-#define BETAVERSION "Nightly"
-
 //#define DEVELOP // Disable this for release builds to remove excessive cheat commands and enable MD5 checking and stuff, all in one go. :3
 #ifdef DEVELOP
-#define VERSION    0 // Game version
-#define SUBVERSION 0 // more precise version number
 #define VERSIONSTRING "Development EXE"
-#define VERSIONSTRINGW L"Development EXE"
 // most interface strings are ignored in development mode.
 // we use comprevision and compbranch instead.
 #else
-#define VERSION    200 // Game version
-#define SUBVERSION 7   // more precise version number
 #ifdef BETAVERSION
-#define VERSIONSTRING "v2.0.7 "BETAVERSION
-#define VERSIONSTRINGW L"v2.0.7 "BETAVERSION
+#define VERSIONSTRING "v"SRB2VERSION" "BETAVERSION
 #else
-#define VERSIONSTRING "v2.0.7"
-#define VERSIONSTRINGW L"v2.0.7"
+#define VERSIONSTRING "v"SRB2VERSION
 #endif
-// Hey! If you change this, add 1 to the MODVERSION below!
+// Hey! If you change this, add 1 to the MODVERSION in version.h!
 // Otherwise we can't force updates!
 #endif
+
+#define VERSIONSTRINGW WSTRING (VERSIONSTRING)
 
 // HIGHLY IMPORTANT Modification Options, MUST be changed when creating a modification (or updating SRB2),
 // else a lot of errors will occur when trying to access the Master Server.
@@ -134,16 +127,6 @@ extern FILE *logstream;
 // (such as 2.0.4 to 2.0.5, etc) into your working copy.
 // Will always resemble the versionstring, 205 = 2.0.5, 210 = 2.1, etc.
 #define CODEBASE 207
-
-// The Modification ID (1 = Official Build), must be obtained from Inuyasha
-// ( http://mb.srb2.org/private.php?do=newpm&u=2604 ).
-// DO NOT try to set this otherwise, or your modification will be unplayable through the Master Server.
-#define MODID 1
-
-// The Modification Version, starting from 1. Do not follow your version string for this,
-// it's only for detection of the version the player is using so the MS can alert them of an update.
-// Only set it higher, not lower, obviously.
-#define MODVERSION 207
 
 // Comment out this line to completely disable update alerts (recommended for testing, but not for release)
 #define UPDATE_ALERT
@@ -224,6 +207,8 @@ char *sizeu5(size_t num);
 char *va(const char *format, ...) FUNCPRINTF;
 
 // d_main.c
+extern int    VERSION;
+extern int SUBVERSION;
 extern boolean devparm; // development mode (-debug)
 
 // =======================

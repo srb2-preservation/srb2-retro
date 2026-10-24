@@ -837,7 +837,11 @@ void CL_UpdateServerList(boolean internetsearch, INT32 room)
 		if (server_list)
 		{
 			char version[8] = "";
+#ifndef DEVELOP
+			strcpy(version, SRB2VERSION);
+#else
 			snprintf(version, sizeof (version), "%d.%d.%d", VERSION/100, VERSION%100, SUBVERSION);
+#endif
 			version[sizeof (version) - 1] = '\0';
 
 			for (i = 0; server_list[i].header.buffer[0]; i++)
