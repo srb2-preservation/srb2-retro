@@ -96,7 +96,7 @@ static filetran_t transfer[MAXNETNODES];
 // receiver structure
 INT32 fileneedednum;
 fileneeded_t fileneeded[MAX_WADFILES];
-char downloaddir[256] = "DOWNLOAD";
+char downloaddir[512] = "DOWNLOAD";
 
 /** Fills a serverinfo packet with information about wad files loaded.
   *

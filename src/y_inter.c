@@ -96,7 +96,7 @@ typedef union
 		patch_t *blueflag;
 		patch_t *redflag; // int_ctf uses this struct too.
 		INT32 numplayers; // Number of players being displayed
-		char levelstring[40]; // holds levelnames up to 32 characters
+		char levelstring[41]; // holds levelnames up to 32 characters, plus " * 255 *"
 	} match;
 
 	struct
@@ -114,7 +114,7 @@ typedef union
 		const char *winnerstrings[5]; // string for winner in each category
 		INT32 winner; // the overall winner's player number
 		patch_t *result; // RESULT
-		char levelstring[40]; // holds levelnames up to 32 characters
+		char levelstring[41]; // holds levelnames up to 32 characters, plus " * 255 *"
 	} race;
 
 } y_data;
@@ -1756,7 +1756,7 @@ static void Y_FollowIntermission(void)
 {
 	if (timeattacking)
 	{
-		char nameofdemo[256];
+		char nameofdemo[512];
 		snprintf(nameofdemo, sizeof nameofdemo,
 			"%s"PATHSEP"replay"PATHSEP"%s"PATHSEP"%s-%02d.lmp",
 			srb2home, timeattackfolder, G_BuildMapName(gamemap),

@@ -54,7 +54,7 @@ typedef struct
 
 extern INT32 fileneedednum;
 extern fileneeded_t fileneeded[MAX_WADFILES];
-extern char downloaddir[256];
+extern char downloaddir[512];
 
 UINT8 *PutFileNeeded(void);
 void D_ParseFileneeded(INT32 fileneedednum_parm, UINT8 *fileneededstr);
