@@ -4294,7 +4294,8 @@ void A_MixUp(void *thing)
 
 		for (i = 0; i < MAXPLAYERS; i++)
 		{
-			position[i][0] = position[i][1] = position[i][2] = anglepos[i] = -1;
+			position[i][0] = position[i][1] = position[i][2] = -1;
+			anglepos[i] = (angle_t)-1;
 			teleported[i] = false;
 		}
 

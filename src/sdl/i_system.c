@@ -2983,7 +2983,6 @@ const char *I_LocateWad(void)
 #define CACHED "Cached:"
 #define BUFFERS "Buffers:"
 #define SHMEM "Shmem:"
-#endif
 
 /* Parse the contents of /proc/meminfo (in buf), return value of "name"
  * (example: MemTotal) */
@@ -3003,6 +3002,7 @@ static long get_entry(const char* name, const char* buf)
 	}
 	return val;
 }
+#endif
 
 size_t I_GetFreeMem(size_t *total)
 {

@@ -4486,7 +4486,7 @@ static void HWR_ProjectSprite(mobj_t *thing)
 		         thing->sprite, thing->frame, sprnames[thing->sprite]);
 #else
 	{
-		CONS_Printf("Warning: Mobj of type %d with invalid sprite frame (%u/%ld) of %s detected and removed.\n", thing->type, rot, sprdef->numframes, sprnames[thing->sprite]);
+		CONS_Printf("Warning: Mobj of type %d with invalid sprite frame (%u/%s) of %s detected and removed.\n", thing->type, rot, sizeu1(sprdef->numframes), sprnames[thing->sprite]);
 		if (thing->player)
 			P_SetPlayerMobjState(thing, S_PLAY_STND);
 		else

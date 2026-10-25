@@ -412,9 +412,11 @@ static void SV_SendServerInfo(INT32 node, tic_t servertime)
 	M_Memcpy(netbuffer->u.serverinfo.mapmd5, mapmd5, 16);
 
 	if (strcmp(mapheaderinfo[gamemap-1].lvlttl, ""))
-		strncpy(netbuffer->u.serverinfo.maptitle, (char *)mapheaderinfo[gamemap-1].lvlttl, 33);
+		strncpy(netbuffer->u.serverinfo.maptitle, (char *)mapheaderinfo[gamemap-1].lvlttl,
+			sizeof(netbuffer->u.serverinfo.maptitle)-1);
 	else
-		strncpy(netbuffer->u.serverinfo.maptitle, "UNKNOWN", 33);
+		strncpy(netbuffer->u.serverinfo.maptitle, "UNKNOWN",
+			sizeof(netbuffer->u.serverinfo.maptitle)-1);
 
 	netbuffer->u.serverinfo.maptitle[32] = '\0';
 
@@ -444,7 +446,7 @@ static void SV_SendPlayerInfo(INT32 node)
 		}
 
 		netbuffer->u.playerinfo[i].node = (UINT8)playernode[i];
-		strncpy(netbuffer->u.playerinfo[i].name, (const char *)&player_names[i], MAXPLAYERNAME+1);
+		strncpy(netbuffer->u.playerinfo[i].name, player_names[i], MAXPLAYERNAME);
 		netbuffer->u.playerinfo[i].name[MAXPLAYERNAME] = '\0';
 
 		//fetch IP address
