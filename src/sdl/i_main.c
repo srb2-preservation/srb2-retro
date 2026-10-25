@@ -132,7 +132,9 @@ static inline VOID MakeCodeWritable(VOID)
 
 	\return	int
 */
+#ifndef __EMSCRIPTEN__ // D_SRB2Loop returns to the browser here
 FUNCNORETURN
+#endif
 #if defined (_XBOX) && defined (__GNUC__)
 void XBoxStartup()
 {

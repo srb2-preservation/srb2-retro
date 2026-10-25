@@ -2662,7 +2662,7 @@ sector_t *P_PlayerTouchingSectorSpecial(player_t *player, INT32 section, INT32 n
 	ffloor_t *rover;
 
 	if (!player->mo)
-		return false;
+		return NULL;
 
 	// Check default case first
 	if (GETSECSPECIAL(player->mo->subsector->sector->special, section) == number)
@@ -4339,7 +4339,7 @@ static ffloor_t *P_AddFakeFloor(sector_t *sec, sector_t *sec2, line_t *master, f
 	levelspecthink_t *lst;
 
 	if (sec == sec2)
-		return false; //Don't need a fake floor on a control sector.
+		return NULL; //Don't need a fake floor on a control sector.
 
 	if (sec2->ceilingheight < sec2->floorheight)
 		I_Error("One of your FOFs with a tag of %d has a top height less than that of the bottom.\n", master->tag);
