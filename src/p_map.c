@@ -2185,10 +2185,10 @@ isblocking:
 				climbline += ANGLE_180;
 
 			if (((!slidemo->player->climbing
-				&& abs(slidemo->angle - ANGLE_90 - climbline) < ANGLE_45) ||
+				&& abs((signed)(slidemo->angle - ANGLE_90 - climbline)) < ANGLE_45) ||
 
 				(slidemo->player->climbing == 1
-				&& abs(slidemo->angle - climbline) < ANGLE_135))
+				&& abs((signed)(slidemo->angle - climbline)) < ANGLE_135))
 
 				&& P_IsClimbingValid(slidemo->player, climbangle =
 				R_PointToAngle2(li->v1->x, li->v1->y, li->v2->x, li->v2->y)

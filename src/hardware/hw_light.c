@@ -798,7 +798,7 @@ void HWR_PlaneLighting(FOutVector *clVerts, int nrClipVerts)
 		if (!dynlights->mo[j]->state)
 			return;
 		// next state is null so fade out with alpha
-		if ((dynlights->mo[j]->state->nextstate == S_NULL))
+		if (dynlights->mo[j]->state->nextstate == S_NULL)
 			Surf.FlatColor.s.alpha = (unsigned char)(((float)dynlights->mo[j]->tics/(float)dynlights->mo[j]->state->tics)*Surf.FlatColor.s.alpha);
 
 		HWD.pfnDrawPolygon (&Surf, clVerts, nrClipVerts, LIGHTMAPFLAGS);
@@ -1091,7 +1091,6 @@ static void HWR_SetLight(void)
 // is this really necessary?
 static sector_t *lgr_backsector;
 static seg_t *lgr_curline;
-#endif
 
 // p1 et p2 c'est le deux bou du seg en float
 static inline void HWR_BuildWallLightmaps(FVector *p1, FVector *p2, int lighnum, seg_t *line)
@@ -1114,7 +1113,6 @@ static inline void HWR_BuildWallLightmaps(FVector *p1, FVector *p2, int lighnum,
 	// (...) encore des b�calcul bien lourd et on stock tout sa dans la lightmap
 }
 
-#ifdef STATICLIGHT
 static void HWR_AddLightMapForLine(int lightnum, seg_t *line)
 {
 	/*

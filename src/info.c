@@ -2300,7 +2300,7 @@ mobjinfo_t mobjinfo[NUMMOBJTYPES] =
 		MT_THOK,        // damage
 		sfx_None,       // activesound
 		MF_SOLID|MF_SHOOTABLE, // flags
-		MT_THOK         // raisestate
+		(statenum_t)MT_THOK // raisestate
 	},
 
 	{           // MT_BLUECRAWLA
@@ -2462,7 +2462,7 @@ mobjinfo_t mobjinfo[NUMMOBJTYPES] =
 		0,              // damage
 		0,              // activesound
 		MF_SLIDEME|MF_ENEMY|MF_SPECIAL|MF_SHOOTABLE|MF_NOGRAVITY, // flags
-		MT_MINE         // raisestate
+		(statenum_t)MT_MINE // raisestate
 	},
 
 	{           // MT_JETTGUNNER
@@ -2489,7 +2489,7 @@ mobjinfo_t mobjinfo[NUMMOBJTYPES] =
 		0,              // damage
 		0,              // activesound
 		MF_SLIDEME|MF_ENEMY|MF_SPECIAL|MF_SHOOTABLE|MF_NOGRAVITY, // flags
-		MT_JETTBULLET   // raisestate
+		(statenum_t)MT_JETTBULLET // raisestate
 	},
 
 	{           // MT_CRAWLACOMMANDER
@@ -2570,7 +2570,7 @@ mobjinfo_t mobjinfo[NUMMOBJTYPES] =
 		0,              // damage
 		sfx_None,       // activesound
 		MF_ENEMY|MF_SPECIAL|MF_NOGRAVITY|MF_SHOOTABLE, // flags
-		MT_MINE         // raisestate
+		(statenum_t)MT_MINE // raisestate
 	},
 
 	{           // MT_TURRET
@@ -2624,7 +2624,7 @@ mobjinfo_t mobjinfo[NUMMOBJTYPES] =
 		0,              // damage
 		sfx_None,       // activesound
 		MF_ENEMY|MF_SPECIAL|MF_SHOOTABLE, // flags
-		MT_JETTBULLET   // raisestate
+		(statenum_t)MT_JETTBULLET // raisestate
 	},
 
 	{           // MT_SHARP

@@ -49,7 +49,7 @@ static void Add_Pusher(pushertype_e type, fixed_t x_mag, fixed_t y_mag, mobj_t *
 static void Add_MasterDisappearer(tic_t appeartime, tic_t disappeartime, tic_t offset, INT32 line, INT32 sourceline);
 static void P_AddBlockThinker(sector_t *sec, line_t *sourceline);
 static void P_AddFloatThinker(sector_t *sec, INT32 tag, line_t *sourceline);
-static void P_AddBridgeThinker(line_t *sourceline, sector_t *sec);
+//static void P_AddBridgeThinker(line_t *sourceline, sector_t *sec);
 static void P_AddFakeFloorsByLine(size_t line, ffloortype_e ffloorflags);
 static void P_ProcessLineSpecial(line_t *line, mobj_t *mo);
 static void Add_Friction(INT32 friction, INT32 movefactor, INT32 affectee, INT32 referrer);
@@ -359,6 +359,7 @@ void P_SetupLevelFlatAnims(void)
 // UTILITIES
 //
 
+#if 0 // only used by the disabled code below
 /** Gets a side from a sector line.
   *
   * \param currentSector Sector the line is in.
@@ -398,6 +399,7 @@ static inline boolean twoSided(INT32 sector, INT32 line)
 {
 	return (sectors[sector].lines[line])->sidenum[1] != 0xffff;
 }
+#endif
 
 /** Finds sector next to current.
   *
@@ -4521,6 +4523,7 @@ static void P_AddFloatThinker(sector_t *sec, INT32 tag, line_t *sourceline)
 	floater->sourceline = sourceline;
 }
 
+#if 0 // disabled along with linedef 65 in P_SpawnSpecials
 /** Adds a bridge thinker.
   * Bridge thinkers cause a group of FOFs to behave like
   * a bridge made up of pieces, that bows under weight.
@@ -4551,6 +4554,7 @@ static inline void P_AddBridgeThinker(line_t *sourceline, sector_t *sec)
 	bridge->vars[4] = sourceline->tag; // Start tag
 	bridge->vars[5] = (sides[sourceline->sidenum[0]].textureoffset>>FRACBITS); // End tag
 }
+#endif
 
 /** Adds a Mario block thinker, which changes the block's texture between blank
   * and ? depending on whether it has contents.

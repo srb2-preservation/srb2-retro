@@ -229,29 +229,6 @@ static AMDRAWFLINEFUNC AM_drawFline;
 
 static void AM_drawFline_soft(const fline_t *fl, INT32 color);
 
-/** Calculates the slope and slope according to the x-axis of a line
-  * segment in map coordinates (with the upright y-axis and all) so
-  * that it can be used with the braindead drawing stuff.
-  *
-  * \param ml The line segment.
-  * \param is Holds the result.
-  */
-static inline void AM_getIslope(const mline_t *ml, islope_t *is)
-{
-	INT32 dx, dy;
-
-	dy = ml->a.y - ml->b.y;
-	dx = ml->b.x - ml->a.x;
-	if (!dy)
-		is->islp = (dx < 0 ? -INT32_MAX : INT32_MAX);
-	else
-		is->islp = FixedDiv(dx, dy);
-	if (!dx)
-		is->slp = (dy < 0 ? -INT32_MAX : INT32_MAX);
-	else
-		is->slp = FixedDiv(dy, dx);
-}
-
 static void AM_activateNewScale(void)
 {
 	m_x += m_w/2;

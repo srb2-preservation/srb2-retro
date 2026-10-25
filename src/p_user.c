@@ -1837,7 +1837,7 @@ static void P_DoSpinDash(player_t *player, ticcmd_t *cmd)
 				if (player->spinitem > 0)
 					item = P_SpawnSpinMobj(player, player->spinitem);
 				else
-					item = P_SpawnSpinMobj(player, player->mo->info->raisestate);
+					item = P_SpawnSpinMobj(player, (mobjtype_t)player->mo->info->raisestate);
 
 				if (item && (player->charflags & SF_GHOSTSPINITEM))
 				{

@@ -1008,17 +1008,6 @@ static inline boolean I_SkipFrame(void)
 	}
 }
 
-static inline SDL_bool SDLmatchVideoformat(void)
-{
-	const SDL_PixelFormat *vidformat = vidSurface->format;
-	const INT32 vfBPP = vidformat?vidformat->BitsPerPixel:0;
-	return (((vfBPP == 8 && vid.bpp == 1 &&
-	 !vidformat->Rmask && !vidformat->Gmask && !vidformat->Bmask) ||
-	 (vfBPP == 15 && vid.bpp == 2 && vidformat->Rmask == 0x7C00 &&
-	 vidformat->Gmask == 0x03E0 && vidformat->Bmask == 0x001F )) &&
-	 !vidformat->Amask && (vidSurface->flags & SDL_RLEACCEL) == 0);
-}
-
 //
 // I_FinishUpdate
 //

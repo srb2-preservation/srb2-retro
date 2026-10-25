@@ -2764,7 +2764,7 @@ void A_DropMine(void *thing)
 	}
 
 	// Use raisestate instead of MT_MINE
-	P_SpawnMobj(actor->x, actor->y, actor->z - 12*FRACUNIT + (locvar1*FRACUNIT), actor->info->raisestate)
+	P_SpawnMobj(actor->x, actor->y, actor->z - 12*FRACUNIT + (locvar1*FRACUNIT), (mobjtype_t)actor->info->raisestate)
 		->momz = actor->momz + actor->pmomz;
 
 	S_StartSound(actor, actor->info->attacksound);
@@ -3198,7 +3198,7 @@ void A_JetbThink(void *thing)
 				S_StartAttackSound(actor, actor->info->attacksound);
 
 			// use raisestate instead of MT_MINE
-			P_SetTarget(&P_SpawnMobj(actor->x, actor->y, actor->z - (32<<FRACBITS), actor->info->raisestate)->target, actor);
+			P_SetTarget(&P_SpawnMobj(actor->x, actor->y, actor->z - (32<<FRACBITS), (mobjtype_t)actor->info->raisestate)->target, actor);
 			actor->reactiontime = TICRATE; // one second
 			S_StartSound(actor, actor->info->attacksound);
 		}
@@ -3252,7 +3252,7 @@ void A_JetgShoot(void *thing)
 		return;
 
 	A_FaceTarget(actor);
-	P_SpawnMissile(actor, actor->target, actor->info->raisestate);
+	P_SpawnMissile(actor, actor->target, (mobjtype_t)actor->info->raisestate);
 
 	if (ultimatemode)
 		actor->reactiontime = actor->info->reactiontime*TICRATE;
@@ -3284,7 +3284,7 @@ void A_ShootBullet(void *thing)
 		return;
 
 	A_FaceTarget(actor);
-	P_SpawnMissile(actor, actor->target, actor->info->raisestate);
+	P_SpawnMissile(actor, actor->target, (mobjtype_t)actor->info->raisestate);
 
 	if (actor->info->attacksound)
 		S_StartSound(actor, actor->info->attacksound);

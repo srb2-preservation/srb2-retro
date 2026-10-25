@@ -4691,8 +4691,8 @@ static void HWR_DrawSkyBackground(player_t *player)
 
 	dimensionmultiply = ((float)textures[skytexture]->width/256.0f);
 
-	v[0].sow = v[3].sow = ((float) angle / ((ANGLE_90-1)*dimensionmultiply));
-	v[2].sow = v[1].sow = (-1.0f/dimensionmultiply)+((float) angle / ((ANGLE_90-1)*dimensionmultiply));
+	v[0].sow = v[3].sow = ((float) angle / (((float)ANGLE_90-1.0f)*dimensionmultiply));
+	v[2].sow = v[1].sow = (-1.0f/dimensionmultiply)+((float) angle / (((float)ANGLE_90-1.0f)*dimensionmultiply));
 
 	// Y
 	angle = aimingangle;
