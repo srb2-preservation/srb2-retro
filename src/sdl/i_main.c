@@ -247,7 +247,7 @@ int main(int argc, char **argv)
 #endif
 
 	// return to OS
-#ifndef __GNUC__
+#if !defined (__GNUC__) || defined (__EMSCRIPTEN__)
 	return 0;
 #endif
 }

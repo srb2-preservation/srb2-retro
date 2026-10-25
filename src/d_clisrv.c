@@ -446,7 +446,7 @@ static void SV_SendPlayerInfo(INT32 node)
 		}
 
 		netbuffer->u.playerinfo[i].node = (UINT8)playernode[i];
-		strncpy(netbuffer->u.playerinfo[i].name, player_names[i], MAXPLAYERNAME);
+		memcpy(netbuffer->u.playerinfo[i].name, player_names[i], sizeof(player_names[i]));
 		netbuffer->u.playerinfo[i].name[MAXPLAYERNAME] = '\0';
 
 		//fetch IP address
